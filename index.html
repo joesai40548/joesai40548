@@ -172,6 +172,18 @@
                 <p class="text-purple-300 text-sm">AI Assistant</p>
               </div>
             </div>
+            
+            <!-- Mode Selector -->
+            <div class="flex items-center space-x-2">
+              <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-purple-500">
+                <option value="chat" class="bg-gray-800">💬 Chat Mode</option>
+                <option value="code" class="bg-gray-800">💻 Code Mode</option>
+                <option value="explain" class="bg-gray-800">📖 Explain Code</option>
+                <option value="review" class="bg-gray-800">🔍 Code Review</option>
+                <option value="debug" class="bg-gray-800">🐛 Debug Mode</option>
+              </select>
+            </div>
+            
             <button id="clear-chat-btn" class="text-white/60 hover:text-white text-sm flex items-center space-x-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -183,8 +195,8 @@
           <!-- Messages Container -->
           <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
             <!-- Scroll to Bottom Button -->
-            <button id="scroll-to-bottom-btn" class="absolute bottom-4 right-4 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-full shadow-lg hidden" title="Scroll to bottom">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="scroll-to-bottom-btn" class="absolute bottom-4 right-4 bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg" title="Scroll to bottom">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
               </svg>
             </button>
@@ -206,10 +218,16 @@
           <!-- Input Area -->
           <div class="p-4 border-t border-white/10">
             <div class="flex items-end space-x-2">
+              <!-- Attachment Button -->
+              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all" title="Attach file or URL">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+              </button>
               <div class="flex-1 relative">
                 <textarea 
                   id="message-input" 
-                  placeholder="Type your message..." 
+                  placeholder="Type your message or paste a URL (Drive, NotebookLM, Web)..." 
                   rows="1"
                   class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-purple-500 resize-none"
                 ></textarea>
@@ -220,6 +238,8 @@
                 </svg>
               </button>
             </div>
+            <!-- Hidden file input for local uploads -->
+            <input type="file" id="file-input" class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xlsx,.png,.jpg,.jpeg,.gif">
           </div>
         </div>
       </div>
@@ -523,7 +543,52 @@
       soundNotifications: false,
       creativity: 0.7,
       maxTokens: 1000,
-      darkMode: true
+      darkMode: true,
+      chatMode: 'chat'
+    };
+    
+    // AI Mode Contexts
+    const AI_MODES = {
+      chat: `You are JoeSai, a friendly and helpful AI assistant. You can discuss a wide range of topics including technology, science, entertainment, news, and everyday conversations. Be conversational, friendly, and engaging. Respond in a clear, friendly manner.`,
+      
+      code: `You are JoeSai in Code Mode. You are an expert programmer with deep knowledge of:
+- JavaScript, TypeScript, Python, Java, C++, Go, Rust
+- React, Vue, Angular, Node.js, Django, Flask
+- SQL, MongoDB, Firebase
+- Git, Docker, AWS, GCP, Azure
+
+When providing code:
+- Use proper syntax highlighting with markdown code blocks
+- Include comments explaining each part
+- Provide complete, working examples
+- Explain the logic step by step
+- Suggest best practices and optimizations`,
+      
+      explain: `You are JoeSai in Explain Code Mode. Your job is to explain code in simple, easy-to-understand terms. Break down complex code into understandable pieces. For each section, explain:
+- What the code does
+- Why it's written that way
+- How it fits with the rest of the code
+- Any important concepts to understand
+
+Use simple language and analogies where helpful.`,
+      
+      review: `You are JoeSai in Code Review Mode. You analyze code for:
+- Bugs and security vulnerabilities
+- Code quality and readability
+- Performance issues
+- Best practices violations
+- Potential improvements
+
+Provide a detailed review with specific suggestions. Rate code from 1-10 and explain your rating.`,
+      
+      debug: `You are JoeSai in Debug Mode. You help find and fix bugs in code. When analyzing code:
+- Identify the exact problem
+- Explain what's causing it
+- Provide a fix with code
+- Suggest preventive measures
+- Test your solution
+
+Be methodical and thorough in your debugging approach.`
     };
 
     // AI System Prompt
@@ -571,6 +636,24 @@
           sendMessage();
         }
       });
+      
+      // Attachment button - opens file picker
+      const attachmentBtn = document.getElementById('attachment-btn');
+      const fileInput = document.getElementById('file-input');
+      
+      if (attachmentBtn && fileInput) {
+        attachmentBtn.addEventListener('click', () => {
+          fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            await handleFileUpload(file);
+            fileInput.value = ''; // Reset input
+          }
+        });
+      }
 
       // Auth buttons
       const loginBtn = document.getElementById('login-btn');
@@ -599,6 +682,23 @@
       document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
       document.getElementById('clear-chat-btn').addEventListener('click', clearChat);
       
+      // Chat mode selector
+      const chatModeSelect = document.getElementById('chat-mode-select');
+      if (chatModeSelect) {
+        chatModeSelect.addEventListener('change', (e) => {
+          settings.chatMode = e.target.value;
+          saveSettings();
+          const modeNames = {
+            chat: '💬 Chat Mode',
+            code: '💻 Code Mode',
+            explain: '📖 Explain Code',
+            review: '🔍 Code Review',
+            debug: '🐛 Debug Mode'
+          };
+          addMessageToUI('system', `Switched to ${modeNames[settings.chatMode]}. How can I help you?`);
+        });
+      }
+
       // Upgrade button
       document.getElementById('upgrade-btn').addEventListener('click', openUpgradeModal);
       document.getElementById('upgrade-form').addEventListener('submit', handleUpgradeSubmit);
@@ -606,21 +706,11 @@
       // Admin dashboard button
       document.getElementById('admin-dashboard-btn').addEventListener('click', openAdminModal);
       
-      // Scroll to bottom button
+      // Scroll to bottom button (always visible)
       const scrollToBottomBtn = document.getElementById('scroll-to-bottom-btn');
       if (scrollToBottomBtn) {
         scrollToBottomBtn.addEventListener('click', () => {
           chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-        });
-        
-        // Show/hide scroll button based on scroll position
-        chatMessages.addEventListener('scroll', () => {
-          const isAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 100;
-          if (isAtBottom) {
-            scrollToBottomBtn.classList.add('hidden');
-          } else {
-            scrollToBottomBtn.classList.remove('hidden');
-          }
         });
       }
       
@@ -712,6 +802,9 @@
         if (adminBtn) adminBtn.classList.add('hidden');
         if (upgradeBtn) upgradeBtn.classList.remove('hidden');
       }
+      
+      // Check for notifications
+      checkUserNotifications(user.uid);
     }
 
     function updateUIForGuest() {
@@ -976,6 +1069,65 @@
       }
     }
 
+    // Notification Functions
+    async function checkUserNotifications(userId) {
+      if (!db) return;
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          
+          // Check if user has unread notifications
+          if (userData.notification) {
+            showNotification(userData.notification);
+            
+            // Clear the notification after showing
+            await updateDoc(doc(db, 'users', userId), {
+              notification: null
+            });
+          }
+          
+          // Check if user was upgraded
+          if (userData.isPremium && userData.premiumApprovedAt) {
+            const approvalDate = userData.premiumApprovedAt.toDate ? userData.premiumApprovedAt.toDate() : new Date(userData.premiumApprovedAt.seconds * 1000);
+            const now = new Date();
+            const daysSince = Math.floor((now - approvalDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysSince < 7) {
+              showNotification({
+                type: 'success',
+                title: '🎉 Premium Activated!',
+                message: 'Your account has been upgraded to Premium. Enjoy unlimited access!'
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking notifications:', error);
+      }
+    }
+
+    function showNotification(notification) {
+      // Create notification element
+      const notificationDiv = document.createElement('div');
+      notificationDiv.className = 'fixed top-20 right-4 z-50 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl shadow-lg max-w-sm message-enter';
+      notificationDiv.innerHTML = `
+        <div class="flex items-start justify-between">
+          <div class="font-bold">${notification.title}</div>
+          <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white ml-4">✕</button>
+        </div>
+        <p class="text-white/80 text-sm mt-2">${notification.message}</p>
+      `;
+      
+      document.body.appendChild(notificationDiv);
+      
+      // Auto-remove after 10 seconds
+      setTimeout(() => {
+        notificationDiv.remove();
+      }, 10000);
+    }
+
     // Update admin UI elements
     function updateAdminUI(isAdmin) {
       const upgradeBtn = document.getElementById('upgrade-btn');
@@ -1083,6 +1235,59 @@
       }
     }
 
+    // File Upload Handler
+    async function handleFileUpload(file) {
+      try {
+        // Read file content
+        const reader = new FileReader();
+        
+        reader.onload = async (e) => {
+          const fileContent = e.target.result;
+          let messageText = '';
+          
+          // If it's a text file, put content in input box
+          if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+            messageText = `📄 **File: ${file.name}**\n\n${fileContent}`;
+          } else if (file.type.startsWith('image/')) {
+            messageText = `🖼️ **Image: ${file.name}**\n[data:image...]`;
+          } else {
+            // For other files, show info in input box
+            messageText = `📎 **File: ${file.name}**\nType: ${file.type || 'Unknown'}\nSize: ${formatFileSize(file.size)}`;
+          }
+          
+          // Put content in message input box
+          messageInput.value = messageText;
+          messageInput.focus();
+        };
+        
+        reader.onerror = () => {
+          messageInput.value = `❌ Error reading file: ${file.name}`;
+          messageInput.focus();
+        };
+        
+        // Read file as data URL for images, text for others
+        if (file.type.startsWith('image/')) {
+          reader.readAsDataURL(file);
+        } else {
+          reader.readAsText(file);
+        }
+        
+      } catch (error) {
+        console.error('File upload error:', error);
+        messageInput.value = `❌ Error uploading file: ${error.message}`;
+        messageInput.focus();
+      }
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
     function addMessageToHistory(role, content) {
       chatHistory.push({ role, content, timestamp: Date.now() });
       saveChatHistory();
@@ -1131,6 +1336,15 @@
             ${escapeHtml(content)}
           </div>
         `;
+      } else if (role === 'system') {
+        // System messages (mode changes, notifications)
+        messageDiv.innerHTML = `
+          <div class="flex justify-center py-2">
+            <div class="bg-purple-600/30 border border-purple-500/50 text-purple-200 rounded-xl py-2 px-4 text-sm">
+              ${escapeHtml(content)}
+            </div>
+          </div>
+        `;
       } else {
         messageDiv.innerHTML = `
           <div class="flex items-start space-x-2">
@@ -1166,9 +1380,31 @@
       const message = messageInput.value.trim();
       if (!message) return;
       
+      // Detect URLs in message
+      const urlPattern = /(https?:\/\/[^\s]+)/g;
+      const urls = message.match(urlPattern);
+      
+      // Add URL info to message if found
+      let processedMessage = message;
+      if (urls) {
+        for (const url of urls) {
+          let urlType = '🌐 Web';
+          if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+            urlType = '📁 Google Drive';
+          } else if (url.includes('notebooklm')) {
+            urlType = '📓 NotebookLM';
+          } else if (url.includes('dropbox.com')) {
+            urlType = '📦 Dropbox';
+          } else if (url.includes('onedrive.com')) {
+            urlType = '☁️ OneDrive';
+          }
+          processedMessage = message.replace(url, `\n[${urlType} Link: ${url}]\n`);
+        }
+      }
+      
       messageInput.value = '';
-      addMessageToUI('user', message);
-      addMessageToHistory('user', message);
+      addMessageToUI('user', processedMessage);
+      addMessageToHistory('user', processedMessage);
       
       // Show typing indicator
       if (settings.showTyping) {
@@ -1186,7 +1422,7 @@
           body: JSON.stringify({
             model: 'llama-3.1-8b-instant',
             messages: [
-              { role: 'system', content: AI_CONTEXT },
+              { role: 'system', content: AI_MODES[settings.chatMode] || AI_MODES.chat },
               ...chatHistory.slice(-10).map(msg => ({ role: msg.role, content: msg.content })),
               { role: 'user', content: message }
             ],
@@ -1507,7 +1743,12 @@
         if (requestData && requestData.userId) {
           await updateDoc(doc(db, 'users', requestData.userId), {
             isPremium: true,
-            premiumApprovedAt: new Date()
+            premiumApprovedAt: new Date(),
+            notification: {
+              type: 'success',
+              title: '🎉 Premium Activated!',
+              message: 'Your upgrade request has been approved. Enjoy Premium features!'
+            }
           });
         }
         
@@ -1521,11 +1762,26 @@
 
     window.rejectRequest = async function(requestId) {
       try {
+        // Get the request first
+        const requestDoc = await getDoc(doc(db, 'upgrade_requests', requestId));
+        const requestData = requestDoc.data();
+        
         await updateDoc(doc(db, 'upgrade_requests', requestId), {
           status: 'rejected',
           processedAt: new Date(),
           processedBy: currentUser.email
         });
+        
+        // Send notification to user
+        if (requestData && requestData.userId) {
+          await updateDoc(doc(db, 'users', requestData.userId), {
+            notification: {
+              type: 'info',
+              title: '📋 Request Update',
+              message: 'Your upgrade request was not approved. Please contact support for more info.'
+            }
+          });
+        }
         
         alert('Request rejected');
         loadAdminRequests('pending');
@@ -1767,5 +2023,32 @@
     </div>
 
   </div>
+  
+  <!-- Footer -->
+  <footer class="bg-gray-900/80 backdrop-blur-md border-t border-white/10 py-4 mt-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <span class="text-white font-semibold">AkramJo's Technologies</span>
+        </div>
+        <div class="text-gray-400 text-sm">
+          © 2026 JoeSai AI Assistant. All rights reserved.
+        </div>
+        <div class="flex items-center space-x-4 text-sm">
+          <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Privacy</a>
+          <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Terms</a>
+          <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Support</a>
+        </div>
+      </div>
+      <div class="text-center text-gray-500 text-xs mt-2">
+        Powered by Groq API • Built with Firebase
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
