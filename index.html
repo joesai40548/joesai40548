@@ -36,6 +36,38 @@
     .chat-gradient {
       background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
     }
+    /* Light theme styles */
+    body.light .gradient-bg {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    }
+    body.light .chat-gradient {
+      background: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+    }
+    body.light .chat-gradient .text-white {
+      color: #1f2937 !important;
+    }
+    body.light .chat-gradient .text-purple-300 {
+      color: #6b7280 !important;
+    }
+    body.light .chat-gradient .text-white\/60 {
+      color: #4b5563 !important;
+    }
+    body.light .message-user {
+      background: #3b82f6 !important;
+      color: white !important;
+    }
+    body.light .message-ai {
+      background: #f3f4f6 !important;
+      color: #1f2937 !important;
+    }
+    body.light #message-input {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #1f2937 !important;
+      border-color: #d1d5db !important;
+    }
+    body.light #message-input::placeholder {
+      color: #9ca3af !important;
+    }
     .glass-effect {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
@@ -149,7 +181,13 @@
           </div>
           
           <!-- Messages Container -->
-          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
+            <!-- Scroll to Bottom Button -->
+            <button id="scroll-to-bottom-btn" class="absolute bottom-4 right-4 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-full shadow-lg hidden" title="Scroll to bottom">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+              </svg>
+            </button>
             <!-- Welcome Message -->
             <div class="flex justify-center py-8">
               <div class="text-center">
@@ -341,6 +379,19 @@
             </div>
           </div>
           
+          <!-- Appearance Settings -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-white mb-3">Appearance</h3>
+            <div class="space-y-3">
+              <label class="flex items-center justify-between bg-gray-800 rounded-xl p-4 cursor-pointer">
+                <span class="text-gray-300">Dark Mode</span>
+                <button id="theme-toggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-purple-600 transition-colors">
+                  <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+                </button>
+              </label>
+            </div>
+          </div>
+          
           <!-- Chat Settings -->
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-white mb-3">Chat Settings</h3>
@@ -419,6 +470,7 @@
   </div>
 
   <!-- Firebase SDK -->
+  <script src="config.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -448,13 +500,13 @@
       alert('Error initializing the app. Please refresh the page and try again.');
     }
 
-    // Groq API Config - Use Vite environment variable
-    const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+    // Groq API Config - Load from config.js
+    const GROQ_API_KEY = window.GROQ_API_KEY || '';
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
     
     // Validate API key is configured
     if (!GROQ_API_KEY) {
-      console.warn('Groq API key not configured. Please set VITE_GROQ_API_KEY in your .env file.');
+      console.warn('Groq API key not configured. Please add your API key to config.js');
     }
     
     // Check if Firebase initialized properly
@@ -470,11 +522,12 @@
       showTyping: true,
       soundNotifications: false,
       creativity: 0.7,
-      maxTokens: 1000
+      maxTokens: 1000,
+      darkMode: true
     };
 
     // AI System Prompt
-    const AI_CONTEXT = `You are JoeSai, an expert AI assistant with extensive knowledge in programming, software development, and technology. 
+    const AI_CONTEXT = `You are JoeSai, an expert AI assistant with extensive knowledge in research, studies, programming, software development,leisure,entertainment, and technology. 
     
     You are helpful, precise, and consistent in your responses. When providing code:
     - Use proper syntax highlighting with markdown code blocks
@@ -553,6 +606,24 @@
       // Admin dashboard button
       document.getElementById('admin-dashboard-btn').addEventListener('click', openAdminModal);
       
+      // Scroll to bottom button
+      const scrollToBottomBtn = document.getElementById('scroll-to-bottom-btn');
+      if (scrollToBottomBtn) {
+        scrollToBottomBtn.addEventListener('click', () => {
+          chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+        });
+        
+        // Show/hide scroll button based on scroll position
+        chatMessages.addEventListener('scroll', () => {
+          const isAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 100;
+          if (isAtBottom) {
+            scrollToBottomBtn.classList.add('hidden');
+          } else {
+            scrollToBottomBtn.classList.remove('hidden');
+          }
+        });
+      }
+      
       // Settings toggles
       document.getElementById('save-history-toggle').addEventListener('change', (e) => {
         settings.saveHistory = e.target.checked;
@@ -574,6 +645,16 @@
         settings.maxTokens = parseInt(e.target.value);
         saveSettings();
       });
+      
+      // Theme toggle
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          settings.darkMode = !settings.darkMode;
+          applyTheme(settings.darkMode);
+          saveSettings();
+        });
+      }
 
       // Data management
       document.getElementById('export-history-btn').addEventListener('click', exportChatHistory);
@@ -602,9 +683,9 @@
 
     // UI Updates
     function updateUIForLoggedInUser(user) {
-      guestButtons.classList.add('hidden');
-      userMenu.classList.remove('hidden');
-      loginPrompt.classList.add('hidden');
+      if (guestButtons) guestButtons.classList.add('hidden');
+      if (userMenu) userMenu.classList.remove('hidden');
+      if (loginPrompt) loginPrompt.classList.add('hidden');
       
       const loginPromptHeader = document.getElementById('login-prompt-header');
       if (loginPromptHeader) loginPromptHeader.classList.add('hidden');
@@ -612,8 +693,8 @@
       const displayName = user.displayName || user.email.split('@')[0];
       const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
       
-      userAvatar.src = photoURL;
-      userName.textContent = displayName;
+      if (userAvatar) userAvatar.src = photoURL;
+      if (userName) userName.textContent = displayName;
       
       // Show upgrade button for non-admin users
       const upgradeBtn = document.getElementById('upgrade-btn');
@@ -624,25 +705,25 @@
       
       if (isAdmin) {
         // Admin user - show admin button, hide upgrade
-        adminBtn.classList.remove('hidden');
-        upgradeBtn.classList.add('hidden');
+        if (adminBtn) adminBtn.classList.remove('hidden');
+        if (upgradeBtn) upgradeBtn.classList.add('hidden');
       } else {
         // Regular user - show upgrade button, hide admin
-        adminBtn.classList.add('hidden');
-        upgradeBtn.classList.remove('hidden');
+        if (adminBtn) adminBtn.classList.add('hidden');
+        if (upgradeBtn) upgradeBtn.classList.remove('hidden');
       }
     }
 
     function updateUIForGuest() {
-      guestButtons.classList.remove('hidden');
-      userMenu.classList.add('hidden');
-      loginPrompt.classList.remove('hidden');
+      if (guestButtons) guestButtons.classList.remove('hidden');
+      if (userMenu) userMenu.classList.add('hidden');
+      if (loginPrompt) loginPrompt.classList.remove('hidden');
       
       const loginPromptHeader = document.getElementById('login-prompt-header');
       if (loginPromptHeader) loginPromptHeader.classList.remove('hidden');
       
-      userAvatar.src = '';
-      userName.textContent = '';
+      if (userAvatar) userAvatar.src = '';
+      if (userName) userName.textContent = '';
     }
 
     // Auth Functions
@@ -912,10 +993,21 @@
     async function saveUserData() {
       if (!currentUser || !db) return;
       try {
-        await updateDoc(doc(db, 'users', currentUser.uid), {
-          settings: settings,
-          chatHistory: settings.saveHistory ? chatHistory : []
-        });
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          await updateDoc(doc(db, 'users', currentUser.uid), {
+            settings: settings,
+            chatHistory: settings.saveHistory ? chatHistory : []
+          });
+        } else {
+          // Create new user document if it doesn't exist
+          await setDoc(doc(db, 'users', currentUser.uid), {
+            settings: settings,
+            chatHistory: settings.saveHistory ? chatHistory : [],
+            email: currentUser.email,
+            createdAt: new Date()
+          });
+        }
       } catch (error) {
         console.error('Error saving user data:', error);
       }
@@ -943,6 +1035,34 @@
       document.getElementById('sound-toggle').checked = settings.soundNotifications;
       document.getElementById('creativity-slider').value = settings.creativity;
       document.getElementById('max-tokens-select').value = settings.maxTokens;
+      
+      // Apply theme
+      applyTheme(settings.darkMode);
+    }
+    
+    function applyTheme(isDark) {
+      const body = document.body;
+      const toggle = document.getElementById('theme-toggle');
+      
+      if (isDark) {
+        body.classList.add('dark');
+        body.classList.remove('light');
+        if (toggle) {
+          toggle.classList.remove('bg-gray-400');
+          toggle.classList.add('bg-purple-600');
+          toggle.querySelector('span').classList.add('translate-x-6');
+          toggle.querySelector('span').classList.remove('translate-x-1');
+        }
+      } else {
+        body.classList.add('light');
+        body.classList.remove('dark');
+        if (toggle) {
+          toggle.classList.add('bg-gray-400');
+          toggle.classList.remove('bg-purple-600');
+          toggle.querySelector('span').classList.remove('translate-x-6');
+          toggle.querySelector('span').classList.add('translate-x-1');
+        }
+      }
     }
 
     // Chat Functions
@@ -1039,7 +1159,7 @@
       
       // Check if Groq API key is configured
       if (!GROQ_API_KEY) {
-        alert('Groq API key not configured. Please set VITE_GROQ_API_KEY in your .env file and rebuild.');
+        alert('Groq API key not configured. Please add your API key to config.js');
         return;
       }
       

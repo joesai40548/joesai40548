@@ -1,13 +1,5 @@
-# Environment variables (contains API keys)
-.env
-.env.local
-.env.*.local
-
-# Dependencies
-node_modules/
-
-# Build output
-dist/
+# Config with API keys - DO NOT COMMIT
+config.js
 
 # IDE
 .vscode/
