@@ -160,7 +160,7 @@
                 </div>
                 <h3 class="text-white text-xl font-bold mb-2">Welcome to JoeSai!</h3>
                 <p class="text-purple-300">Your intelligent AI assistant powered by Groq API</p>
-                <p id="login-prompt" class="text-white/60 text-sm mt-4 hidden">Please login or sign up to save your chat history</p>
+                <p id="login-prompt-header" class="text-white/60 text-sm mt-4">Please login or sign up to save your chat history</p>
               </div>
             </div>
           </div>
@@ -436,14 +436,31 @@
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
+    let app, auth, db, googleProvider;
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      googleProvider = new GoogleAuthProvider();
+      console.log('Firebase initialized successfully');
+    } catch (error) {
+      console.error('Firebase initialization error:', error);
+      alert('Error initializing the app. Please refresh the page and try again.');
+    }
 
-    // Groq API Config
-    const GROQ_API_KEY = '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';
+    // Groq API Config - Use Vite environment variable
+    const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
     const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    // Validate API key is configured
+    if (!GROQ_API_KEY) {
+      console.warn('Groq API key not configured. Please set VITE_GROQ_API_KEY in your .env file.');
+    }
+    
+    // Check if Firebase initialized properly
+    if (!auth || !db) {
+      console.error('Firebase services not initialized');
+    }
 
     // Global State
     let currentUser = null;
@@ -503,17 +520,27 @@
       });
 
       // Auth buttons
-      document.getElementById('login-btn').addEventListener('click', openLoginModal);
-      document.getElementById('register-btn').addEventListener('click', openRegisterModal);
-      document.getElementById('logout-btn').addEventListener('click', logout);
+      const loginBtn = document.getElementById('login-btn');
+      const registerBtn = document.getElementById('register-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      
+      if (loginBtn) loginBtn.addEventListener('click', openLoginModal);
+      if (registerBtn) registerBtn.addEventListener('click', openRegisterModal);
+      if (logoutBtn) logoutBtn.addEventListener('click', logout);
       
       // Google auth
-      document.getElementById('google-login-btn').addEventListener('click', () => signInWithGoogle('login'));
-      document.getElementById('google-register-btn').addEventListener('click', () => signInWithGoogle('register'));
+      const googleLoginBtn = document.getElementById('google-login-btn');
+      const googleRegisterBtn = document.getElementById('google-register-btn');
+      
+      if (googleLoginBtn) googleLoginBtn.addEventListener('click', () => signInWithGoogle('login'));
+      if (googleRegisterBtn) googleRegisterBtn.addEventListener('click', () => signInWithGoogle('register'));
       
       // Email auth forms
-      document.getElementById('email-login-form').addEventListener('submit', handleEmailLogin);
-      document.getElementById('email-register-form').addEventListener('submit', handleEmailRegister);
+      const emailLoginForm = document.getElementById('email-login-form');
+      const emailRegisterForm = document.getElementById('email-register-form');
+      
+      if (emailLoginForm) emailLoginForm.addEventListener('submit', handleEmailLogin);
+      if (emailRegisterForm) emailRegisterForm.addEventListener('submit', handleEmailRegister);
       
       // Settings
       document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
@@ -556,6 +583,11 @@
 
     // Auth State Observer
     function checkAuthState() {
+      if (!auth) {
+        console.error('Auth not initialized');
+        return;
+      }
+      
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           currentUser = user;
@@ -574,6 +606,9 @@
       userMenu.classList.remove('hidden');
       loginPrompt.classList.add('hidden');
       
+      const loginPromptHeader = document.getElementById('login-prompt-header');
+      if (loginPromptHeader) loginPromptHeader.classList.add('hidden');
+      
       const displayName = user.displayName || user.email.split('@')[0];
       const photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
       
@@ -584,7 +619,10 @@
       const upgradeBtn = document.getElementById('upgrade-btn');
       const adminBtn = document.getElementById('admin-dashboard-btn');
       
-      if (user.email === 'kaigwaakram123@gmail.com') {
+      // Check if user is admin (from Firestore or hardcoded)
+      const isAdmin = user.email === 'kaigwaakram123@gmail.com' || user.email === 'admin@joesai.com';
+      
+      if (isAdmin) {
         // Admin user - show admin button, hide upgrade
         adminBtn.classList.remove('hidden');
         upgradeBtn.classList.add('hidden');
@@ -600,6 +638,9 @@
       userMenu.classList.add('hidden');
       loginPrompt.classList.remove('hidden');
       
+      const loginPromptHeader = document.getElementById('login-prompt-header');
+      if (loginPromptHeader) loginPromptHeader.classList.remove('hidden');
+      
       userAvatar.src = '';
       userName.textContent = '';
     }
@@ -607,6 +648,13 @@
     // Auth Functions
     async function signInWithGoogle(mode) {
       try {
+        // Show loading feedback
+        const btn = document.activeElement;
+        if (btn && btn.tagName === 'BUTTON') {
+          btn.textContent = 'Please wait...';
+          btn.disabled = true;
+        }
+        
         // Configure Google provider
         googleProvider.setCustomParameters({
           prompt: 'select_account'
@@ -615,6 +663,9 @@
         const result = await signInWithPopup(auth, googleProvider);
         console.log('Google sign in successful:', result.user);
         
+        // Check if this is an admin email
+        const isAdmin = result.user.email === 'kaigwaakram123@gmail.com' || result.user.email === 'admin@joesai.com';
+        
         // Create or update user document
         await setDoc(doc(db, 'users', result.user.uid), {
           uid: result.user.uid,
@@ -622,9 +673,12 @@
           displayName: result.user.displayName,
           photoURL: result.user.photoURL,
           provider: 'google',
+          isAdmin: isAdmin,
           createdAt: new Date(),
           lastLogin: new Date()
         }, { merge: true });
+        
+        console.log('User admin status:', isAdmin);
         
         // Close modals
         document.getElementById('login-modal').classList.add('hidden');
@@ -641,13 +695,16 @@
             errorMessage = 'Sign-in popup was closed. Please try again.';
             break;
           case 'auth/unauthorized-domain':
-            errorMessage = 'This domain is not authorized for Google sign-in. Please contact the administrator.';
+            errorMessage = 'This domain is not authorized for Google sign-in.\n\nPlease follow these steps:\n1. Go to Firebase Console → Authentication → Sign-in method\n2. Enable Google sign-in\n3. Add your domain to authorized domains';
             break;
           case 'auth/operation-not-allowed':
             errorMessage = 'Google sign-in is not enabled. Please contact the administrator.';
             break;
           case 'auth/domain-not-configured':
             errorMessage = 'Domain not configured for Google sign-in.';
+            break;
+          case 'auth/cancelled-popup-request':
+            errorMessage = 'Only one popup can be open at a time.';
             break;
           default:
             errorMessage = 'Error signing in: ' + error.message;
@@ -658,8 +715,20 @@
 
     async function handleEmailLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
+      const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
+      
+      // Validate inputs
+      if (!email || !password) {
+        alert('Please enter both email and password');
+        return;
+      }
+      
+      // Show loading state
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Logging in...';
+      submitBtn.disabled = true;
       
       try {
         const result = await signInWithEmailAndPassword(auth, email, password);
@@ -670,18 +739,66 @@
           lastLogin: new Date()
         });
         
+        // Clear form
+        document.getElementById('email-login-form').reset();
         closeLoginModal();
+        alert('Successfully logged in!');
       } catch (error) {
         console.error('Email login error:', error);
-        alert('Error logging in: ' + error.message);
+        
+        // Handle specific Firebase auth errors
+        let errorMessage;
+        switch (error.code) {
+          case 'auth/invalid-email':
+            errorMessage = 'Invalid email address format.';
+            break;
+          case 'auth/user-disabled':
+            errorMessage = 'This account has been disabled.';
+            break;
+          case 'auth/user-not-found':
+            errorMessage = 'No account found with this email. Please sign up first.';
+            break;
+          case 'auth/wrong-password':
+            errorMessage = 'Incorrect password. Please try again.';
+            break;
+          case 'auth/invalid-credential':
+            errorMessage = 'Invalid email or password.';
+            break;
+          case 'auth/too-many-requests':
+            errorMessage = 'Too many failed attempts. Please try again later.';
+            break;
+          default:
+            errorMessage = 'Error logging in: ' + error.message;
+        }
+        alert(errorMessage);
+      } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
       }
     }
 
     async function handleEmailRegister(e) {
       e.preventDefault();
-      const name = document.getElementById('register-name').value;
-      const email = document.getElementById('register-email').value;
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
       const password = document.getElementById('register-password').value;
+      
+      // Validate inputs
+      if (!name || !email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+      }
+      
+      // Show loading state
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Creating account...';
+      submitBtn.disabled = true;
       
       try {
         const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -689,21 +806,52 @@
         // Update profile
         await updateProfile(result.user, { displayName: name });
         
+        // Check if this is an admin email
+        const isAdmin = email === 'kaigwaakram123@gmail.com' || email === 'admin@joesai.com';
+        
         // Create user document
         await setDoc(doc(db, 'users', result.user.uid), {
           uid: result.user.uid,
           email: result.user.email,
           displayName: name,
           photoURL: null,
+          provider: 'email',
+          isAdmin: isAdmin,
           createdAt: new Date(),
           lastLogin: new Date()
         });
         
-        console.log('Registration successful:', result.user);
+        console.log('Registration successful:', result.user, 'Admin:', isAdmin);
+        
+        // Clear form
+        document.getElementById('email-register-form').reset();
         closeRegisterModal();
+        alert('Account created successfully! Welcome to JoeSai.');
       } catch (error) {
         console.error('Registration error:', error);
-        alert('Error registering: ' + error.message);
+        
+        // Handle specific Firebase auth errors
+        let errorMessage;
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'An account with this email already exists. Please login instead.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Invalid email address format.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'Password is too weak. Please use a stronger password.';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = 'Email/password authentication is not enabled. Please contact the administrator.';
+            break;
+          default:
+            errorMessage = 'Error registering: ' + error.message;
+        }
+        alert(errorMessage);
+      } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
       }
     }
 
@@ -719,6 +867,11 @@
 
     // User Data
     async function loadUserData(uid) {
+      if (!db) {
+        console.error('Firestore not initialized');
+        return;
+      }
+      
       try {
         const userDoc = await getDoc(doc(db, 'users', uid));
         if (userDoc.exists()) {
@@ -731,14 +884,33 @@
             chatHistory = userData.chatHistory;
             renderChatHistory();
           }
+          
+          // Check for admin status and update UI
+          if (userData.isAdmin) {
+            updateAdminUI(true);
+          }
         }
       } catch (error) {
         console.error('Error loading user data:', error);
       }
     }
 
+    // Update admin UI elements
+    function updateAdminUI(isAdmin) {
+      const upgradeBtn = document.getElementById('upgrade-btn');
+      const adminBtn = document.getElementById('admin-dashboard-btn');
+      
+      if (isAdmin) {
+        adminBtn.classList.remove('hidden');
+        upgradeBtn.classList.add('hidden');
+      } else {
+        adminBtn.classList.add('hidden');
+        upgradeBtn.classList.remove('hidden');
+      }
+    }
+
     async function saveUserData() {
-      if (!currentUser) return;
+      if (!currentUser || !db) return;
       try {
         await updateDoc(doc(db, 'users', currentUser.uid), {
           settings: settings,
@@ -811,6 +983,7 @@
     }
 
     function renderWelcomeMessage() {
+      const showLoginPrompt = !currentUser;
       chatMessages.innerHTML = `
         <div class="flex justify-center py-8">
           <div class="text-center">
@@ -821,7 +994,7 @@
             </div>
             <h3 class="text-white text-xl font-bold mb-2">Welcome to JoeSai!</h3>
             <p class="text-purple-300">Your intelligent AI assistant powered by Groq API</p>
-            <p id="login-prompt" class="text-white/60 text-sm mt-4 ${currentUser ? 'hidden' : ''}">Please login or sign up to save your chat history</p>
+            ${showLoginPrompt ? '<p class="text-white/60 text-sm mt-4">Please login or sign up to save your chat history</p>' : ''}
           </div>
         </div>
       `;
@@ -858,6 +1031,18 @@
     }
 
     async function sendMessage() {
+      // Check if Firebase is initialized
+      if (!auth || !db) {
+        alert('Authentication not available. Please refresh the page.');
+        return;
+      }
+      
+      // Check if Groq API key is configured
+      if (!GROQ_API_KEY) {
+        alert('Groq API key not configured. Please set VITE_GROQ_API_KEY in your .env file and rebuild.');
+        return;
+      }
+      
       const message = messageInput.value.trim();
       if (!message) return;
       
@@ -871,6 +1056,7 @@
       }
       
       try {
+        // Check API response
         const response = await fetch(GROQ_API_URL, {
           method: 'POST',
           headers: {
@@ -893,7 +1079,16 @@
         
         removeTypingIndicator();
         
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error.message || 'API returned an error');
+        }
+        
         const aiResponse = data.choices[0]?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
         
         addMessageToUI('assistant', aiResponse);
@@ -902,7 +1097,13 @@
       } catch (error) {
         console.error('Chat error:', error);
         removeTypingIndicator();
-        addMessageToUI('assistant', 'Sorry, I encountered an error. Please check your internet connection and try again.');
+        
+        let errorMessage = 'Sorry, I encountered an error. Please check your internet connection and try again.';
+        if (error.message.includes('API Error')) {
+          errorMessage = 'AI service is temporarily unavailable. Please try again later.';
+        }
+        
+        addMessageToUI('assistant', errorMessage);
       }
     }
 
