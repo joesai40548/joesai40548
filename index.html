@@ -6,18 +6,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="JoeSai - AI Assistant powered by Groq API. Intelligent chat with natural language responses.">
-  <meta name="keywords" content="AI, chatbot, Groq, artificial intelligence, JoeSai, machine learning">
-  <meta name="author" content="JoeSai">
+  <meta name="description" content="joes ai - AI Assistant powered by Groq API. Intelligent chat with natural language responses.">
+  <meta name="keywords" content="AI, chatbot, Groq, artificial intelligence, joes ai, machine learning">
+  <meta name="author" content="joes ai">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#7c3aed">
   
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="JoeSai - AI Assistant">
+  <meta property="og:title" content="joes ai - AI Assistant">
   <meta property="og:description" content="Intelligent AI Assistant powered by Groq API">
   
-  <title>JoeSai - AI Assistant</title>
+  <title>joes ai - AI Assistant</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -109,7 +109,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
             </svg>
           </div>
-          <span class="text-2xl font-bold text-white">JoeSai</span>
+          <span class="text-2xl font-bold text-white">joes ai</span>
         </div>
         
         <!-- Auth Buttons / User Menu -->
@@ -168,7 +168,7 @@
                 </svg>
               </div>
               <div>
-                <h2 class="text-white font-bold">JoeSai</h2>
+                <h2 class="text-white font-bold">joes ai</h2>
                 <p class="text-purple-300 text-sm">AI Assistant</p>
               </div>
             </div>
@@ -208,8 +208,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                   </svg>
                 </div>
-                <h3 class="text-white text-xl font-bold mb-2">Welcome to JoeSai!</h3>
-                <p class="text-purple-300">Your intelligent AI assistant powered by Groq API</p>
+                <h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3>
+                <p class="text-purple-300">Your intelligent AI assistant </p>
                 <p id="login-prompt-header" class="text-white/60 text-sm mt-4">Please login or sign up to save your chat history</p>
               </div>
             </div>
@@ -549,9 +549,9 @@
     
     // AI Mode Contexts
     const AI_MODES = {
-      chat: `You are JoeSai, a friendly and helpful AI assistant. You can discuss a wide range of topics including technology, science, entertainment, news, and everyday conversations. Be conversational, friendly, and engaging. Respond in a clear, friendly manner.`,
+      chat: `You are joes ai, a friendly and helpful AI assistant. You can discuss a wide range of topics including technology, science, entertainment, news, and everyday conversations. Be conversational, friendly, and engaging. Respond in a clear, friendly manner.`,
       
-      code: `You are JoeSai in Code Mode. You are an expert programmer with deep knowledge of:
+      code: `You are joes ai in Code Mode. You are an expert programmer with deep knowledge of:
 - JavaScript, TypeScript, Python, Java, C++, Go, Rust
 - React, Vue, Angular, Node.js, Django, Flask
 - SQL, MongoDB, Firebase
@@ -564,7 +564,7 @@ When providing code:
 - Explain the logic step by step
 - Suggest best practices and optimizations`,
       
-      explain: `You are JoeSai in Explain Code Mode. Your job is to explain code in simple, easy-to-understand terms. Break down complex code into understandable pieces. For each section, explain:
+      explain: `You are joes ai in Explain Code Mode. Your job is to explain code in simple, easy-to-understand terms. Break down complex code into understandable pieces. For each section, explain:
 - What the code does
 - Why it's written that way
 - How it fits with the rest of the code
@@ -572,7 +572,7 @@ When providing code:
 
 Use simple language and analogies where helpful.`,
       
-      review: `You are JoeSai in Code Review Mode. You analyze code for:
+      review: `You are joes ai in Code Review Mode. You analyze code for:
 - Bugs and security vulnerabilities
 - Code quality and readability
 - Performance issues
@@ -581,7 +581,7 @@ Use simple language and analogies where helpful.`,
 
 Provide a detailed review with specific suggestions. Rate code from 1-10 and explain your rating.`,
       
-      debug: `You are JoeSai in Debug Mode. You help find and fix bugs in code. When analyzing code:
+      debug: `You are joes ai in Debug Mode. You help find and fix bugs in code. When analyzing code:
 - Identify the exact problem
 - Explain what's causing it
 - Provide a fix with code
@@ -592,7 +592,7 @@ Be methodical and thorough in your debugging approach.`
     };
 
     // AI System Prompt
-    const AI_CONTEXT = `You are JoeSai, an expert AI assistant with extensive knowledge in research, studies, programming, software development,leisure,entertainment, and technology. 
+    const AI_CONTEXT = `You are joes ai, an expert AI assistant with extensive knowledge in research, studies, programming, software development,leisure,entertainment, and technology. 
     
     You are helpful, precise, and consistent in your responses. When providing code:
     - Use proper syntax highlighting with markdown code blocks
@@ -791,7 +791,7 @@ Be methodical and thorough in your debugging approach.`
       const adminBtn = document.getElementById('admin-dashboard-btn');
       
       // Check if user is admin (from Firestore or hardcoded)
-      const isAdmin = user.email === 'kaigwaakram123@gmail.com' || user.email === 'admin@joesai.com';
+      const isAdmin = user.email === 'kaigwaakram123@gmail.com' || user.email === 'admin@joes ai.com';
       
       if (isAdmin) {
         // Admin user - show admin button, hide upgrade
@@ -838,7 +838,7 @@ Be methodical and thorough in your debugging approach.`
         console.log('Google sign in successful:', result.user);
         
         // Check if this is an admin email
-        const isAdmin = result.user.email === 'kaigwaakram123@gmail.com' || result.user.email === 'admin@joesai.com';
+        const isAdmin = result.user.email === 'kaigwaakram123@gmail.com' || result.user.email === 'admin@joes ai.com';
         
         // Create or update user document
         await setDoc(doc(db, 'users', result.user.uid), {
@@ -981,7 +981,7 @@ Be methodical and thorough in your debugging approach.`
         await updateProfile(result.user, { displayName: name });
         
         // Check if this is an admin email
-        const isAdmin = email === 'kaigwaakram123@gmail.com' || email === 'admin@joesai.com';
+        const isAdmin = email === 'kaigwaakram123@gmail.com' || email === 'admin@joes ai.com';
         
         // Create user document
         await setDoc(doc(db, 'users', result.user.uid), {
@@ -1000,7 +1000,7 @@ Be methodical and thorough in your debugging approach.`
         // Clear form
         document.getElementById('email-register-form').reset();
         closeRegisterModal();
-        alert('Account created successfully! Welcome to JoeSai.');
+        alert('Account created successfully! Welcome to joes ai.');
       } catch (error) {
         console.error('Registration error:', error);
         
@@ -1167,7 +1167,7 @@ Be methodical and thorough in your debugging approach.`
 
     // Settings
     function loadSettings() {
-      const saved = localStorage.getItem('joesai_settings');
+      const saved = localStorage.getItem('joes ai_settings');
       if (saved) {
         settings = { ...settings, ...JSON.parse(saved) };
         applySettings();
@@ -1175,7 +1175,7 @@ Be methodical and thorough in your debugging approach.`
     }
 
     function saveSettings() {
-      localStorage.setItem('joesai_settings', JSON.stringify(settings));
+      localStorage.setItem('joes ai_settings', JSON.stringify(settings));
       if (currentUser) {
         saveUserData();
       }
@@ -1219,7 +1219,7 @@ Be methodical and thorough in your debugging approach.`
 
     // Chat Functions
     function loadChatHistory() {
-      const saved = localStorage.getItem('joesai_chat_history');
+      const saved = localStorage.getItem('joes ai_chat_history');
       if (saved) {
         chatHistory = JSON.parse(saved);
         renderChatHistory();
@@ -1228,7 +1228,7 @@ Be methodical and thorough in your debugging approach.`
 
     function saveChatHistory() {
       if (settings.saveHistory) {
-        localStorage.setItem('joesai_chat_history', JSON.stringify(chatHistory));
+        localStorage.setItem('joes ai_chat_history', JSON.stringify(chatHistory));
       }
       if (currentUser) {
         saveUserData();
@@ -1317,7 +1317,7 @@ Be methodical and thorough in your debugging approach.`
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
               </svg>
             </div>
-            <h3 class="text-white text-xl font-bold mb-2">Welcome to JoeSai!</h3>
+            <h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3>
             <p class="text-purple-300">Your intelligent AI assistant powered by Groq API</p>
             ${showLoginPrompt ? '<p class="text-white/60 text-sm mt-4">Please login or sign up to save your chat history</p>' : ''}
           </div>
@@ -1603,7 +1603,7 @@ Be methodical and thorough in your debugging approach.`
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `joesai-chat-history-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `joes ai-chat-history-${new Date().toISOString().split('T')[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -1842,7 +1842,7 @@ Be methodical and thorough in your debugging approach.`
               </svg>
             </div>
             <h2 class="text-2xl font-bold text-white mb-2">Upgrade to Premium</h2>
-            <p class="text-gray-400">Unlock full access to JoeSai AI</p>
+            <p class="text-gray-400">Unlock full access to joes ai AI</p>
           </div>
           
           <div class="bg-yellow-900/30 border border-yellow-700 rounded-xl p-4 mb-6">
@@ -1949,7 +1949,7 @@ Be methodical and thorough in your debugging approach.`
             <p>We collect information you provide directly to us, including:
             <ul class="list-disc pl-5 space-y-1">
               <li>Account information (name, email) when you sign up</li>
-              <li>Chat history and conversations with JoeSai</li>
+              <li>Chat history and conversations with joes ai</li>
               <li>Payment information for premium upgrades</li>
             </ul></p>
             
@@ -1992,10 +1992,10 @@ Be methodical and thorough in your debugging approach.`
             <p><strong>Last Updated:</strong> February 2026</p>
             
             <h3 class="text-white font-semibold">1. Acceptance of Terms</h3>
-            <p>By accessing and using JoeSai, you accept and agree to be bound by the terms and provision of this agreement.</p>
+            <p>By accessing and using joes ai, you accept and agree to be bound by the terms and provision of this agreement.</p>
             
             <h3 class="text-white font-semibold">2. Use License</h3>
-            <p>JoeSai grants you a limited, non-exclusive, non-transferable license to use our AI assistant for personal and educational purposes.</p>
+            <p>joes ai grants you a limited, non-exclusive, non-transferable license to use our AI assistant for personal and educational purposes.</p>
             
             <h3 class="text-white font-semibold">3. Premium Services</h3>
             <p>Premium features require payment. All payments are final and non-refundable unless otherwise specified.</p>
@@ -2010,10 +2010,10 @@ Be methodical and thorough in your debugging approach.`
             </ul></p>
             
             <h3 class="text-white font-semibold">5. Disclaimer</h3>
-            <p>JoeSai is an AI assistant. Responses are generated by AI and may not always be accurate. Users should verify important information independently.</p>
+            <p>joes ai is an AI assistant. Responses are generated by AI and may not always be accurate. Users should verify important information independently.</p>
             
             <h3 class="text-white font-semibold">6. Limitation of Liability</h3>
-            <p>JoeSai shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of the service.</p>
+            <p>joes ai shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of the service.</p>
             
             <h3 class="text-white font-semibold">7. Changes to Terms</h3>
             <p>We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of modified terms.</p>
@@ -2037,7 +2037,7 @@ Be methodical and thorough in your debugging approach.`
           <span class="text-white font-semibold">AkramJo's Technologies</span>
         </div>
         <div class="text-gray-400 text-sm">
-          © 2026 JoeSai AI Assistant. All rights reserved.
+          © 2026 joes ai AI Assistant. All rights reserved.
         </div>
         <div class="flex items-center space-x-4 text-sm">
           <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors">Privacy</a>
