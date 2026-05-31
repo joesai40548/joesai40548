@@ -411,12 +411,12 @@
         const adminData = await check.json();
         await setDoc(doc(db, 'users', result.user.uid), { email: result.user.email, isAdmin: adminData.isAdmin, lastLogin: new Date() }, { merge: true });
         closeLoginModal();
-      } catch (err) { alert(err.message); }
+      } catch (err) { addMessageToUI('assistant', `Sign-in error: ${err.message}`); }
     }
     async function handleEmailLogin(e) {
       e.preventDefault();
       try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); closeLoginModal(); }
-      catch (err) { alert(err.message); }
+      catch (err) { addMessageToUI('assistant', `Login error: ${err.message}`); }
     }
     async function handleEmailRegister(e) {
       e.preventDefault();
@@ -427,15 +427,39 @@
         const adminData = await check.json();
         await setDoc(doc(db, 'users', result.user.uid), { email, isAdmin: adminData.isAdmin, createdAt: new Date() });
         closeRegisterModal();
-      } catch (err) { alert(err.message); }
+      } catch (err) { addMessageToUI('assistant', `Register error: ${err.message}`); }
     }
     async function logout() { await signOut(auth); }
+    async function streamTextToUI(text) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex justify-start animate__animated animate__fadeInUp';
+      wrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
+      chatMessages.appendChild(wrapper);
+      const streamSpan = wrapper.querySelector('.stream-text');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      let charIndex = 0;
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (charIndex < text.length) {
+            streamSpan.innerHTML = formatMarkdown(text.slice(0, ++charIndex));
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          } else {
+            clearInterval(interval);
+            wrapper.classList.remove('streaming-cursor');
+            const msgDiv = wrapper.firstElementChild;
+            msgDiv.style.transition = 'box-shadow 0.5s ease';
+            msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
+            setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
+            resolve();
+          }
+        }, 12);
+      });
+    }
     async function handleSend() {
       const message = messageInput.value.trim();
       const hasAttachment = !!selectedAttachment;
       if (!message && !hasAttachment) return;
       addMessageToUI('user', message || '(sent an attachment)');
-      if (hasAttachment) { addAttachmentChipToChat(selectedAttachment); }
       chatHistory.push({ role: 'user', content: message });
       messageInput.value = '';
       messageInput.style.height = 'auto';
@@ -443,7 +467,7 @@
       showProcessingIndicator(hasAttachment ? 'Gemini' : 'Groq');
       try {
         let aiFullContent = '';
-        let streamed = false;
+        let isStream = false;
         if (hasAttachment) {
           const fileData = await readFileAsBase64(selectedAttachment);
           const mimeType = selectedAttachment.type || 'application/octet-stream';
@@ -455,7 +479,6 @@
           const geminiData = await geminiRes.json();
           aiFullContent = geminiData.text || 'Gemini did not return text.';
         } else {
-          streamed = true;
           const response = await fetch(`${BACKEND_URL}/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -467,46 +490,55 @@
               stream: true
             })
           });
-          removeProcessingIndicator();
           if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-          const streamWrapper = document.createElement('div');
-          streamWrapper.className = 'flex justify-start animate__animated animate__fadeInUp';
-          streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
-          chatMessages.appendChild(streamWrapper);
-          const streamSpan = streamWrapper.querySelector('.stream-text');
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed || trimmed === 'data: [DONE]') continue;
-              if (trimmed.startsWith('data: ')) {
-                try {
-                  const data = JSON.parse(trimmed.slice(6));
-                  const delta = data.choices?.[0]?.delta?.content || '';
-                  if (delta) { aiFullContent += delta; streamSpan.innerHTML = formatMarkdown(aiFullContent); chatMessages.scrollTop = chatMessages.scrollHeight; }
-                } catch (e) { continue; }
+          const streamCheck = response.headers.get('content-type')?.includes('text/event-stream');
+          if (streamCheck) {
+            isStream = true;
+            removeProcessingIndicator();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            const streamWrapper = document.createElement('div');
+            streamWrapper.className = 'flex justify-start animate__animated animate__fadeInUp';
+            streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
+            chatMessages.appendChild(streamWrapper);
+            const streamSpan = streamWrapper.querySelector('.stream-text');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed === 'data: [DONE]') continue;
+                if (trimmed.startsWith('data: ')) {
+                  try {
+                    const data = JSON.parse(trimmed.slice(6));
+                    const delta = data.choices?.[0]?.delta?.content || '';
+                    if (delta) { aiFullContent += delta; streamSpan.innerHTML = formatMarkdown(aiFullContent); chatMessages.scrollTop = chatMessages.scrollHeight; }
+                  } catch (e) { continue; }
+                }
               }
             }
+            streamWrapper.classList.remove('streaming-cursor');
+            streamSpan.innerHTML = formatMarkdown(aiFullContent);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            const msgDiv = streamWrapper.firstElementChild;
+            msgDiv.style.transition = 'box-shadow 0.5s ease';
+            msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
+            setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
+          } else {
+            removeProcessingIndicator();
+            const data = await response.json();
+            aiFullContent = data?.choices?.[0]?.message?.content || data?.text || '';
           }
-          streamWrapper.classList.remove('streaming-cursor');
-          streamSpan.innerHTML = formatMarkdown(aiFullContent);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-          const msgDiv = streamWrapper.firstElementChild;
-          msgDiv.style.transition = 'box-shadow 0.5s ease';
-          msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
-          setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
         }
-        removeProcessingIndicator();
         if (aiFullContent) {
-          if (!streamed) addMessageToUI('assistant', aiFullContent);
+          if (hasAttachment || !isStream) {
+            await streamTextToUI(aiFullContent);
+          }
           chatHistory.push({ role: 'assistant', content: aiFullContent });
           saveChatHistory();
         }
@@ -565,7 +597,13 @@
         chatMessages.appendChild(welcome);
       } else if (!show && welcome) { welcome.remove(); }
     }
-    function loadSettings() { try { const saved = localStorage.getItem('joes-ai-settings'); if (saved) settings = { ...settings, ...JSON.parse(saved) }; } catch (e) {} }
+    function loadSettings() {
+      try {
+        const saved = localStorage.getItem('joes-ai-settings');
+        if (saved) settings = { ...settings, ...JSON.parse(saved) };
+        document.body.classList.toggle('light', !settings.darkMode);
+      } catch (e) {}
+    }
     function saveSettings() { try { localStorage.setItem('joes-ai-settings', JSON.stringify(settings)); } catch (e) {} }
     function saveChatHistory() { try { localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory)); } catch (e) { console.error('Could not save chat history', e); } }
     function loadChatHistory() { try { const saved = localStorage.getItem(CHAT_HISTORY_KEY); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) chatHistory = parsed; } } catch (e) { console.error('Could not load chat history', e); } }
@@ -594,20 +632,6 @@
         reader.readAsDataURL(file);
       });
     }
-    function addAttachmentChipToChat(file) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex justify-end animate__animated animate__fadeInUp';
-      const isImage = file.type.startsWith('image/');
-      let media = '';
-      if (isImage) {
-        media = `<img src="${URL.createObjectURL(file)}" class="max-h-40 rounded-xl border border-white/20 object-contain mb-1">`;
-      } else {
-        media = `<div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl text-white text-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>${escapeHtml(file.name)}</span></div>`;
-      }
-      wrapper.innerHTML = `<div class="max-w-[70%]">${media}</div>`;
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
     function addAttachmentChip() {
       const container = document.getElementById('attachment-chip-container');
       if (!container || !selectedAttachment) return;
@@ -622,72 +646,6 @@
       const container = document.getElementById('attachment-chip-container');
       if (container) { container.innerHTML = ''; container.classList.add('hidden'); }
       selectedAttachment = null;
-    }
-    async function runOCR() {
-      if (!selectedAttachment || !selectedAttachment.type.startsWith('image/')) { alert('OCR works only on images. Please attach a PNG, JPG, or JPEG file.'); return; }
-      const output = document.getElementById('attachment-output');
-      if (!output) return;
-      output.value = 'Processing image with OCR...';
-      try {
-        const { data: { text } } = await Tesseract.recognize(selectedAttachment, 'eng', { logger: (m) => { if (m.status === 'recognizing text') output.value = `Recognizing... ${Math.round(m.progress * 100)}%`; } });
-        output.value = text;
-      } catch (err) { output.value = 'OCR failed: ' + err.message; }
-    }
-    async function transcribeAudio() {
-      const output = document.getElementById('attachment-output');
-      if (!output) return;
-      if (!selectedAttachment) { output.value = 'No audio file selected.'; return; }
-      if (!isRecordingVoice) {
-        output.value = 'Preparing transcription...';
-        try {
-          if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) throw new Error('Not supported');
-          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-          voiceRecognition = new SpeechRecognition();
-          voiceRecognition.lang = 'en-US';
-          voiceRecognition.interimResults = false;
-          voiceRecognition.maxAlternatives = 1;
-          voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
-          voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
-          voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
-          voiceRecognition.start();
-        } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
-      }
-    }
-    function startVoiceInput() {
-      const output = document.getElementById('attachment-output');
-      if (!output) return;
-      try {
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { alert('Speech recognition is not supported in this browser.'); return; }
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        voiceRecognition = new SpeechRecognition();
-        voiceRecognition.lang = 'en-US';
-        voiceRecognition.interimResults = false;
-        voiceRecognition.maxAlternatives = 1;
-        voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
-        voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
-        voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
-        voiceRecognition.start();
-      } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
-    }
-    function stopVoiceInput() {
-      if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; isRecordingVoice = false; updateMicButton(false); }
-      const output = document.getElementById('attachment-output');
-      if (output && (!output.value || output.value.startsWith('Preparing'))) output.value = 'Voice input stopped.';
-    }
-    function updateMicButton(active) {
-      const button = document.getElementById('mic-btn');
-      if (!button) return;
-      if (active) { button.classList.add('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.remove('bg-white/10', 'hover:bg-white/20'); }
-      else { button.classList.remove('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.add('bg-white/10', 'hover:bg-white/20'); }
-    }
-    function insertAttachmentText() {
-      const output = document.getElementById('attachment-output');
-      if (!output) return;
-      const text = output.value.trim();
-      if (!text) return;
-      messageInput.value = text;
-      closeAttachmentModal();
-      messageInput.focus();
     }
     function toggleDarkMode() {
       settings.darkMode = !settings.darkMode;
