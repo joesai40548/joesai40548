@@ -441,7 +441,6 @@
       messageInput.style.height = 'auto';
       showWelcome(false);
       showProcessingIndicator(hasAttachment ? 'Gemini' : 'Groq');
-      clearAttachmentChips();
       try {
         let aiFullContent = '';
         let streamed = false;
@@ -516,6 +515,7 @@
         console.error(err);
         addMessageToUI('assistant', `Error: ${err.message}. Verify backend: ${BACKEND_URL}`);
       } finally {
+        clearAttachmentChips();
         selectedAttachment = null;
       }
     }
