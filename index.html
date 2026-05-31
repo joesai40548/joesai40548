@@ -513,7 +513,8 @@
         }
       } catch (err) {
         removeProcessingIndicator();
-        addMessageToUI('assistant', "Connection error. Check if backend is awake.");
+        console.error(err);
+        addMessageToUI('assistant', `Error: ${err.message}. Verify backend: ${BACKEND_URL}`);
       } finally {
         selectedAttachment = null;
       }
