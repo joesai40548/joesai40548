@@ -464,7 +464,7 @@
       messageInput.value = '';
       messageInput.style.height = 'auto';
       showWelcome(false);
-      showProcessingIndicator(hasAttachment ? 'Gemini' : 'Groq');
+      showProcessingIndicator(hasAttachment ? 'AI' : 'Groq');
       try {
         let aiFullContent = '';
         let isStream = false;
@@ -477,7 +477,7 @@
             body: JSON.stringify({ message, fileData, mimeType })
           });
           const geminiData = await geminiRes.json();
-          aiFullContent = geminiData.text || 'Gemini did not return text.';
+          aiFullContent = geminiData.text || 'AI did not return text.';
         } else {
           const response = await fetch(`${BACKEND_URL}/api/chat`, {
             method: 'POST',
