@@ -4,77 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="joes ai - AI Assistant powered by Groq API. Intelligent chat with natural language responses.">
-  <meta name="keywords" content="AI, chatbot, Groq, artificial intelligence, joes ai, machine learning">
+  <title>Joes AI - Intelligent AI Chat Assistant powered by Groq</title>
+  <meta name="description" content="Joes AI is a powerful artificial intelligence chat assistant powered by Groq API. Experience lightning-fast AI conversations with support for Chat, Code, Explanation, Review, and Debug modes.">
+  <meta name="keywords" content="AI chatbot, artificial intelligence, Groq AI, joes ai, machine learning assistant, code assistant, AI coding help, intelligent chat, LLM chat, natural language processing">
   <meta name="author" content="joes ai">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#7c3aed">
-  
-  <!-- Open Graph -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Joes AI">
+  <link rel="canonical" href="https://joes-ai-website.onrender.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="joes ai - AI Assistant">
-  <meta property="og:description" content="Intelligent AI Assistant powered by Groq API">
+  <meta property="og:url" content="https://joes-ai-website.onrender.com/">
+  <meta property="og:title" content="Joes AI - Intelligent AI Chat Assistant">
+  <meta property="og:description" content="Lightning-fast AI assistant powered by Groq API. Chat, code, explain, review and debug with advanced AI.">
+  <meta property="og:image" content="https://joes-ai-website.onrender.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Joes AI">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://joes-ai-website.onrender.com/">
+  <meta name="twitter:title" content="Joes AI - Intelligent AI Chat Assistant">
+  <meta name="twitter:description" content="Lightning-fast AI assistant powered by Groq API. Chat, code, explain, review and debug with advanced AI.">
+  <meta name="twitter:image" content="https://joes-ai-website.onrender.com/og-image.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Joes AI",
+    "applicationCategory": "ChatApplication",
+    "operatingSystem": "Web",
+    "description": "An intelligent AI chat assistant powered by Groq API supporting multiple modes including Chat, Code, Explain, Review, and Debug.",
+    "url": "https://joes-ai-website.onrender.com/",
+    "author": {"@type": "Organization", "name": "Joes AI"},
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+    "featureList": ["AI Chat", "Code Assistant", "Code Explanation", "Code Review", "Debug Mode", "File Upload", "Chat History", "Dark/Light Mode"]
+  }
+  </script>
   
-  <title>joes ai - AI Assistant</title>
-  
-  <!-- Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; margin: 0; }
+    
+    .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
+    body.light .gradient-bg { background: linear-gradient(-45deg, #eef2ff, #e0e7ff, #c7d2fe, #f8fafc); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
+    @keyframes liveFade { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); position: relative; }
+    body.light .chat-gradient { background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); }
+
+    html, body { height: 100%; }
+
+    #page-loader { position: fixed; inset: 0; z-index: 9999; background: #0b0a1a; display: flex; align-items: center; justify-content: center; }
+    #page-loader.loaded { animation: hideLoader .5s ease forwards; }
+    @keyframes hideLoader { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+    #page-loader .loader { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: #a78bfa; }
+
+    #chat-messages::-webkit-scrollbar { width: 6px; }
+    #chat-messages::-webkit-scrollbar-track { background: transparent; }
+    #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+
+    .send-glow { box-shadow: 0 0 20px rgba(124,58,237,.4); transition: all .3s ease; }
+    .send-glow:hover { box-shadow: 0 0 35px rgba(124,58,237,.7); transform: scale(1.05); }
+    button, select, textarea { transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
+    button:hover, select:hover, textarea:hover { transform: translateY(-1px); }
+    button:active, textarea:active { transform: translateY(0) scale(.98); }
+    button:hover { box-shadow: 0 18px 40px rgba(124,58,237,.22); }
+
+    .chat-gradient::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 20% 20%, rgba(217,70,239,.14), transparent 28%), radial-gradient(circle at 80% 70%, rgba(59,130,246,.12), transparent 24%);
+      opacity: .9; z-index: 0;
+    }
+    .chat-gradient > * { position: relative; z-index: 1; }
+
+    .ai-message pre { background: rgba(0,0,0,.3); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 8px 0; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255,255,255,.08); }
+    .ai-message code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    .ai-message p { margin: 6px 0; line-height: 1.7; }
+    .ai-message ul, .ai-message ol { margin: 6px 0; padding-left: 20px; }
+    .ai-message li { margin: 3px 0; }
+    body.light .ai-message pre { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.1); }
+    body.light .ai-message code { color: #1f2937; }
+    .ai-message strong { font-weight: 700; }
+    .ai-message em { font-style: italic; opacity: .9; }
+  </style>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .chat-gradient { background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%); }
-    body.light .gradient-bg { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); }
-    body.light .chat-gradient { background: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%); }
-    body.light .chat-gradient .text-white { color: #1f2937 !important; }
-    body.light .chat-gradient .text-purple-300 { color: #6b7280 !important; }
-    body.light .chat-gradient .text-white\/60 { color: #4b5563 !important; }
-    body.light .message-user { background: #3b82f6 !important; color: white !important; }
-    body.light .message-ai { background: #f3f4f6 !important; color: #1f2937 !important; }
-    body.light #message-input { background: rgba(255, 255, 255, 0.9) !important; color: #1f2937 !important; border-color: #d1d5db !important; }
-    body.light #message-input::placeholder { color: #9ca3af !important; }
-    .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
-    .message-enter { animation: messageEnter 0.3s ease-out; }
-    @keyframes messageEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .typing-indicator span { animation: typing 1.4s infinite; }
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
-  </style>
 </head>
 <body class="gradient-bg min-h-screen">
-  <div id="app" class="relative min-h-screen">
-    
-    <!-- Header -->
-    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50">
+  <div id="page-loader"><div class="loader"></div></div>
+  <div class="orb orb-1 animate__animated animate__fadeIn" style="animation-delay:.1s" aria-hidden="true"></div>
+  <div class="orb orb-2 animate__animated animate__fadeIn" style="animation-delay:.25s" aria-hidden="true"></div>
+  <div class="orb orb-3 animate__animated animate__fadeIn" style="animation-delay:.4s" aria-hidden="true"></div>
+
+  <div id="app" class="relative min-h-screen z-10">
+
+    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50 animate__animated animate__fadeInDown">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 logo-pulse">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
             </svg>
           </div>
-          <span class="text-2xl font-bold text-white">joes ai</span>
+          <span class="text-2xl font-bold text-white tracking-tight">joes ai</span>
         </div>
-        
+
         <div id="auth-section" class="flex items-center space-x-3">
           <div id="guest-buttons" class="flex items-center space-x-2">
-            <button id="login-btn" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all font-medium">Login</button>
+            <button id="login-btn" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all font-medium backdrop-blur-sm">Login</button>
             <button id="register-btn" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg transition-all font-medium shadow-lg">Sign Up</button>
           </div>
-          
+
           <div id="user-menu" class="hidden flex items-center space-x-3">
-            <button id="upgrade-btn" class="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg text-sm font-medium hidden" title="Upgrade to Premium">⚡ Upgrade</button>
-            <button id="admin-dashboard-btn" class="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium hidden" title="Admin Dashboard">👑 Admin</button>
+            <button id="upgrade-btn" class="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg text-sm font-medium hidden" title="Upgrade to Premium">Upgrade</button>
+            <button id="admin-dashboard-btn" class="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium hidden" title="Admin Dashboard">Admin</button>
             <div class="flex items-center space-x-2">
               <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-purple-400">
-              <span id="user-name" class="text-white font-medium hidden md:inline"></span>
+              <span id="user-name" class="text-white font-medium inline"></span>
             </div>
             <button id="settings-btn" class="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Settings">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,14 +149,12 @@
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-4 py-6">
       <div class="max-w-4xl mx-auto">
         <div class="chat-gradient rounded-2xl shadow-2xl overflow-hidden min-h-[70vh] flex flex-col">
-          <!-- Chat Header -->
           <div class="p-4 border-b border-white/10 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center">
+              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
@@ -109,17 +164,17 @@
                 <p class="text-purple-300 text-sm">AI Assistant</p>
               </div>
             </div>
-            
+
             <div class="flex items-center space-x-2">
               <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-purple-500">
-                <option value="chat" class="bg-gray-800">💬 Chat Mode</option>
-                <option value="code" class="bg-gray-800">💻 Code Mode</option>
-                <option value="explain" class="bg-gray-800">📖 Explain Code</option>
-                <option value="review" class="bg-gray-800">🔍 Code Review</option>
-                <option value="debug" class="bg-gray-800">🐛 Debug Mode</option>
+                <option value="chat" class="bg-gray-800">Chat Mode</option>
+                <option value="code" class="bg-gray-800">Code Mode</option>
+                <option value="explain" class="bg-gray-800">Explain Code</option>
+                <option value="review" class="bg-gray-800">Code Review</option>
+                <option value="debug" class="bg-gray-800">Debug Mode</option>
               </select>
             </div>
-            
+
             <button id="clear-chat-btn" class="text-white/60 hover:text-white text-sm flex items-center space-x-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -127,61 +182,48 @@
               <span>Clear</span>
             </button>
           </div>
-          
-          <!-- Messages Container -->
+
           <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
-            <button id="scroll-to-bottom-btn" class="absolute bottom-4 right-4 bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg" title="Scroll to bottom">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
-            </button>
-            <div class="flex justify-center py-8">
-              <div class="text-center">
-                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                  </svg>
-                </div>
-                <h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3>
-                <p class="text-purple-300">Your intelligent AI assistant</p>
-                <p id="login-prompt-header" class="text-white/60 text-sm mt-4">Please login or sign up to save your chat history</p>
-              </div>
-            </div>
           </div>
-          
-          <!-- Input Area -->
+
           <div class="p-4 border-t border-white/10">
             <div class="flex items-end space-x-2">
-              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all" title="Attach file or URL">
+              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all relative" title="Attach file or URL">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                 </svg>
               </button>
+              <div id="size-hint" class="hidden absolute bottom-full left-0 mb-2 bg-gray-800 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap z-50 border border-white/10">
+                Max size: img 25MB &nbsp;|&nbsp; audio 50MB &nbsp;|&nbsp; docs 15MB &nbsp;|&nbsp; data 10MB
+              </div>
               <div class="flex-1 relative">
                 <textarea id="message-input" placeholder="Type your message..." rows="1" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-purple-500 resize-none"></textarea>
               </div>
-              <button id="send-btn" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white p-3 rounded-xl transition-all shadow-lg">
+              <button id="send-btn" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white p-3 rounded-xl transition-all shadow-lg send-glow">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
               </button>
             </div>
-            <input type="file" id="file-input" class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xlsx,.png,.jpg,.jpeg,.gif">
+            <input type="file" id="file-input" class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xlsx,.png,.jpg,.jpeg,.gif,.mp3,.wav,.m4a,.ogg">
           </div>
         </div>
       </div>
     </main>
 
-    <!-- Modals (Login, Register, Settings, Upgrade, Admin) -->
-    <!-- [Keep the same HTML for modals from your original file] -->
     <div id="login-modal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLoginModal()"></div>
         <div class="relative flex items-center justify-center min-h-screen p-4">
-          <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+          <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
             <h2 class="text-2xl font-bold text-white mb-6 text-center">Welcome Back</h2>
             <button id="google-login-btn" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 mb-4 transition-colors">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa/google.svg" class="w-5 h-5">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
               <span>Continue with Google</span>
             </button>
             <div class="relative my-4 text-center"><span class="px-2 bg-gray-900 text-gray-400 text-sm">or</span><hr class="border-gray-700 mt-[-10px]"></div>
@@ -195,19 +237,66 @@
         </div>
     </div>
 
-    <!-- [Remaining Modals: Register, Settings, Upgrade, Admin Dashboard, Privacy, Terms - Keep original HTML] -->
-    <!-- Adding minimal placeholders to ensure code runs -->
-    <div id="register-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRegisterModal()"></div><div class="relative flex items-center justify-center min-h-screen p-4"><div class="bg-gray-900 p-6 rounded-2xl w-full max-w-md"><h2 class="text-white text-2xl mb-4">Create Account</h2><form id="email-register-form" class="space-y-4"><input id="register-name" placeholder="Name" class="w-full bg-gray-800 p-3 rounded text-white"><input id="register-email" placeholder="Email" class="w-full bg-gray-800 p-3 rounded text-white"><input id="register-password" type="password" placeholder="Password" class="w-full bg-gray-800 p-3 rounded text-white"><button type="submit" class="w-full bg-purple-600 p-3 rounded text-white">Sign Up</button></form><button onclick="switchToLogin()" class="text-purple-400 mt-4 text-sm">Already have an account? Login</button></div></div></div>
-    <div id="settings-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSettingsModal()"></div><div class="relative flex items-center justify-center min-h-screen p-4"><div class="bg-gray-900 p-6 rounded-2xl w-full max-w-md text-white"><h2 class="text-2xl mb-4">Settings</h2><div class="space-y-4"><div class="flex justify-between"><span>Dark Mode</span><button id="theme-toggle" class="w-12 h-6 bg-purple-600 rounded-full p-1"><div class="w-4 h-4 bg-white rounded-full"></div></button></div><button id="export-history-btn" class="w-full bg-gray-800 p-2 rounded">Export History</button><button id="delete-history-btn" class="w-full bg-red-900 p-2 rounded">Delete History</button></div></div></div></div>
+    <div id="register-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRegisterModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+                <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Create Account</h2>
+                <form id="email-register-form" class="space-y-4">
+                    <input id="register-name" placeholder="Name" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+                    <input id="register-email" type="email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+                    <input id="register-password" type="password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-xl text-white font-bold">Sign Up</button>
+                </form>
+                <p class="text-center text-gray-400 mt-4 text-sm">Already have an account? <button onclick="switchToLogin()" class="text-purple-400">Login</button></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSettingsModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+                <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Settings</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white">Dark Mode</span>
+                        <button id="theme-toggle" class="w-12 h-6 bg-purple-600 rounded-full p-1 relative">
+                            <div class="w-4 h-4 bg-white rounded-full transform transition-transform translate-x-6"></div>
+                        </button>
+                    </div>
+                    <button id="export-history-btn" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Export History</button>
+                    <button id="delete-history-btn" class="w-full bg-red-900 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-xl transition-colors">Delete History</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="attachment-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAttachmentModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 relative modal-panel">
+                <button onclick="closeAttachmentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+                <h2 class="text-xl font-bold text-white mb-4">Attachment Preview</h2>
+                <div id="attachment-preview" class="mb-4 text-white/80"></div>
+                <textarea id="attachment-output" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none h-32 resize-none" placeholder="Extracted text will appear here..."></textarea>
+                <div class="flex items-center space-x-2 mt-4">
+                    <button id="run-ocr-btn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Run OCR</button>
+                    <button id="start-audio-transcription-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Transcribe Audio</button>
+                    <button id="insert-attachment-text-btn" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-4 rounded-xl transition-colors">Insert</button>
+                </div>
+            </div>
+        </div>
+    </div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBZLoJZVVCVAWafhd4Oh8bhEGV4waN1B5g",
       authDomain: "studypedia-app.firebaseapp.com",
@@ -218,10 +307,8 @@
       measurementId: "G-6CTGP0MF8Y"
     };
 
-    // NEW: Backend API URL (Points to your Render server)
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
 
-    // Initialize Firebase
     let app, auth, db, googleProvider;
     try {
       app = initializeApp(firebaseConfig);
@@ -230,10 +317,16 @@
       googleProvider = new GoogleAuthProvider();
     } catch (error) { console.error('Firebase error:', error); }
 
-    // Global State
     let currentUser = null;
     let chatHistory = [];
+    let selectedAttachment = null;
+    let voiceRecognition = null;
+    let isRecordingVoice = false;
+    const CHAT_HISTORY_KEY = 'joes-ai-chat-history';
+
     let settings = { saveHistory: true, showTyping: true, creativity: 0.7, maxTokens: 1000, darkMode: true, chatMode: 'chat' };
+
+    const MAX_FILE_SIZES = { image: 25, audio: 50, document: 15, data: 10 };
 
     const AI_MODES = {
       chat: "You are joes ai, a friendly and helpful AI assistant.",
@@ -243,7 +336,6 @@
       debug: "You are joes ai. Debugging expert."
     };
 
-    // DOM Elements
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const chatMessages = document.getElementById('chat-messages');
@@ -254,47 +346,54 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadSettings();
+      loadChatHistory();
       setupEventListeners();
       checkAuthState();
+      if (chatHistory.length) { renderChatHistory(); showWelcome(false); } else { showWelcome(true); }
+      setTimeout(() => document.getElementById('page-loader')?.classList.add('loaded'), 350);
     });
 
     function setupEventListeners() {
-      sendBtn.addEventListener('click', sendMessage);
-      messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-      
-      document.getElementById('login-btn').addEventListener('click', openLoginModal);
-      document.getElementById('register-btn').addEventListener('click', openRegisterModal);
-      document.getElementById('logout-btn').addEventListener('click', logout);
-      document.getElementById('google-login-btn').addEventListener('click', signInWithGoogle);
-      document.getElementById('email-login-form').addEventListener('submit', handleEmailLogin);
-      document.getElementById('email-register-form').addEventListener('submit', handleEmailRegister);
-      document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
-      document.getElementById('clear-chat-btn').addEventListener('click', clearChat);
+      sendBtn.addEventListener('click', handleSend);
+      messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+
+      document.getElementById('login-btn')?.addEventListener('click', openLoginModal);
+      document.getElementById('register-btn')?.addEventListener('click', openRegisterModal);
+      document.getElementById('logout-btn')?.addEventListener('click', logout);
+      document.getElementById('google-login-btn')?.addEventListener('click', signInWithGoogle);
+      document.getElementById('email-login-form')?.addEventListener('submit', handleEmailLogin);
+      document.getElementById('email-register-form')?.addEventListener('submit', handleEmailRegister);
+      document.getElementById('settings-btn')?.addEventListener('click', openSettingsModal);
+      document.getElementById('clear-chat-btn')?.addEventListener('click', clearChat);
+      document.getElementById('mic-btn')?.addEventListener('click', toggleVoiceInput);
+      document.getElementById('run-ocr-btn')?.addEventListener('click', runOCR);
+      document.getElementById('start-audio-transcription-btn')?.addEventListener('click', transcribeAudio);
+      document.getElementById('insert-attachment-text-btn')?.addEventListener('click', insertAttachmentText);
+      document.getElementById('attachment-btn')?.addEventListener('click', (e) => {
+        const hint = document.getElementById('size-hint');
+        if (hint) { hint.classList.toggle('hidden'); if (!hint.classList.contains('hidden')) setTimeout(() => hint.classList.add('hidden'), 3000); }
+        setTimeout(() => document.getElementById('file-input')?.click(), 50);
+      });
+      document.getElementById('file-input')?.addEventListener('change', handleFileSelect);
     }
 
     function checkAuthState() {
       onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          currentUser = user;
-          await updateUIForLoggedInUser(user);
-        } else {
-          currentUser = null;
-          updateUIForGuest();
-        }
+        if (user) { currentUser = user; await updateUIForLoggedInUser(user); }
+        else { currentUser = null; updateUIForGuest(); }
       });
     }
 
-    // UPDATED: UI Update for Logged In User with server-side Admin Check
     async function updateUIForLoggedInUser(user) {
       guestButtons.classList.add('hidden');
       userMenu.classList.remove('hidden');
       const displayName = user.displayName || user.email.split('@')[0];
-      userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${displayName}`;
+      userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
       userName.textContent = displayName;
+      userName.classList.remove('hidden');
 
       const upgradeBtn = document.getElementById('upgrade-btn');
       const adminBtn = document.getElementById('admin-dashboard-btn');
-
       try {
         const response = await fetch(`${BACKEND_URL}/api/check-admin`, {
           method: 'POST',
@@ -302,13 +401,12 @@
           body: JSON.stringify({ email: user.email })
         });
         const data = await response.json();
-        
         if (data.isAdmin) {
           adminBtn.classList.remove('hidden');
-          upgradeBtn.classList.add('hidden');
+          if (upgradeBtn) upgradeBtn.classList.add('hidden');
         } else {
-          adminBtn.classList.add('hidden');
-          upgradeBtn.classList.remove('hidden');
+          if (adminBtn) adminBtn.classList.add('hidden');
+          if (upgradeBtn) upgradeBtn.classList.remove('hidden');
         }
       } catch (err) { console.error("Admin check failed", err); }
     }
@@ -318,33 +416,20 @@
       userMenu.classList.add('hidden');
     }
 
-    // AUTH FUNCTIONS
     async function signInWithGoogle() {
       try {
         const result = await signInWithPopup(auth, googleProvider);
-        const check = await fetch(`${BACKEND_URL}/api/check-admin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: result.user.email })
-        });
+        const check = await fetch(`${BACKEND_URL}/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: result.user.email }) });
         const adminData = await check.json();
-        
-        await setDoc(doc(db, 'users', result.user.uid), {
-          email: result.user.email,
-          isAdmin: adminData.isAdmin,
-          lastLogin: new Date()
-        }, { merge: true });
-        
+        await setDoc(doc(db, 'users', result.user.uid), { email: result.user.email, isAdmin: adminData.isAdmin, lastLogin: new Date() }, { merge: true });
         closeLoginModal();
       } catch (err) { alert(err.message); }
     }
 
     async function handleEmailLogin(e) {
       e.preventDefault();
-      try {
-        await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
-        closeLoginModal();
-      } catch (err) { alert(err.message); }
+      try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); closeLoginModal(); }
+      catch (err) { alert(err.message); }
     }
 
     async function handleEmailRegister(e) {
@@ -352,176 +437,303 @@
       const email = document.getElementById('register-email').value;
       try {
         const result = await createUserWithEmailAndPassword(auth, email, document.getElementById('register-password').value);
-        const check = await fetch(`${BACKEND_URL}/api/check-admin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
-        });
+        const check = await fetch(`${BACKEND_URL}/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
         const adminData = await check.json();
-        
-        await setDoc(doc(db, 'users', result.user.uid), {
-          email: email,
-          isAdmin: adminData.isAdmin,
-          createdAt: new Date()
-        });
+        await setDoc(doc(db, 'users', result.user.uid), { email, isAdmin: adminData.isAdmin, createdAt: new Date() });
         closeRegisterModal();
       } catch (err) { alert(err.message); }
     }
 
     async function logout() { await signOut(auth); }
 
-    // CHAT FUNCTIONS - Updated to use Render Backend
-    async function sendMessage() {
+    async function handleSend() {
       const message = messageInput.value.trim();
       if (!message) return;
 
       addMessageToUI('user', message);
       chatHistory.push({ role: 'user', content: message });
       messageInput.value = '';
-      showTypingIndicator();
+      messageInput.style.height = 'auto';
+      showWelcome(false);
+      showProcessingIndicator();
 
       try {
         const response = await fetch(`${BACKEND_URL}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: [
-              { role: 'system', content: AI_MODES[settings.chatMode] },
-              ...chatHistory.slice(-10)
-            ],
+            messages: [ { role: 'system', content: AI_MODES[settings.chatMode] }, ...chatHistory.slice(-10) ],
             model: 'llama-3.1-8b-instant',
             temperature: settings.creativity,
-            max_tokens: settings.maxTokens
+            max_tokens: settings.maxTokens,
+            stream: true
           })
         });
 
-        removeTypingIndicator();
-        const data = await response.json();
-        const aiMsg = data.choices[0].message.content;
-        
-        addMessageToUI('assistant', aiMsg);
-        chatHistory.push({ role: 'assistant', content: aiMsg });
+        removeProcessingIndicator();
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let aiFullContent = '';
+
+        const streamWrapper = document.createElement('div');
+        streamWrapper.className = 'flex justify-start message-enter';
+        streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
+        chatMessages.appendChild(streamWrapper);
+        const streamSpan = streamWrapper.querySelector('.stream-text');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed === 'data: [DONE]') continue;
+            if (trimmed.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(trimmed.slice(6));
+                const delta = data.choices?.[0]?.delta?.content || '';
+                if (delta) { aiFullContent += delta; streamSpan.innerHTML = formatMarkdown(aiFullContent); chatMessages.scrollTop = chatMessages.scrollHeight; }
+              } catch (e) { continue; }
+            }
+          }
+        }
+
+        streamWrapper.classList.remove('streaming-cursor');
+        streamSpan.innerHTML = formatMarkdown(aiFullContent);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        const msgDiv = streamWrapper.firstElementChild;
+        msgDiv.style.transition = 'box-shadow 0.5s ease';
+        msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
+        setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
+
+        if (aiFullContent) { chatHistory.push({ role: 'assistant', content: aiFullContent }); saveChatHistory(); }
       } catch (err) {
-        removeTypingIndicator();
+        removeProcessingIndicator();
         addMessageToUI('assistant', "Connection error. Check if backend is awake.");
       }
     }
 
-    // UTILITIES (Minimal UI helpers)
     function addMessageToUI(role, content) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp`;
+      if (role === 'user') {
+        wrapper.innerHTML = `<div class="max-w-[80%] px-4 py-3 rounded-2xl rounded-br-md bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-900/30">${escapeHtml(content)}</div>`;
+      } else {
+        wrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg">${formatMarkdown(escapeHtml(content))}</div>`;
+      }
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showProcessingIndicator() {
       const div = document.createElement('div');
-      div.className = role === 'user' ? 'flex justify-end' : 'flex justify-start';
-      div.innerHTML = `<div class="p-3 rounded-xl max-w-[80%] ${role === 'user' ? 'bg-purple-600 text-white' : 'bg-white/10 text-white'}">${content}</div>`;
+      div.id = 'processing-indicator';
+      div.className = 'flex justify-start message-enter';
+      div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div><span class="ml-3 text-purple-300 text-sm self-center processing-pulse">AI is thinking</span>`;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function showTypingIndicator() {
-        const div = document.createElement('div');
-        div.id = 'typing-indicator';
-        div.innerHTML = `<div class="p-3 bg-white/10 rounded-xl text-purple-300 w-16 text-center">...</div>`;
-        chatMessages.appendChild(div);
+    function removeProcessingIndicator() {
+      const el = document.getElementById('processing-indicator');
+      if (el) { el.style.transition = 'opacity 0.3s ease'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
     }
-    function removeTypingIndicator() { document.getElementById('typing-indicator')?.remove(); }
-    
-    function loadSettings() { /* Existing localStorage logic */ }
-    function openLoginModal() { document.getElementById('login-modal').classList.remove('hidden'); }
-    function closeLoginModal() { document.getElementById('login-modal').classList.add('hidden'); }
-    window.openLoginModal = openLoginModal;
-    window.closeLoginModal = closeLoginModal;
-    window.switchToRegister = () => { closeLoginModal(); document.getElementById('register-modal').classList.remove('hidden'); };
-    window.closeRegisterModal = () => document.getElementById('register-modal').classList.add('hidden');
-    window.openSettingsModal = () => document.getElementById('settings-modal').classList.remove('hidden');
-    window.closeSettingsModal = () => document.getElementById('settings-modal').classList.add('hidden');
-    function clearChat() { chatMessages.innerHTML = ''; chatHistory = []; }
 
-    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    function formatMarkdown(text) {
+      let html = escapeHtml(text);
+      html = html.replace(/```([\w]*)\n?([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
+      html = html.replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded text-purple-200 font-mono text-sm">$1</code>');
+      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      html = html.replace(/(?<!<\/pre>)\n(?!<pre>)/g, '<br>');
+      html = html.replace(/^- (.+)/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+      return html;
+    }
+
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+    function showWelcome(show) {
+      let welcome = document.getElementById('welcome-screen');
+      if (show && !welcome) {
+        welcome = document.createElement('div');
+        welcome.id = 'welcome-screen';
+        welcome.className = 'flex justify-center py-8 fade-in-up';
+        welcome.innerHTML = `<div class="text-center"><div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3><p class="text-purple-300">Your intelligent AI assistant</p><p class="text-white/60 text-sm mt-4">Start a conversation or try different modes below</p></div>`;
+        chatMessages.appendChild(welcome);
+      } else if (!show && welcome) { welcome.remove(); }
+    }
+
+    function loadSettings() { try { const saved = localStorage.getItem('joes-ai-settings'); if (saved) settings = { ...settings, ...JSON.parse(saved) }; } catch (e) {} }
+    function saveSettings() { try { localStorage.setItem('joes-ai-settings', JSON.stringify(settings)); } catch (e) {} }
+    function saveChatHistory() { try { localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory)); } catch (e) { console.error('Could not save chat history', e); } }
+    function loadChatHistory() { try { const saved = localStorage.getItem(CHAT_HISTORY_KEY); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) chatHistory = parsed; } } catch (e) { console.error('Could not load chat history', e); } }
+    function renderChatHistory() { chatMessages.innerHTML = ''; chatHistory.forEach((item) => addMessageToUI(item.role, item.content)); }
+
+    window.openLoginModal = () => document.getElementById('login-modal')?.classList.remove('hidden');
+    window.closeLoginModal = () => document.getElementById('login-modal')?.classList.add('hidden');
+    window.switchToRegister = () => { window.closeLoginModal(); document.getElementById('register-modal')?.classList.remove('hidden'); };
+    window.closeRegisterModal = () => document.getElementById('register-modal')?.classList.add('hidden');
+    window.openSettingsModal = () => document.getElementById('settings-modal')?.classList.remove('hidden');
+    window.closeSettingsModal = () => document.getElementById('settings-modal')?.classList.add('hidden');
+
+    function clearChat() { chatMessages.innerHTML = ''; chatHistory = []; localStorage.removeItem(CHAT_HISTORY_KEY); showWelcome(true); }
+    function toggleVoiceInput() { isRecordingVoice ? stopVoiceInput() : startVoiceInput(); }
+
+    function handleFileSelect(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      const file = files[0];
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const isImage = ['png','jpg','jpeg','gif'].includes(ext);
+      const isAudio = ['mp3','wav','m4a','ogg'].includes(ext);
+      const isDoc = ['pdf','doc','docx','txt','md'].includes(ext) || file.type.startsWith('application/pdf');
+      const isData = ['json','csv','xlsx'].includes(ext);
+      let maxSizeMB = 10;
+      if (isImage) maxSizeMB = MAX_FILE_SIZES.image;
+      else if (isAudio) maxSizeMB = MAX_FILE_SIZES.audio;
+      else if (isDoc) maxSizeMB = MAX_FILE_SIZES.document;
+      else if (isData) maxSizeMB = MAX_FILE_SIZES.data;
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        const preview = document.getElementById('attachment-preview');
+        preview.innerHTML = `<div class="text-red-400 text-sm">File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(1)}MB. Max allowed: ${maxSizeMB}MB.</div>`;
+        event.target.value = '';
+        return;
+      }
+      selectedAttachment = file;
+      openAttachmentModal();
+      renderAttachmentPreview(selectedAttachment);
+      event.target.value = '';
+    }
+
+    function openAttachmentModal() { document.getElementById('attachment-modal')?.classList.remove('hidden'); }
+    function closeAttachmentModal() { document.getElementById('attachment-modal')?.classList.add('hidden'); }
+
+    function renderAttachmentPreview(file) {
+      const preview = document.getElementById('attachment-preview');
+      const output = document.getElementById('attachment-output');
+      preview.innerHTML = '';
+      output.value = '';
+      if (!file) { preview.textContent = 'No attachment selected.'; return; }
+      const meta = document.createElement('div');
+      meta.className = 'mb-4 text-sm text-white/70';
+      meta.textContent = `${file.name} · ${Math.round(file.size / 1024)} KB · ${file.type || 'unknown type'}`;
+      preview.appendChild(meta);
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'w-full rounded-2xl border border-white/10 object-contain';
+        img.onload = () => URL.revokeObjectURL(img.src);
+        preview.appendChild(img);
+      } else if (file.type.startsWith('audio/')) {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = URL.createObjectURL(file);
+        audio.className = 'w-full rounded-2xl';
+        audio.onloadeddata = () => URL.revokeObjectURL(audio.src);
+        preview.appendChild(audio);
+      } else {
+        const hint = document.createElement('p');
+        hint.className = 'text-sm text-white/70';
+        hint.textContent = 'Press Run OCR for image attachments or Transcribe Audio for supported audio files.';
+        preview.appendChild(hint);
+      }
+    }
+
+    async function runOCR() {
+      if (!selectedAttachment || !selectedAttachment.type.startsWith('image/')) { showAttachmentMessage('OCR works only on images. Please attach a PNG, JPG, or JPEG file.'); return; }
+      const output = document.getElementById('attachment-output');
+      output.value = 'Processing image with OCR...';
+      try {
+        const { data: { text } } = await Tesseract.recognize(selectedAttachment, 'eng', { logger: (m) => { if (m.status === 'recognizing text') output.value = `Recognizing... ${Math.round(m.progress * 100)}%`; } });
+        output.value = text;
+      } catch (err) { output.value = 'OCR failed: ' + err.message; }
+    }
+
+    async function transcribeAudio() {
+      const output = document.getElementById('attachment-output');
+      if (!selectedAttachment) { output.value = 'No audio file selected.'; return; }
+      if (!isRecordingVoice) {
+        output.value = 'Preparing transcription...';
+        try {
+          if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) throw new Error('Not supported');
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          voiceRecognition = new SpeechRecognition();
+          voiceRecognition.lang = 'en-US';
+          voiceRecognition.interimResults = false;
+          voiceRecognition.maxAlternatives = 1;
+          voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
+          voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
+          voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
+          showAttachmentMessage('Allow microphone access and play the audio through your speakers for transcription.');
+          voiceRecognition.start();
+        } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
+      }
+    }
+
+    function startVoiceInput() {
+      try {
+        const output = document.getElementById('attachment-output');
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { alert('Speech recognition is not supported in this browser.'); return; }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        voiceRecognition = new SpeechRecognition();
+        voiceRecognition.lang = 'en-US';
+        voiceRecognition.interimResults = false;
+        voiceRecognition.maxAlternatives = 1;
+        voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
+        voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
+        voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
+        showAttachmentMessage('Allow microphone access and play the audio through your speakers for transcription.');
+        voiceRecognition.start();
+      } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
+    }
+
+    function stopVoiceInput() {
+      if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; isRecordingVoice = false; updateMicButton(false); }
+      const output = document.getElementById('attachment-output');
+      if (output && (!output.value || output.value.startsWith('Preparing'))) output.value = 'Voice input stopped.';
+    }
+
+    function updateMicButton(active) {
+      const button = document.getElementById('mic-btn');
+      if (!button) return;
+      if (active) { button.classList.add('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.remove('bg-white/10', 'hover:bg-white/20'); }
+      else { button.classList.remove('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.add('bg-white/10', 'hover:bg-white/20'); }
+    }
+
+    function insertAttachmentText() {
+      const output = document.getElementById('attachment-output');
+      const text = output.value.trim();
+      if (!text) return;
+      messageInput.value = text;
+      closeAttachmentModal();
+      messageInput.focus();
+    }
+
+    function showAttachmentMessage(message) {
+      const preview = document.getElementById('attachment-preview');
+      if (preview) {
+        const msg = document.createElement('div');
+        msg.className = 'text-sm text-white/70 mb-2';
+        msg.textContent = message;
+        preview.appendChild(msg);
+      }
+    }
+
+    window.openLoginModal = () => document.getElementById('login-modal')?.classList.remove('hidden');
+    window.closeLoginModal = () => document.getElementById('login-modal')?.classList.add('hidden');
+    window.openRegisterModal = () => document.getElementById('register-modal')?.classList.remove('hidden');
+    window.closeRegisterModal = () => document.getElementById('register-modal')?.classList.add('hidden');
+    window.switchToRegister = () => window.openRegisterModal();
+    window.openSettingsModal = () => document.getElementById('settings-modal')?.classList.remove('hidden');
+    window.closeSettingsModal = () => document.getElementById('settings-modal')?.classList.add('hidden');
   </script>
-  Ezoic LogoEzoic Logo
-Products
-Solutions
-Resources
-Learn
-Blog
-Login
-Get Started
-
-Toggle theme
-Ezoic LogoEzoic Logo
-Products
-Solutions
-Resources
-Learn
-Blog
-Login
-Get Started
-
-Toggle theme
-404
-Page Not Found.
-
-... and we looked everywhere
-
-back to home
-Ezoic Logo
-Facebook
-X
-LinkedIn
-Product
-Ads
-ezID
-Video
-Services
-Integration
-Setup
-Analytics
-Resources
-Login
-FAQ
-Events
-Support
-Reviews
-Blog
-Docs
-Company
-About
-Partners
-Careers
-Contact
-CSR
-Press
-Privacy Policy
-Terms
-2026 Ezoic. All rights reserved.
-Ezoic Logo
-Facebook
-X
-LinkedIn
-Product
-Ads
-ezID
-Video
-Services
-Integration
-Setup
-Analytics
-Resources
-Login
-FAQ
-Events
-Support
-Reviews
-Blog
-Docs
-Company
-About
-Partners
-Careers
-Contact
-CSR
-Press
-Privacy Policy
-Terms
-2026 Ezoic. All rights reserved.
 </body>
 </html>
