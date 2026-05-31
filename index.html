@@ -4,81 +4,72 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Joes AI - Intelligent AI Chat Assistant</title>
-  <!-- [Previous Meta Tags remain the same for SEO] -->
+  <title>Joes AI - Intelligent AI Assistant</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* [Existing Styles Kept for consistency] */
-    body { font-family: 'Inter', sans-serif; margin: 0; }
+    body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
     .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
     body.light .gradient-bg { background: linear-gradient(-45deg, #eef2ff, #e0e7ff, #c7d2fe, #f8fafc); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
     @keyframes liveFade { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
-    .ai-message pre { background: rgba(0,0,0,.3); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 8px 0; border: 1px solid rgba(255,255,255,.08); }
+    .ai-message pre { background: rgba(0,0,0,0.5); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 10px 0; border: 1px solid rgba(255,255,255,0.1); font-family: monospace; color: #a78bfa; }
     .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
-    @keyframes processPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+    @keyframes processPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; font-family: monospace; color: #f472b6; }
   </style>
 </head>
 <body class="gradient-bg min-h-screen">
-  <div id="page-loader"><div class="loader"></div></div>
+  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0b0a1a] flex items-center justify-center transition-opacity duration-500">
+    <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
   
-  <div id="app" class="relative min-h-screen z-10">
-    <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center"></div>
-              <span class="text-2xl font-bold text-white">joes ai</span>
+  <div id="app" class="relative h-screen z-10 flex flex-col">
+    <header class="bg-white/10 backdrop-blur-md shadow-lg p-4">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">⚡</div>
+              <span class="text-2xl font-bold text-white tracking-tight">joes ai</span>
             </div>
-            <!-- Auth sections simplified for focus on function -->
-            <div id="user-menu" class="flex items-center space-x-3 text-white">
-                <span id="user-name" class="hidden sm:inline">Guest</span>
-                <button id="settings-btn" class="p-2 hover:bg-white/10 rounded-lg">⚙️</button>
+            <div class="flex items-center space-x-4">
+                <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none">
+                    <option value="chat" class="text-black">Chat Mode</option>
+                    <option value="code" class="text-black">Code Mode</option>
+                    <option value="debug" class="text-black">Debug Mode</option>
+                </select>
+                <button id="settings-btn" class="text-white hover:rotate-90 transition-transform">⚙️</button>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-6">
-      <div class="max-w-4xl mx-auto">
-        <div class="chat-gradient rounded-2xl shadow-2xl overflow-hidden min-h-[70vh] flex flex-col">
-          <!-- Chat Header -->
-          <div class="p-4 border-b border-white/10 flex items-center justify-between text-white">
-            <div class="flex items-center space-x-3">
-              <h2 class="font-bold">Multimodal AI Chat</h2>
-              <span class="text-xs bg-purple-600 px-2 py-0.5 rounded-full">Gemini 1.5 Enabled</span>
-            </div>
-            <select id="chat-mode-select" class="bg-gray-800 border border-white/20 rounded px-2 py-1 text-sm">
-                <option value="chat">Standard Mode</option>
-                <option value="code">Code Assistant</option>
-                <option value="debug">Bug Fixer</option>
-            </select>
-          </div>
-
+    <main class="flex-1 overflow-hidden p-4">
+      <div class="max-w-5xl mx-auto h-full flex flex-col">
+        <div class="chat-gradient rounded-3xl shadow-2xl overflow-hidden flex-1 flex flex-col relative">
           <!-- Message Area -->
-          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+          <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
 
           <!-- Input Area -->
-          <div class="p-4 border-t border-white/10 bg-black/20">
+          <div class="p-4 bg-black/30 border-t border-white/10">
             <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3"></div>
             
-            <div class="flex items-end space-x-2">
-              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
+            <div class="flex items-end space-x-3">
+              <button id="attachment-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Upload Media">
                 📎
               </button>
               
               <div class="flex-1 relative">
-                <textarea id="message-input" placeholder="Type a message or ask about your file..." rows="1" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none resize-none"></textarea>
+                <textarea id="message-input" placeholder="Type a message or analyze a file..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
               </div>
 
-              <button id="send-btn" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-xl shadow-lg transition-transform active:scale-95">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+              <button id="send-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white p-3.5 rounded-2xl shadow-xl transition-all active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
               </button>
             </div>
-            <!-- UPDATED: Support for Video & Audio -->
-            <input type="file" id="file-input" class="hidden" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.mp3,.wav,.m4a,.mp4,.mov,.avi">
+            <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
+            <div class="text-[10px] text-white/30 mt-2 ml-1">Powered by Groq & Gemini 1.5</div>
           </div>
         </div>
       </div>
@@ -86,7 +77,7 @@
   </div>
 
   <script type="module">
-    // --- FIREBASE & CONFIG ---
+    // --- CONFIGURATION ---
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     let chatHistory = [];
     let selectedAttachment = null;
@@ -95,16 +86,25 @@
     const sendBtn = document.getElementById('send-btn');
     const chatMessages = document.getElementById('chat-messages');
 
-    // Initial load
+    // Initial load cleanup
     document.addEventListener('DOMContentLoaded', () => {
         showWelcome(true);
         setupEventListeners();
-        setTimeout(() => document.getElementById('page-loader')?.remove(), 350);
+        setTimeout(() => {
+            const loader = document.getElementById('page-loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+        }, 800);
     });
 
     function setupEventListeners() {
       sendBtn.addEventListener('click', handleSend);
-      messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+      messageInput.addEventListener('keydown', (e) => { 
+          if (e.key === 'Enter' && !e.shiftKey) { 
+              e.preventDefault(); 
+              handleSend(); 
+          } 
+      });
       
       document.getElementById('attachment-btn').addEventListener('click', () => document.getElementById('file-input').click());
       document.getElementById('file-input').addEventListener('change', handleFileSelect);
@@ -114,10 +114,9 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        // Visual limit check
-        const sizeInMB = file.size / 1024 / 1024;
-        if (sizeInMB > 50) {
-            alert("File is too large! Please keep it under 50MB.");
+        // Size check (Max 50MB for free tiers usually)
+        if (file.size > 50 * 1024 * 1024) {
+            alert("File is too heavy (Limit: 50MB).");
             return;
         }
 
@@ -127,15 +126,16 @@
 
     function showAttachmentChip(name) {
         const container = document.getElementById('attachment-chip-container');
-        container.innerHTML = `<div class="bg-purple-600 text-white px-3 py-1 rounded-full text-xs flex items-center space-x-2">
-            <span>📎 ${name}</span>
-            <button onclick="window.removeAttachment()" class="hover:text-black">✕</button>
+        container.innerHTML = `<div class="bg-purple-600/80 backdrop-blur-sm border border-purple-400 text-white px-4 py-1.5 rounded-full text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
+            <span class="font-medium">📎 ${name}</span>
+            <button onclick="window.removeAttachment()" class="hover:text-black transition-colors font-bold">✕</button>
         </div>`;
         container.classList.remove('hidden');
     }
 
     window.removeAttachment = () => {
         selectedAttachment = null;
+        document.getElementById('file-input').value = "";
         document.getElementById('attachment-chip-container').classList.add('hidden');
     };
 
@@ -145,23 +145,20 @@
       
       if (!message && !hasAttachment) return;
 
-      // Add user message to UI
-      addMessageToUI('user', message || `Sent an attachment: ${selectedAttachment.name}`);
+      // Add user message UI
+      addMessageToUI('user', message || `Analysing: ${selectedAttachment.name}`);
       
-      // Cleanup inputs
-      const currentAttachment = selectedAttachment; 
+      const currentAttachment = selectedAttachment;
       messageInput.value = '';
       window.removeAttachment();
       showWelcome(false);
       
-      // Show Loader
-      showProcessingIndicator(hasAttachment ? 'Gemini (Multimodal)' : 'Groq');
+      showProcessingIndicator(hasAttachment ? 'Gemini 1.5' : 'Groq Llama');
 
       try {
         let aiText = '';
         
         if (hasAttachment) {
-            // --- FILE PROCESSING PATH ---
             const base64Data = await readFileAsBase64(currentAttachment);
             const mimeType = currentAttachment.type || 'application/octet-stream';
 
@@ -172,40 +169,34 @@
             });
 
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
+            if (!response.ok) throw new Error(data.error || 'Server error');
             aiText = data.text;
-            
-            removeProcessingIndicator();
-            await streamTextToUI(aiText);
         } else {
-            // --- TEXT ONLY PATH (GROQ) ---
             const response = await fetch(`${BACKEND_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    messages: [...chatHistory.slice(-5), { role: 'user', content: message }],
-                    stream: false // Using false for simple reliability, can be set to true for stream logic
+                    messages: [...chatHistory.slice(-6), { role: 'user', content: message }]
                 })
             });
 
             const data = await response.json();
+            if (!response.ok) throw new Error('Groq Offline');
             aiText = data.choices?.[0]?.message?.content || data.text;
-            
-            removeProcessingIndicator();
-            await streamTextToUI(aiText);
         }
+
+        removeProcessingIndicator();
+        addMessageToUI('assistant', aiText);
 
         chatHistory.push({ role: 'user', content: message });
         chatHistory.push({ role: 'assistant', content: aiText });
 
       } catch (err) {
         removeProcessingIndicator();
-        addMessageToUI('assistant', `❌ Error: ${err.message}`);
-        console.error(err);
+        addMessageToUI('assistant', `⚠️ **Error:** ${err.message}`);
       }
     }
 
-    // Helper: Base64
     function readFileAsBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -215,26 +206,24 @@
       });
     }
 
-    // Helper: UI Messages
     function addMessageToUI(role, content) {
       const wrapper = document.createElement('div');
-      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp`;
-      const bg = role === 'user' ? 'bg-purple-600' : 'chat-gradient';
+      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster`;
       
-      wrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl text-white shadow-lg ${bg}">${content}</div>`;
+      const innerClass = role === 'user' 
+        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none' 
+        : 'chat-gradient text-white rounded-2xl rounded-tl-none';
+
+      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass}">${formatMarkdown(content)}</div>`;
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    async function streamTextToUI(text) {
-        addMessageToUI('assistant', formatMarkdown(text));
     }
 
     function showProcessingIndicator(modelName) {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
-      div.className = 'flex justify-start text-purple-300 text-sm italic processing-pulse';
-      div.innerHTML = `Joes AI (${modelName}) is thinking...`;
+      div.className = 'flex justify-start text-purple-400 text-xs italic tracking-wide ml-2 mb-4 processing-pulse';
+      div.innerHTML = `<span class="mr-2">⚡</span> Joes AI (${modelName}) is processing...`;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -244,16 +233,34 @@
     }
 
     function formatMarkdown(text) {
-        // Very basic formatter
-        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                   .replace(/\n/g, '<br>');
+        if (!text) return '';
+        let escaped = text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        // Code blocks
+        escaped = escaped.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        // Inline code
+        escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Bold
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Newlines
+        return escaped.replace(/\n/g, '<br>');
     }
 
     function showWelcome(show) {
         if(show) {
-            chatMessages.innerHTML = `<div id="welcome-msg" class="text-center py-20 text-white/50">
-                <h1 class="text-2xl font-bold text-white">Hello! How can I help you?</h1>
-                <p>Upload images, documents, audio or video to start.</p>
+            chatMessages.innerHTML = `<div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-20 text-white/40 space-y-4">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">🤖</div>
+                <h1 class="text-3xl font-bold text-white/90">Welcome to Joes AI</h1>
+                <p class="max-w-xs text-sm">Ask anything, or attach a video, photo, or PDF to begin the analysis.</p>
+                <div class="flex gap-2 pt-4">
+                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Images</span>
+                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Videos</span>
+                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Audio</span>
+                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Docs</span>
+                </div>
             </div>`;
         } else {
             document.getElementById('welcome-msg')?.remove();
