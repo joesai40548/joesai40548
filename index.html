@@ -121,6 +121,22 @@
     .ai-message em { font-style: italic; opacity: .9; }
     .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
     @keyframes processPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+    .groq-wave { animation: groqWave 1.6s ease-in-out infinite; }
+    @keyframes groqWave {
+      0% { color: #a78bfa; text-shadow: 0 0 0 transparent; }
+      25% { color: #c4b5fd; text-shadow: 0 0 8px rgba(124,58,237,.35); }
+      50% { color: #a78bfa; text-shadow: 0 0 0 transparent; }
+      75% { color: #ddd6fe; text-shadow: 0 0 8px rgba(124,58,237,.25); }
+      100% { color: #a78bfa; text-shadow: 0 0 0 transparent; }
+    }
+    .gemini-wave { animation: geminiWave 1.6s ease-in-out infinite; }
+    @keyframes geminiWave {
+      0% { color: #7dd3fc; text-shadow: 0 0 0 transparent; }
+      25% { color: #38bdf8; text-shadow: 0 0 8px rgba(56,189,248,.35); }
+      50% { color: #7dd3fc; text-shadow: 0 0 0 transparent; }
+      75% { color: #bae6fd; text-shadow: 0 0 8px rgba(56,189,248,.25); }
+      100% { color: #7dd3fc; text-shadow: 0 0 0 transparent; }
+    }
   </style>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -424,10 +440,11 @@
       messageInput.value = '';
       messageInput.style.height = 'auto';
       showWelcome(false);
-      showProcessingIndicator();
+      showProcessingIndicator(hasAttachment ? 'Gemini' : 'Groq');
       clearAttachmentChips();
       try {
         let aiFullContent = '';
+        let streamed = false;
         if (hasAttachment) {
           const fileData = await readFileAsBase64(selectedAttachment);
           const mimeType = selectedAttachment.type || 'application/octet-stream';
@@ -439,6 +456,7 @@
           const geminiData = await geminiRes.json();
           aiFullContent = geminiData.text || 'Gemini did not return text.';
         } else {
+          streamed = true;
           const response = await fetch(`${BACKEND_URL}/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -489,7 +507,7 @@
         }
         removeProcessingIndicator();
         if (aiFullContent) {
-          addMessageToUI('assistant', aiFullContent);
+          if (!streamed) addMessageToUI('assistant', aiFullContent);
           chatHistory.push({ role: 'assistant', content: aiFullContent });
           saveChatHistory();
         }
@@ -511,11 +529,12 @@
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    function showProcessingIndicator() {
+    function showProcessingIndicator(provider = 'Groq') {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
       div.className = 'flex justify-start animate__animated animate__fadeInUp';
-      div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div><span class="ml-3 text-purple-300 text-sm self-center processing-pulse">AI is thinking</span>`;
+      const providerClass = provider === 'Gemini' ? 'gemini-wave' : 'groq-wave';
+      div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div><span class="ml-3 text-sm self-center processing-pulse ${providerClass}">${provider} is thinking</span>`;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -541,7 +560,7 @@
         welcome = document.createElement('div');
         welcome.id = 'welcome-screen';
         welcome.className = 'flex justify-center py-8 animate__animated animate__fadeInUp';
-        welcome.innerHTML = `<div class="text-center"><div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3><p class="text-purple-300">Your intelligent AI assistant</p><p class="text-white/60 text-sm mt-4">Start a conversation or try different modes below</p></div>`;
+        welcome.innerHTML = `<div class="text-center"><div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3><p class="text-purple-300">Your intelligent AI assistant</p><p class="text-white/60 text-sm mt-4">Start a conversation or try different modes below</p><p class="text-white/40 text-xs mt-6">Developed by Joes Technologies Uganda Ltd</p></div>`;
         chatMessages.appendChild(welcome);
       } else if (!show && welcome) { welcome.remove(); }
     }
