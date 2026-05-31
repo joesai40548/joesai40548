@@ -11,6 +11,7 @@
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="theme-color" content="#7c3aed">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Joes AI">
   <link rel="canonical" href="https://joes-ai-website.onrender.com/">
@@ -42,7 +43,6 @@
     "featureList": ["AI Chat", "Code Assistant", "Code Explanation", "Code Review", "Debug Mode", "File Upload", "Chat History", "Dark/Light Mode"]
   }
   </script>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.tailwindcss.com">
@@ -52,41 +52,65 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; margin: 0; }
-    
-    .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
-    body.light .gradient-bg { background: linear-gradient(-45deg, #eef2ff, #e0e7ff, #c7d2fe, #f8fafc); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
-    @keyframes liveFade { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-    .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); position: relative; }
-    body.light .chat-gradient { background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); }
-
+    .gradient-bg {
+      background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543);
+      background-size: 400% 400%;
+      animation: liveFade 15s ease infinite;
+    }
+    body.light .gradient-bg {
+      background: linear-gradient(-45deg, #eef2ff, #e0e7ff, #c7d2fe, #f8fafc);
+      background-size: 400% 400%;
+      animation: liveFade 15s ease infinite;
+    }
+    @keyframes liveFade {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .chat-gradient {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+    body.light .chat-gradient {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
     html, body { height: 100%; }
-
-    #page-loader { position: fixed; inset: 0; z-index: 9999; background: #0b0a1a; display: flex; align-items: center; justify-content: center; }
+    #page-loader {
+      position: fixed; inset: 0; z-index: 9999; background: #0b0a1a;
+      display: flex; align-items: center; justify-content: center;
+    }
     #page-loader.loaded { animation: hideLoader .5s ease forwards; }
     @keyframes hideLoader { to { opacity: 0; visibility: hidden; pointer-events: none; } }
-    #page-loader .loader { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255,255,255,.15); border-top-color: #a78bfa; }
-
+    #page-loader .loader {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.15); border-top-color: #a78bfa;
+    }
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-track { background: transparent; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
-
     .send-glow { box-shadow: 0 0 20px rgba(124,58,237,.4); transition: all .3s ease; }
     .send-glow:hover { box-shadow: 0 0 35px rgba(124,58,237,.7); transform: scale(1.05); }
-    button, select, textarea { transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
+    button, select, textarea {
+      transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+    }
     button:hover, select:hover, textarea:hover { transform: translateY(-1px); }
     button:active, textarea:active { transform: translateY(0) scale(.98); }
     button:hover { box-shadow: 0 18px 40px rgba(124,58,237,.22); }
-
     .chat-gradient::before {
-      content: '';
-      position: absolute; inset: 0; pointer-events: none;
-      background: radial-gradient(circle at 20% 20%, rgba(217,70,239,.14), transparent 28%), radial-gradient(circle at 80% 70%, rgba(59,130,246,.12), transparent 24%);
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(217,70,239,.14), transparent 28%),
+        radial-gradient(circle at 80% 70%, rgba(59,130,246,.12), transparent 24%);
       opacity: .9; z-index: 0;
     }
     .chat-gradient > * { position: relative; z-index: 1; }
-
-    .ai-message pre { background: rgba(0,0,0,.3); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 8px 0; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255,255,255,.08); }
+    .ai-message pre {
+      background: rgba(0,0,0,.3); border-radius: 8px; padding: 16px; overflow-x: auto;
+      margin: 8px 0; font-size: 13px; line-height: 1.5; border: 1px solid rgba(255,255,255,.08);
+    }
     .ai-message code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
     .ai-message p { margin: 6px 0; line-height: 1.7; }
     .ai-message ul, .ai-message ol { margin: 6px 0; padding-left: 20px; }
@@ -95,6 +119,8 @@
     body.light .ai-message code { color: #1f2937; }
     .ai-message strong { font-weight: 700; }
     .ai-message em { font-style: italic; opacity: .9; }
+    .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
+    @keyframes processPulse { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
   </style>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,32 +132,24 @@
   <div class="orb orb-1 animate__animated animate__fadeIn" style="animation-delay:.1s" aria-hidden="true"></div>
   <div class="orb orb-2 animate__animated animate__fadeIn" style="animation-delay:.25s" aria-hidden="true"></div>
   <div class="orb orb-3 animate__animated animate__fadeIn" style="animation-delay:.4s" aria-hidden="true"></div>
-
   <div id="app" class="relative min-h-screen z-10">
-
     <header class="bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50 animate__animated animate__fadeInDown">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 logo-pulse">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-            </svg>
-          </div>
+          <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 logo-pulse"></div>
           <span class="text-2xl font-bold text-white tracking-tight">joes ai</span>
         </div>
-
         <div id="auth-section" class="flex items-center space-x-3">
           <div id="guest-buttons" class="flex items-center space-x-2">
             <button id="login-btn" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all font-medium backdrop-blur-sm">Login</button>
             <button id="register-btn" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg transition-all font-medium shadow-lg">Sign Up</button>
           </div>
-
           <div id="user-menu" class="hidden flex items-center space-x-3">
             <button id="upgrade-btn" class="px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg text-sm font-medium hidden" title="Upgrade to Premium">Upgrade</button>
             <button id="admin-dashboard-btn" class="px-3 py-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-lg text-sm font-medium hidden" title="Admin Dashboard">Admin</button>
             <div class="flex items-center space-x-2">
               <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-purple-400">
-              <span id="user-name" class="text-white font-medium inline"></span>
+              <span id="user-name" class="text-white font-medium"></span>
             </div>
             <button id="settings-btn" class="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Settings">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,23 +166,17 @@
         </div>
       </div>
     </header>
-
     <main class="container mx-auto px-4 py-6">
       <div class="max-w-4xl mx-auto">
-        <div class="chat-gradient rounded-2xl shadow-2xl overflow-hidden min-h-[70vh] flex flex-col">
+        <div class="chat-gradient rounded-2xl shadow-2xl overflow-hidden min-h-[70vh] flex flex-col animate__animated animate__fadeInUp">
           <div class="p-4 border-b border-white/10 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                </svg>
-              </div>
+              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 logo-pulse"></div>
               <div>
                 <h2 class="text-white font-bold">joes ai</h2>
                 <p class="text-purple-300 text-sm">AI Assistant</p>
               </div>
             </div>
-
             <div class="flex items-center space-x-2">
               <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-purple-500">
                 <option value="chat" class="bg-gray-800">Chat Mode</option>
@@ -174,7 +186,6 @@
                 <option value="debug" class="bg-gray-800">Debug Mode</option>
               </select>
             </div>
-
             <button id="clear-chat-btn" class="text-white/60 hover:text-white text-sm flex items-center space-x-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -182,11 +193,8 @@
               <span>Clear</span>
             </button>
           </div>
-
-          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
-          </div>
-
-           <div class="p-4 border-t border-white/10">
+          <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative"></div>
+          <div class="p-4 border-t border-white/10">
             <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-2"></div>
             <div class="flex items-end space-x-2">
               <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all relative" title="Attach file">
@@ -211,93 +219,71 @@
         </div>
       </div>
     </main>
-
     <div id="login-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLoginModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-          <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
-            <h2 class="text-2xl font-bold text-white mb-6 text-center">Welcome Back</h2>
-            <button id="google-login-btn" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 mb-4 transition-colors">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
-              <span>Continue with Google</span>
-            </button>
-            <div class="relative my-4 text-center"><span class="px-2 bg-gray-900 text-gray-400 text-sm">or</span><hr class="border-gray-700 mt-[-10px]"></div>
-            <form id="email-login-form" class="space-y-4">
-              <input type="email" id="login-email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
-              <input type="password" id="login-password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
-              <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-xl text-white font-bold">Login</button>
-            </form>
-            <p class="text-center text-gray-400 mt-4 text-sm">Don't have an account? <button onclick="switchToRegister()" class="text-purple-400">Sign up</button></p>
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLoginModal()"></div>
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+          <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+          <h2 class="text-2xl font-bold text-white mb-6 text-center">Welcome Back</h2>
+          <button id="google-login-btn" class="w-full bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 mb-4 transition-colors">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+          <div class="relative my-4 text-center"><span class="px-2 bg-gray-900 text-gray-400 text-sm">or</span><hr class="border-gray-700 mt-[-10px]"></div>
+          <form id="email-login-form" class="space-y-4">
+            <input type="email" id="login-email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+            <input type="password" id="login-password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-xl text-white font-bold">Login</button>
+          </form>
+          <p class="text-center text-gray-400 mt-4 text-sm">Don't have an account? <button onclick="switchToRegister()" class="text-purple-400">Sign up</button></p>
+        </div>
+      </div>
+    </div>
+    <div id="register-modal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRegisterModal()"></div>
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+          <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+          <h2 class="text-2xl font-bold text-white mb-6 text-center">Create Account</h2>
+          <form id="email-register-form" class="space-y-4">
+            <input id="register-name" placeholder="Name" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+            <input id="register-email" type="email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+            <input id="register-password" type="password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-xl text-white font-bold">Sign Up</button>
+          </form>
+          <p class="text-center text-gray-400 mt-4 text-sm">Already have an account? <button onclick="switchToLogin()" class="text-purple-400">Login</button></p>
+        </div>
+      </div>
+    </div>
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSettingsModal()"></div>
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
+          <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
+          <h2 class="text-2xl font-bold text-white mb-6 text-center">Settings</h2>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-white">Dark Mode</span>
+              <button id="theme-toggle" class="w-12 h-6 bg-purple-600 rounded-full p-1 relative">
+                <div class="w-4 h-4 bg-white rounded-full transform transition-transform translate-x-6"></div>
+              </button>
+            </div>
+            <button id="export-history-btn" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Export History</button>
+            <button id="delete-history-btn" class="w-full bg-red-900 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-xl transition-colors">Delete History</button>
           </div>
         </div>
-    </div>
-
-    <div id="register-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRegisterModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
-                <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
-                <h2 class="text-2xl font-bold text-white mb-6 text-center">Create Account</h2>
-                <form id="email-register-form" class="space-y-4">
-                    <input id="register-name" placeholder="Name" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
-                    <input id="register-email" type="email" placeholder="Email" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
-                    <input id="register-password" type="password" placeholder="Password" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none">
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-xl text-white font-bold">Sign Up</button>
-                </form>
-                <p class="text-center text-gray-400 mt-4 text-sm">Already have an account? <button onclick="switchToLogin()" class="text-purple-400">Login</button></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="settings-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSettingsModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6 relative modal-panel">
-                <button onclick="closeSettingsModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
-                <h2 class="text-2xl font-bold text-white mb-6 text-center">Settings</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-white">Dark Mode</span>
-                        <button id="theme-toggle" class="w-12 h-6 bg-purple-600 rounded-full p-1 relative">
-                            <div class="w-4 h-4 bg-white rounded-full transform transition-transform translate-x-6"></div>
-                        </button>
-                    </div>
-                    <button id="export-history-btn" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Export History</button>
-                    <button id="delete-history-btn" class="w-full bg-red-900 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-xl transition-colors">Delete History</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="attachment-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAttachmentModal()"></div>
-        <div class="relative flex items-center justify-center min-h-screen p-4">
-            <div class="bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 relative modal-panel">
-                <button onclick="closeAttachmentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">X</button>
-                <h2 class="text-xl font-bold text-white mb-4">Attachment Preview</h2>
-                <div id="attachment-preview" class="mb-4 text-white/80"></div>
-                <textarea id="attachment-output" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:border-purple-500 outline-none h-32 resize-none" placeholder="Extracted text will appear here..."></textarea>
-                <div class="flex items-center space-x-2 mt-4">
-                    <button id="run-ocr-btn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Run OCR</button>
-                    <button id="start-audio-transcription-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">Transcribe Audio</button>
-                    <button id="insert-attachment-text-btn" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-4 rounded-xl transition-colors">Insert</button>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
     const firebaseConfig = {
       apiKey: "AIzaSyBZLoJZVVCVAWafhd4Oh8bhEGV4waN1B5g",
       authDomain: "studypedia-app.firebaseapp.com",
@@ -307,9 +293,7 @@
       appId: "1:793261754970:web:49bbd2bea1ab4d46486663",
       measurementId: "G-6CTGP0MF8Y"
     };
-
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
-
     let app, auth, db, googleProvider;
     try {
       app = initializeApp(firebaseConfig);
@@ -317,18 +301,14 @@
       db = getFirestore(app);
       googleProvider = new GoogleAuthProvider();
     } catch (error) { console.error('Firebase error:', error); }
-
     let currentUser = null;
     let chatHistory = [];
     let selectedAttachment = null;
     let voiceRecognition = null;
     let isRecordingVoice = false;
     const CHAT_HISTORY_KEY = 'joes-ai-chat-history';
-
     let settings = { saveHistory: true, showTyping: true, creativity: 0.7, maxTokens: 1000, darkMode: true, chatMode: 'chat' };
-
     const MAX_FILE_SIZES = { image: 25, audio: 50, document: 15, data: 10 };
-
     const AI_MODES = {
       chat: "You are joes ai, a friendly and helpful AI assistant.",
       code: "You are joes ai in Code Mode. Expert programmer.",
@@ -336,7 +316,6 @@
       review: "You are joes ai. Perform a code review.",
       debug: "You are joes ai. Debugging expert."
     };
-
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const chatMessages = document.getElementById('chat-messages');
@@ -344,7 +323,6 @@
     const userMenu = document.getElementById('user-menu');
     const userAvatar = document.getElementById('user-avatar');
     const userName = document.getElementById('user-name');
-
     document.addEventListener('DOMContentLoaded', () => {
       loadSettings();
       loadChatHistory();
@@ -353,11 +331,9 @@
       if (chatHistory.length) { renderChatHistory(); showWelcome(false); } else { showWelcome(true); }
       setTimeout(() => document.getElementById('page-loader')?.classList.add('loaded'), 350);
     });
-
     function setupEventListeners() {
       sendBtn.addEventListener('click', handleSend);
       messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-
       document.getElementById('login-btn')?.addEventListener('click', openLoginModal);
       document.getElementById('register-btn')?.addEventListener('click', openRegisterModal);
       document.getElementById('logout-btn')?.addEventListener('click', logout);
@@ -366,6 +342,16 @@
       document.getElementById('email-register-form')?.addEventListener('submit', handleEmailRegister);
       document.getElementById('settings-btn')?.addEventListener('click', openSettingsModal);
       document.getElementById('clear-chat-btn')?.addEventListener('click', clearChat);
+      document.getElementById('mic-btn')?.addEventListener('click', toggleVoiceInput);
+      document.getElementById('run-ocr-btn')?.addEventListener('click', runOCR);
+      document.getElementById('start-audio-transcription-btn')?.addEventListener('click', transcribeAudio);
+      document.getElementById('insert-attachment-text-btn')?.addEventListener('click', insertAttachmentText);
+      document.getElementById('attachment-btn')?.addEventListener('click', (e) => {
+        const hint = document.getElementById('size-hint');
+        if (hint) { hint.classList.toggle('hidden'); if (!hint.classList.contains('hidden')) setTimeout(() => hint.classList.add('hidden'), 3000); }
+        setTimeout(() => document.getElementById('file-input')?.click(), 50);
+      });
+      document.getElementById('file-input')?.addEventListener('change', handleFileSelect);
       const themeBtn = document.getElementById('theme-toggle');
       if (themeBtn) themeBtn.addEventListener('click', toggleDarkMode);
       const exportBtn = document.getElementById('export-history-btn');
@@ -378,25 +364,13 @@
         showWelcome(true);
         closeSettingsModal();
       });
-      document.getElementById('mic-btn')?.addEventListener('click', toggleVoiceInput);
-      document.getElementById('run-ocr-btn')?.addEventListener('click', runOCR);
-      document.getElementById('start-audio-transcription-btn')?.addEventListener('click', transcribeAudio);
-      document.getElementById('insert-attachment-text-btn')?.addEventListener('click', insertAttachmentText);
-      document.getElementById('attachment-btn')?.addEventListener('click', (e) => {
-        const hint = document.getElementById('size-hint');
-        if (hint) { hint.classList.toggle('hidden'); if (!hint.classList.contains('hidden')) setTimeout(() => hint.classList.add('hidden'), 3000); }
-        setTimeout(() => document.getElementById('file-input')?.click(), 50);
-      });
-      document.getElementById('file-input')?.addEventListener('change', handleFileSelect);
     }
-
     function checkAuthState() {
       onAuthStateChanged(auth, async (user) => {
         if (user) { currentUser = user; await updateUIForLoggedInUser(user); }
         else { currentUser = null; updateUIForGuest(); }
       });
     }
-
     async function updateUIForLoggedInUser(user) {
       guestButtons.classList.add('hidden');
       userMenu.classList.remove('hidden');
@@ -404,31 +378,16 @@
       userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=7c3aed&color=fff`;
       userName.textContent = displayName;
       userName.classList.remove('hidden');
-
       const upgradeBtn = document.getElementById('upgrade-btn');
       const adminBtn = document.getElementById('admin-dashboard-btn');
       try {
-        const response = await fetch(`${BACKEND_URL}/api/check-admin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email })
-        });
+        const response = await fetch(`${BACKEND_URL}/api/check-admin`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: user.email }) });
         const data = await response.json();
-        if (data.isAdmin) {
-          adminBtn.classList.remove('hidden');
-          if (upgradeBtn) upgradeBtn.classList.add('hidden');
-        } else {
-          if (adminBtn) adminBtn.classList.add('hidden');
-          if (upgradeBtn) upgradeBtn.classList.remove('hidden');
-        }
+        if (data.isAdmin) { adminBtn.classList.remove('hidden'); if (upgradeBtn) upgradeBtn.classList.add('hidden'); }
+        else { if (adminBtn) adminBtn.classList.add('hidden'); if (upgradeBtn) upgradeBtn.classList.remove('hidden'); }
       } catch (err) { console.error("Admin check failed", err); }
     }
-
-    function updateUIForGuest() {
-      guestButtons.classList.remove('hidden');
-      userMenu.classList.add('hidden');
-    }
-
+    function updateUIForGuest() { guestButtons.classList.remove('hidden'); userMenu.classList.add('hidden'); }
     async function signInWithGoogle() {
       try {
         const result = await signInWithPopup(auth, googleProvider);
@@ -438,13 +397,11 @@
         closeLoginModal();
       } catch (err) { alert(err.message); }
     }
-
     async function handleEmailLogin(e) {
       e.preventDefault();
       try { await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value); closeLoginModal(); }
       catch (err) { alert(err.message); }
     }
-
     async function handleEmailRegister(e) {
       e.preventDefault();
       const email = document.getElementById('register-email').value;
@@ -456,28 +413,21 @@
         closeRegisterModal();
       } catch (err) { alert(err.message); }
     }
-
     async function logout() { await signOut(auth); }
-
     async function handleSend() {
       const message = messageInput.value.trim();
       const hasAttachment = !!selectedAttachment;
       if (!message && !hasAttachment) return;
-
       addMessageToUI('user', message || '(sent an attachment)');
-      if (hasAttachment) {
-        addAttachmentChipToChat(selectedAttachment);
-      }
+      if (hasAttachment) { addAttachmentChipToChat(selectedAttachment); }
       chatHistory.push({ role: 'user', content: message });
       messageInput.value = '';
       messageInput.style.height = 'auto';
       showWelcome(false);
       showProcessingIndicator();
       clearAttachmentChips();
-
       try {
         let aiFullContent = '';
-
         if (hasAttachment) {
           const fileData = await readFileAsBase64(selectedAttachment);
           const mimeType = selectedAttachment.type || 'application/octet-stream';
@@ -500,21 +450,17 @@
               stream: true
             })
           });
-
           removeProcessingIndicator();
           if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           let buffer = '';
-
           const streamWrapper = document.createElement('div');
           streamWrapper.className = 'flex justify-start animate__animated animate__fadeInUp';
           streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
           chatMessages.appendChild(streamWrapper);
           const streamSpan = streamWrapper.querySelector('.stream-text');
           chatMessages.scrollTop = chatMessages.scrollHeight;
-
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -541,7 +487,6 @@
           msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
           setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
         }
-
         removeProcessingIndicator();
         if (aiFullContent) {
           addMessageToUI('assistant', aiFullContent);
@@ -555,51 +500,6 @@
         selectedAttachment = null;
       }
     }
-
-    function readFileAsBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function addAttachmentChipToChat(file) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex justify-end animate__animated animate__fadeInUp';
-      const isImage = file.type.startsWith('image/');
-      let media = '';
-      if (isImage) {
-        media = `<img src="${URL.createObjectURL(file)}" class="max-h-40 rounded-xl border border-white/20 object-contain mb-1">`;
-      } else {
-        media = `<div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl text-white text-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>${escapeHtml(file.name)}</span></div>`;
-      }
-      wrapper.innerHTML = `<div class="max-w-[70%]">${media}</div>`;
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function addAttachmentChip() {
-      const container = document.getElementById('attachment-chip-container');
-      if (!container || !selectedAttachment) return;
-      container.classList.remove('hidden');
-      container.innerHTML = '';
-      const chip = document.createElement('div');
-      chip.className = 'inline-flex items-center space-x-2 bg-white/10 border border-white/20 rounded-full pl-3 pr-2 py-1 text-white text-sm animate__animated animate__fadeInUp';
-      chip.innerHTML = `<span class="truncate max-w-[180px]">${escapeHtml(selectedAttachment.name)}</span>
-        <button class="hover:text-red-400 transition-colors" onclick="clearAttachmentChip()">X</button>`;
-      container.appendChild(chip);
-    }
-
-    function clearAttachmentChips() {
-      const container = document.getElementById('attachment-chip-container');
-      if (container) { container.innerHTML = ''; container.classList.add('hidden'); }
-      selectedAttachment = null;
-    }
-
-    window.clearAttachmentChip = () => { clearAttachmentChips(); };
-
     function addMessageToUI(role, content) {
       const wrapper = document.createElement('div');
       wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp`;
@@ -611,21 +511,18 @@
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-
     function showProcessingIndicator() {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
-      div.className = 'flex justify-start message-enter';
+      div.className = 'flex justify-start animate__animated animate__fadeInUp';
       div.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div><span class="ml-3 text-purple-300 text-sm self-center processing-pulse">AI is thinking</span>`;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-
     function removeProcessingIndicator() {
       const el = document.getElementById('processing-indicator');
       if (el) { el.style.transition = 'opacity 0.3s ease'; el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
     }
-
     function formatMarkdown(text) {
       let html = escapeHtml(text);
       html = html.replace(/```([\w]*)\n?([\s\S]*?)```/g, (_, lang, code) => `<pre><code>${code.trim()}</code></pre>`);
@@ -637,55 +534,24 @@
       html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
       return html;
     }
-
     function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-
     function showWelcome(show) {
       let welcome = document.getElementById('welcome-screen');
       if (show && !welcome) {
         welcome = document.createElement('div');
         welcome.id = 'welcome-screen';
-        welcome.className = 'flex justify-center py-8 fade-in-up';
+        welcome.className = 'flex justify-center py-8 animate__animated animate__fadeInUp';
         welcome.innerHTML = `<div class="text-center"><div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse"><svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg></div><h3 class="text-white text-xl font-bold mb-2">Welcome to joes ai!</h3><p class="text-purple-300">Your intelligent AI assistant</p><p class="text-white/60 text-sm mt-4">Start a conversation or try different modes below</p></div>`;
         chatMessages.appendChild(welcome);
       } else if (!show && welcome) { welcome.remove(); }
     }
-
     function loadSettings() { try { const saved = localStorage.getItem('joes-ai-settings'); if (saved) settings = { ...settings, ...JSON.parse(saved) }; } catch (e) {} }
     function saveSettings() { try { localStorage.setItem('joes-ai-settings', JSON.stringify(settings)); } catch (e) {} }
     function saveChatHistory() { try { localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory)); } catch (e) { console.error('Could not save chat history', e); } }
     function loadChatHistory() { try { const saved = localStorage.getItem(CHAT_HISTORY_KEY); if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) chatHistory = parsed; } } catch (e) { console.error('Could not load chat history', e); } }
     function renderChatHistory() { chatMessages.innerHTML = ''; chatHistory.forEach((item) => addMessageToUI(item.role, item.content)); }
-
-    window.openLoginModal = () => document.getElementById('login-modal')?.classList.remove('hidden');
-    window.closeLoginModal = () => document.getElementById('login-modal')?.classList.add('hidden');
-    window.switchToRegister = () => { window.closeLoginModal(); document.getElementById('register-modal')?.classList.remove('hidden'); };
-    window.closeRegisterModal = () => document.getElementById('register-modal')?.classList.add('hidden');
-    window.openSettingsModal = () => document.getElementById('settings-modal')?.classList.remove('hidden');
-    window.closeSettingsModal = () => document.getElementById('settings-modal')?.classList.add('hidden');
-
     function clearChat() { chatMessages.innerHTML = ''; chatHistory = []; localStorage.removeItem(CHAT_HISTORY_KEY); showWelcome(true); }
-    
-    function toggleDarkMode() {
-      settings.darkMode = !settings.darkMode;
-      document.body.classList.toggle('light', !settings.darkMode);
-      saveSettings();
-    }
-
-    function exportChatHistory() {
-      const data = JSON.stringify(chatHistory, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'joes-ai-chat-history.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      closeSettingsModal();
-    }
-    
     function toggleVoiceInput() { isRecordingVoice ? stopVoiceInput() : startVoiceInput(); }
-
     function handleFileSelect(event) {
       const files = Array.from(event.target.files || []);
       if (!files.length) return;
@@ -700,7 +566,6 @@
       addAttachmentChip();
       event.target.value = '';
     }
-
     function readFileAsBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -709,14 +574,13 @@
         reader.readAsDataURL(file);
       });
     }
-
     function addAttachmentChipToChat(file) {
       const wrapper = document.createElement('div');
       wrapper.className = 'flex justify-end animate__animated animate__fadeInUp';
       const isImage = file.type.startsWith('image/');
       let media = '';
       if (isImage) {
-        media = `<img src="${URL.createObjectURL(file)}" class="max-h-48 rounded-xl border border-white/20 object-contain mb-1">`;
+        media = `<img src="${URL.createObjectURL(file)}" class="max-h-40 rounded-xl border border-white/20 object-contain mb-1">`;
       } else {
         media = `<div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl text-white text-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>${escapeHtml(file.name)}</span></div>`;
       }
@@ -724,7 +588,6 @@
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-
     function addAttachmentChip() {
       const container = document.getElementById('attachment-chip-container');
       if (!container || !selectedAttachment) return;
@@ -732,18 +595,96 @@
       container.innerHTML = '';
       const chip = document.createElement('div');
       chip.className = 'inline-flex items-center space-x-2 bg-white/10 border border-white/20 rounded-full pl-3 pr-2 py-1 text-white text-sm animate__animated animate__fadeInUp';
-      chip.innerHTML = `<span class="truncate max-w-[180px]">${escapeHtml(selectedAttachment.name)}</span>
-        <button class="hover:text-red-400 transition-colors" onclick="window.clearAttachmentChip && window.clearAttachmentChip()">X</button>`;
+      chip.innerHTML = `<span class="truncate max-w-[180px]">${escapeHtml(selectedAttachment.name)}</span><button class="hover:text-red-400 transition-colors" onclick="window.clearAttachmentChip && window.clearAttachmentChip()">X</button>`;
       container.appendChild(chip);
     }
-
     function clearAttachmentChips() {
       const container = document.getElementById('attachment-chip-container');
       if (container) { container.innerHTML = ''; container.classList.add('hidden'); }
       selectedAttachment = null;
     }
-    window.clearAttachmentChip = () => clearAttachmentChips();
-
+    async function runOCR() {
+      if (!selectedAttachment || !selectedAttachment.type.startsWith('image/')) { alert('OCR works only on images. Please attach a PNG, JPG, or JPEG file.'); return; }
+      const output = document.getElementById('attachment-output');
+      if (!output) return;
+      output.value = 'Processing image with OCR...';
+      try {
+        const { data: { text } } = await Tesseract.recognize(selectedAttachment, 'eng', { logger: (m) => { if (m.status === 'recognizing text') output.value = `Recognizing... ${Math.round(m.progress * 100)}%`; } });
+        output.value = text;
+      } catch (err) { output.value = 'OCR failed: ' + err.message; }
+    }
+    async function transcribeAudio() {
+      const output = document.getElementById('attachment-output');
+      if (!output) return;
+      if (!selectedAttachment) { output.value = 'No audio file selected.'; return; }
+      if (!isRecordingVoice) {
+        output.value = 'Preparing transcription...';
+        try {
+          if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) throw new Error('Not supported');
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          voiceRecognition = new SpeechRecognition();
+          voiceRecognition.lang = 'en-US';
+          voiceRecognition.interimResults = false;
+          voiceRecognition.maxAlternatives = 1;
+          voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
+          voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
+          voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
+          voiceRecognition.start();
+        } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
+      }
+    }
+    function startVoiceInput() {
+      const output = document.getElementById('attachment-output');
+      if (!output) return;
+      try {
+        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { alert('Speech recognition is not supported in this browser.'); return; }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        voiceRecognition = new SpeechRecognition();
+        voiceRecognition.lang = 'en-US';
+        voiceRecognition.interimResults = false;
+        voiceRecognition.maxAlternatives = 1;
+        voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
+        voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
+        voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
+        voiceRecognition.start();
+      } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
+    }
+    function stopVoiceInput() {
+      if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; isRecordingVoice = false; updateMicButton(false); }
+      const output = document.getElementById('attachment-output');
+      if (output && (!output.value || output.value.startsWith('Preparing'))) output.value = 'Voice input stopped.';
+    }
+    function updateMicButton(active) {
+      const button = document.getElementById('mic-btn');
+      if (!button) return;
+      if (active) { button.classList.add('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.remove('bg-white/10', 'hover:bg-white/20'); }
+      else { button.classList.remove('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.add('bg-white/10', 'hover:bg-white/20'); }
+    }
+    function insertAttachmentText() {
+      const output = document.getElementById('attachment-output');
+      if (!output) return;
+      const text = output.value.trim();
+      if (!text) return;
+      messageInput.value = text;
+      closeAttachmentModal();
+      messageInput.focus();
+    }
+    function toggleDarkMode() {
+      settings.darkMode = !settings.darkMode;
+      document.body.classList.toggle('light', !settings.darkMode);
+      saveSettings();
+    }
+    function exportChatHistory() {
+      const data = JSON.stringify(chatHistory, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'joes-ai-chat-history.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      closeSettingsModal();
+    }
     window.openLoginModal = () => document.getElementById('login-modal')?.classList.remove('hidden');
     window.closeLoginModal = () => document.getElementById('login-modal')?.classList.add('hidden');
     window.openRegisterModal = () => document.getElementById('register-modal')?.classList.remove('hidden');
@@ -751,6 +692,9 @@
     window.switchToRegister = () => window.openRegisterModal();
     window.openSettingsModal = () => document.getElementById('settings-modal')?.classList.remove('hidden');
     window.closeSettingsModal = () => document.getElementById('settings-modal')?.classList.add('hidden');
+    window.clearAttachmentChip = () => clearAttachmentChips();
+    window.openAttachmentModal = () => document.getElementById('attachment-modal')?.classList.remove('hidden');
+    window.closeAttachmentModal = () => document.getElementById('attachment-modal')?.classList.add('hidden');
   </script>
 </body>
 </html>
