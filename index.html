@@ -186,9 +186,10 @@
           <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 relative">
           </div>
 
-          <div class="p-4 border-t border-white/10">
+           <div class="p-4 border-t border-white/10">
+            <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-2"></div>
             <div class="flex items-end space-x-2">
-              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all relative" title="Attach file or URL">
+              <button id="attachment-btn" class="p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all relative" title="Attach file">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                 </svg>
@@ -365,6 +366,18 @@
       document.getElementById('email-register-form')?.addEventListener('submit', handleEmailRegister);
       document.getElementById('settings-btn')?.addEventListener('click', openSettingsModal);
       document.getElementById('clear-chat-btn')?.addEventListener('click', clearChat);
+      const themeBtn = document.getElementById('theme-toggle');
+      if (themeBtn) themeBtn.addEventListener('click', toggleDarkMode);
+      const exportBtn = document.getElementById('export-history-btn');
+      if (exportBtn) exportBtn.addEventListener('click', exportChatHistory);
+      const deleteBtn = document.getElementById('delete-history-btn');
+      if (deleteBtn) deleteBtn.addEventListener('click', () => {
+        localStorage.removeItem(CHAT_HISTORY_KEY);
+        chatHistory = [];
+        chatMessages.innerHTML = '';
+        showWelcome(true);
+        closeSettingsModal();
+      });
       document.getElementById('mic-btn')?.addEventListener('click', toggleVoiceInput);
       document.getElementById('run-ocr-btn')?.addEventListener('click', runOCR);
       document.getElementById('start-audio-transcription-btn')?.addEventListener('click', transcribeAudio);
@@ -448,76 +461,144 @@
 
     async function handleSend() {
       const message = messageInput.value.trim();
-      if (!message) return;
+      const hasAttachment = !!selectedAttachment;
+      if (!message && !hasAttachment) return;
 
-      addMessageToUI('user', message);
+      addMessageToUI('user', message || '(sent an attachment)');
+      if (hasAttachment) {
+        addAttachmentChipToChat(selectedAttachment);
+      }
       chatHistory.push({ role: 'user', content: message });
       messageInput.value = '';
       messageInput.style.height = 'auto';
       showWelcome(false);
       showProcessingIndicator();
+      clearAttachmentChips();
 
       try {
-        const response = await fetch(`${BACKEND_URL}/api/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [ { role: 'system', content: AI_MODES[settings.chatMode] }, ...chatHistory.slice(-10) ],
-            model: 'llama-3.1-8b-instant',
-            temperature: settings.creativity,
-            max_tokens: settings.maxTokens,
-            stream: true
-          })
-        });
-
-        removeProcessingIndicator();
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
         let aiFullContent = '';
 
-        const streamWrapper = document.createElement('div');
-        streamWrapper.className = 'flex justify-start message-enter';
-        streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
-        chatMessages.appendChild(streamWrapper);
-        const streamSpan = streamWrapper.querySelector('.stream-text');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (hasAttachment) {
+          const fileData = await readFileAsBase64(selectedAttachment);
+          const mimeType = selectedAttachment.type || 'application/octet-stream';
+          const geminiRes = await fetch(`${BACKEND_URL}/api/gemini`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, fileData, mimeType })
+          });
+          const geminiData = await geminiRes.json();
+          aiFullContent = geminiData.text || 'Gemini did not return text.';
+        } else {
+          const response = await fetch(`${BACKEND_URL}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [ { role: 'system', content: AI_MODES[settings.chatMode] }, ...chatHistory.slice(-10) ],
+              model: 'llama-3.1-8b-instant',
+              temperature: settings.creativity,
+              max_tokens: settings.maxTokens,
+              stream: true
+            })
+          });
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed === 'data: [DONE]') continue;
-            if (trimmed.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(trimmed.slice(6));
-                const delta = data.choices?.[0]?.delta?.content || '';
-                if (delta) { aiFullContent += delta; streamSpan.innerHTML = formatMarkdown(aiFullContent); chatMessages.scrollTop = chatMessages.scrollHeight; }
-              } catch (e) { continue; }
+          removeProcessingIndicator();
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          const streamWrapper = document.createElement('div');
+          streamWrapper.className = 'flex justify-start animate__animated animate__fadeInUp';
+          streamWrapper.innerHTML = `<div class="max-w-[85%] px-4 py-3 rounded-2xl rounded-bl-md chat-gradient text-white ai-message shadow-lg streaming-cursor"><span class="stream-text"></span></div>`;
+          chatMessages.appendChild(streamWrapper);
+          const streamSpan = streamWrapper.querySelector('.stream-text');
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed === 'data: [DONE]') continue;
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(trimmed.slice(6));
+                  const delta = data.choices?.[0]?.delta?.content || '';
+                  if (delta) { aiFullContent += delta; streamSpan.innerHTML = formatMarkdown(aiFullContent); chatMessages.scrollTop = chatMessages.scrollHeight; }
+                } catch (e) { continue; }
+              }
             }
           }
+          streamWrapper.classList.remove('streaming-cursor');
+          streamSpan.innerHTML = formatMarkdown(aiFullContent);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          const msgDiv = streamWrapper.firstElementChild;
+          msgDiv.style.transition = 'box-shadow 0.5s ease';
+          msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
+          setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
         }
 
-        streamWrapper.classList.remove('streaming-cursor');
-        streamSpan.innerHTML = formatMarkdown(aiFullContent);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        const msgDiv = streamWrapper.firstElementChild;
-        msgDiv.style.transition = 'box-shadow 0.5s ease';
-        msgDiv.style.boxShadow = '0 0 30px rgba(124,58,237,0.3)';
-        setTimeout(() => { msgDiv.style.boxShadow = ''; }, 800);
-
-        if (aiFullContent) { chatHistory.push({ role: 'assistant', content: aiFullContent }); saveChatHistory(); }
+        removeProcessingIndicator();
+        if (aiFullContent) {
+          addMessageToUI('assistant', aiFullContent);
+          chatHistory.push({ role: 'assistant', content: aiFullContent });
+          saveChatHistory();
+        }
       } catch (err) {
         removeProcessingIndicator();
         addMessageToUI('assistant', "Connection error. Check if backend is awake.");
+      } finally {
+        selectedAttachment = null;
       }
     }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function addAttachmentChipToChat(file) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex justify-end animate__animated animate__fadeInUp';
+      const isImage = file.type.startsWith('image/');
+      let media = '';
+      if (isImage) {
+        media = `<img src="${URL.createObjectURL(file)}" class="max-h-40 rounded-xl border border-white/20 object-contain mb-1">`;
+      } else {
+        media = `<div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl text-white text-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>${escapeHtml(file.name)}</span></div>`;
+      }
+      wrapper.innerHTML = `<div class="max-w-[70%]">${media}</div>`;
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addAttachmentChip() {
+      const container = document.getElementById('attachment-chip-container');
+      if (!container || !selectedAttachment) return;
+      container.classList.remove('hidden');
+      container.innerHTML = '';
+      const chip = document.createElement('div');
+      chip.className = 'inline-flex items-center space-x-2 bg-white/10 border border-white/20 rounded-full pl-3 pr-2 py-1 text-white text-sm animate__animated animate__fadeInUp';
+      chip.innerHTML = `<span class="truncate max-w-[180px]">${escapeHtml(selectedAttachment.name)}</span>
+        <button class="hover:text-red-400 transition-colors" onclick="clearAttachmentChip()">X</button>`;
+      container.appendChild(chip);
+    }
+
+    function clearAttachmentChips() {
+      const container = document.getElementById('attachment-chip-container');
+      if (container) { container.innerHTML = ''; container.classList.add('hidden'); }
+      selectedAttachment = null;
+    }
+
+    window.clearAttachmentChip = () => { clearAttachmentChips(); };
 
     function addMessageToUI(role, content) {
       const wrapper = document.createElement('div');
@@ -584,148 +665,84 @@
     window.closeSettingsModal = () => document.getElementById('settings-modal')?.classList.add('hidden');
 
     function clearChat() { chatMessages.innerHTML = ''; chatHistory = []; localStorage.removeItem(CHAT_HISTORY_KEY); showWelcome(true); }
+    
+    function toggleDarkMode() {
+      settings.darkMode = !settings.darkMode;
+      document.body.classList.toggle('light', !settings.darkMode);
+      saveSettings();
+    }
+
+    function exportChatHistory() {
+      const data = JSON.stringify(chatHistory, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'joes-ai-chat-history.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      closeSettingsModal();
+    }
+    
     function toggleVoiceInput() { isRecordingVoice ? stopVoiceInput() : startVoiceInput(); }
 
     function handleFileSelect(event) {
       const files = Array.from(event.target.files || []);
       if (!files.length) return;
       const file = files[0];
-      const ext = file.name.split('.').pop()?.toLowerCase() || '';
-      const isImage = ['png','jpg','jpeg','gif'].includes(ext);
-      const isAudio = ['mp3','wav','m4a','ogg'].includes(ext);
-      const isDoc = ['pdf','doc','docx','txt','md'].includes(ext) || file.type.startsWith('application/pdf');
-      const isData = ['json','csv','xlsx'].includes(ext);
-      let maxSizeMB = 10;
-      if (isImage) maxSizeMB = MAX_FILE_SIZES.image;
-      else if (isAudio) maxSizeMB = MAX_FILE_SIZES.audio;
-      else if (isDoc) maxSizeMB = MAX_FILE_SIZES.document;
-      else if (isData) maxSizeMB = MAX_FILE_SIZES.data;
-      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+      const maxSizeBytes = Math.max(MAX_FILE_SIZES.image, MAX_FILE_SIZES.audio, MAX_FILE_SIZES.document, MAX_FILE_SIZES.data) * 1024 * 1024;
       if (file.size > maxSizeBytes) {
-        const preview = document.getElementById('attachment-preview');
-        preview.innerHTML = `<div class="text-red-400 text-sm">File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(1)}MB. Max allowed: ${maxSizeMB}MB.</div>`;
+        addMessageToUI('assistant', `File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
         event.target.value = '';
         return;
       }
       selectedAttachment = file;
-      openAttachmentModal();
-      renderAttachmentPreview(selectedAttachment);
+      addAttachmentChip();
       event.target.value = '';
     }
 
-    function openAttachmentModal() { document.getElementById('attachment-modal')?.classList.remove('hidden'); }
-    function closeAttachmentModal() { document.getElementById('attachment-modal')?.classList.add('hidden'); }
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
-    function renderAttachmentPreview(file) {
-      const preview = document.getElementById('attachment-preview');
-      const output = document.getElementById('attachment-output');
-      preview.innerHTML = '';
-      output.value = '';
-      if (!file) { preview.textContent = 'No attachment selected.'; return; }
-      const meta = document.createElement('div');
-      meta.className = 'mb-4 text-sm text-white/70';
-      meta.textContent = `${file.name} · ${Math.round(file.size / 1024)} KB · ${file.type || 'unknown type'}`;
-      preview.appendChild(meta);
-      if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        img.className = 'w-full rounded-2xl border border-white/10 object-contain';
-        img.onload = () => URL.revokeObjectURL(img.src);
-        preview.appendChild(img);
-      } else if (file.type.startsWith('audio/')) {
-        const audio = document.createElement('audio');
-        audio.controls = true;
-        audio.src = URL.createObjectURL(file);
-        audio.className = 'w-full rounded-2xl';
-        audio.onloadeddata = () => URL.revokeObjectURL(audio.src);
-        preview.appendChild(audio);
+    function addAttachmentChipToChat(file) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex justify-end animate__animated animate__fadeInUp';
+      const isImage = file.type.startsWith('image/');
+      let media = '';
+      if (isImage) {
+        media = `<img src="${URL.createObjectURL(file)}" class="max-h-48 rounded-xl border border-white/20 object-contain mb-1">`;
       } else {
-        const hint = document.createElement('p');
-        hint.className = 'text-sm text-white/70';
-        hint.textContent = 'Press Run OCR for image attachments or Transcribe Audio for supported audio files.';
-        preview.appendChild(hint);
+        media = `<div class="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-xl text-white text-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span>${escapeHtml(file.name)}</span></div>`;
       }
+      wrapper.innerHTML = `<div class="max-w-[70%]">${media}</div>`;
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function runOCR() {
-      if (!selectedAttachment || !selectedAttachment.type.startsWith('image/')) { showAttachmentMessage('OCR works only on images. Please attach a PNG, JPG, or JPEG file.'); return; }
-      const output = document.getElementById('attachment-output');
-      output.value = 'Processing image with OCR...';
-      try {
-        const { data: { text } } = await Tesseract.recognize(selectedAttachment, 'eng', { logger: (m) => { if (m.status === 'recognizing text') output.value = `Recognizing... ${Math.round(m.progress * 100)}%`; } });
-        output.value = text;
-      } catch (err) { output.value = 'OCR failed: ' + err.message; }
+    function addAttachmentChip() {
+      const container = document.getElementById('attachment-chip-container');
+      if (!container || !selectedAttachment) return;
+      container.classList.remove('hidden');
+      container.innerHTML = '';
+      const chip = document.createElement('div');
+      chip.className = 'inline-flex items-center space-x-2 bg-white/10 border border-white/20 rounded-full pl-3 pr-2 py-1 text-white text-sm animate__animated animate__fadeInUp';
+      chip.innerHTML = `<span class="truncate max-w-[180px]">${escapeHtml(selectedAttachment.name)}</span>
+        <button class="hover:text-red-400 transition-colors" onclick="window.clearAttachmentChip && window.clearAttachmentChip()">X</button>`;
+      container.appendChild(chip);
     }
 
-    async function transcribeAudio() {
-      const output = document.getElementById('attachment-output');
-      if (!selectedAttachment) { output.value = 'No audio file selected.'; return; }
-      if (!isRecordingVoice) {
-        output.value = 'Preparing transcription...';
-        try {
-          if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) throw new Error('Not supported');
-          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-          voiceRecognition = new SpeechRecognition();
-          voiceRecognition.lang = 'en-US';
-          voiceRecognition.interimResults = false;
-          voiceRecognition.maxAlternatives = 1;
-          voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
-          voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
-          voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
-          showAttachmentMessage('Allow microphone access and play the audio through your speakers for transcription.');
-          voiceRecognition.start();
-        } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
-      }
+    function clearAttachmentChips() {
+      const container = document.getElementById('attachment-chip-container');
+      if (container) { container.innerHTML = ''; container.classList.add('hidden'); }
+      selectedAttachment = null;
     }
-
-    function startVoiceInput() {
-      try {
-        const output = document.getElementById('attachment-output');
-        if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { alert('Speech recognition is not supported in this browser.'); return; }
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        voiceRecognition = new SpeechRecognition();
-        voiceRecognition.lang = 'en-US';
-        voiceRecognition.interimResults = false;
-        voiceRecognition.maxAlternatives = 1;
-        voiceRecognition.onresult = (event) => { output.value = event.results[0][0].transcript; };
-        voiceRecognition.onerror = (event) => { output.value = `Transcription error: ${event.error}`; };
-        voiceRecognition.onend = () => { if (!output.value || output.value.startsWith('Preparing')) output.value = 'Transcription ended without result. Please try again or use a supported browser.'; };
-        showAttachmentMessage('Allow microphone access and play the audio through your speakers for transcription.');
-        voiceRecognition.start();
-      } catch (err) { output.value = 'Audio transcription could not be started. Try a supported browser or a server-side API.'; console.error('SpeechRecognition error', err); }
-    }
-
-    function stopVoiceInput() {
-      if (voiceRecognition) { voiceRecognition.stop(); voiceRecognition = null; isRecordingVoice = false; updateMicButton(false); }
-      const output = document.getElementById('attachment-output');
-      if (output && (!output.value || output.value.startsWith('Preparing'))) output.value = 'Voice input stopped.';
-    }
-
-    function updateMicButton(active) {
-      const button = document.getElementById('mic-btn');
-      if (!button) return;
-      if (active) { button.classList.add('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.remove('bg-white/10', 'hover:bg-white/20'); }
-      else { button.classList.remove('bg-emerald-500', 'hover:bg-emerald-400'); button.classList.add('bg-white/10', 'hover:bg-white/20'); }
-    }
-
-    function insertAttachmentText() {
-      const output = document.getElementById('attachment-output');
-      const text = output.value.trim();
-      if (!text) return;
-      messageInput.value = text;
-      closeAttachmentModal();
-      messageInput.focus();
-    }
-
-    function showAttachmentMessage(message) {
-      const preview = document.getElementById('attachment-preview');
-      if (preview) {
-        const msg = document.createElement('div');
-        msg.className = 'text-sm text-white/70 mb-2';
-        msg.textContent = message;
-        preview.appendChild(msg);
-      }
-    }
+    window.clearAttachmentChip = () => clearAttachmentChips();
 
     window.openLoginModal = () => document.getElementById('login-modal')?.classList.remove('hidden');
     window.closeLoginModal = () => document.getElementById('login-modal')?.classList.add('hidden');
