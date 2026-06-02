@@ -11,85 +11,161 @@
   <style>
     body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
     .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
-    body.light .gradient-bg { background: linear-gradient(-45deg, #eef2ff, #e0e7ff, #c7d2fe, #f8fafc); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
     @keyframes liveFade { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
     .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
     @keyframes processPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    /* Custom Snake Motion CSS Wave Animation */
+    @keyframes snakeWave {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
+    }
+    .snake-dot {
+        animation: snakeWave 1.2s ease-in-out infinite;
+        width: 6px;
+        height: 6px;
+        background-color: #a78bfa;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .snake-dot:nth-child(2) { animation-delay: 0.15s; }
+    .snake-dot:nth-child(3) { animation-delay: 0.3s; }
+    .snake-dot:nth-child(4) { animation-delay: 0.45s; }
+
+    /* Custom styles for native Markdown tables */
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+    th { background-color: rgba(255, 255, 255, 0.08); color: #a78bfa !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; }
+    td, th { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
+    tr:hover { background-color: rgba(255, 255, 255, 0.03); }
   </style>
 </head>
-<body class="gradient-bg min-h-screen relative">
-  <!-- Glowing ambient blur blobs for high-end aesthetic -->
+<body class="gradient-bg min-h-screen text-white relative">
+  <!-- Glowing ambient blur blobs -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] bg-purple-600/10 rounded-full blur-[130px] animate-pulse"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] bg-indigo-600/10 rounded-full blur-[130px] animate-pulse" style="animation-delay: 3s;"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] bg-indigo-600/10 rounded-full blur-[130px] animate-pulse" style="animation-delay: 3s"></div>
   </div>
 
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0b0a1a] flex items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
-  
-  <div id="app" class="relative h-screen z-10 flex flex-col">
-    <header class="bg-white/10 backdrop-blur-md shadow-lg p-4">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
+
+  <!-- Main Grid Layout -->
+  <div class="flex h-screen w-screen overflow-hidden relative z-10">
+
+    <!-- ChatGPT/Gemini Style Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0a1f]/95 border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl">
+        <!-- Sidebar Header -->
+        <div class="p-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">⚡</div>
-              <span class="text-2xl font-bold text-white tracking-tight">joes ai</span>
+                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg text-sm">⚡</div>
+                <span class="text-lg font-semibold text-white tracking-wide">joes ai</span>
             </div>
-            <div class="flex items-center space-x-4">
-                <button id="clear-btn" class="text-white hover:text-red-400 transition-colors mr-2" title="Clear Conversation">🗑️</button>
-                <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none">
-                    <option value="chat" class="text-black">Chat Mode</option>
-                    <option value="code" class="text-black">Code Mode</option>
-                    <option value="debug" class="text-black">Debug Mode</option>
-                    <option value="study" class="text-black">Study Mode</option>
-                </select>
-                <button id="settings-btn" class="text-white hover:rotate-90 transition-transform">⚙️</button>
+            <button id="sidebar-close-btn" class="md:hidden text-white/60 hover:text-white">✕</button>
+        </div>
+
+        <!-- New Chat Trigger -->
+        <div class="p-4">
+            <button id="new-chat-btn" class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition-all text-sm">
+                <span>+</span> New Chat
+            </button>
+        </div>
+
+        <!-- Recent Chat Sessions (Directly from Koofr) -->
+        <div class="flex-1 overflow-y-auto px-4 py-2 space-y-1">
+            <p class="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2 px-2">Recent Chats</p>
+            <div id="session-list" class="space-y-1">
+                <!-- Loaded dynamically via server WebDAV PROPFIND -->
             </div>
         </div>
-    </header>
 
-    <main class="flex-1 overflow-hidden p-4">
-      <div class="max-w-5xl mx-auto h-full flex flex-col">
-        <div class="chat-gradient rounded-3xl shadow-2xl overflow-hidden flex-1 flex flex-col relative">
-          <!-- Message Area -->
-          <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
-
-          <!-- Input Area -->
-          <div class="p-4 bg-black/30 border-t border-white/10">
-            <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3"></div>
-            
-            <div class="flex items-end space-x-3">
-              <button id="attachment-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Upload Media">
-                📎
-              </button>
-              
-              <!-- Microphone Speech-To-Text Button -->
-              <button id="mic-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Voice Input">
-                🎤
-              </button>
-              
-              <div class="flex-1 relative">
-                <textarea id="message-input" placeholder="Type a message or voice command..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
-              </div>
-
-              <button id="send-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white p-3.5 rounded-2xl shadow-xl transition-all active:scale-95">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-              </button>
+        <!-- Sidebar Config Panel -->
+        <div class="p-4 border-t border-white/5 bg-black/20 space-y-3">
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Active Mode</label>
+                <select id="chat-mode-select" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
+                    <option value="chat" class="text-black">💬 Chat Mode</option>
+                    <option value="code" class="text-black">💻 Code Mode</option>
+                    <option value="study" class="text-black">📚 Study Mode</option>
+                    <option value="learn" class="text-black">🧠 Learn Mode</option>
+                </select>
             </div>
-            <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
-            <div class="text-[10px] text-white/30 mt-2 ml-1">Powered by Groq, Gemini 2.5 & AKRAM JOES TECHNOLOGIES</div>
+            <div class="text-[9px] text-white/20 text-center pt-2">
+                Created by AKRAM JOES TECHNOLOGIES
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Window Area -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+      <header class="bg-white/10 backdrop-blur-md shadow-lg p-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+              <!-- Mobile Sidebar Drawer Trigger -->
+              <button id="sidebar-open-btn" class="md:hidden text-white hover:text-purple-400 p-1">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+              </button>
+              <div class="flex items-center space-x-2 md:hidden">
+                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg text-sm">⚡</div>
+                <span class="text-lg font-semibold text-white tracking-wide">joes ai</span>
+              </div>
+          </div>
+          <div class="flex items-center space-x-4">
+              <!-- Reset local UI back to welcome screen -->
+              <button id="clear-btn" class="text-white hover:text-red-400 transition-colors mr-2 p-1.5 hover:bg-white/10 rounded-xl" title="New Conversation Screen">🗑️</button>
+          </div>
+      </header>
+
+      <main class="flex-1 overflow-hidden p-4">
+        <div class="max-w-5xl mx-auto h-full flex flex-col">
+          <div class="chat-gradient rounded-3xl shadow-2xl overflow-hidden flex-1 flex flex-col relative">
+            <!-- Messages stream -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col"></div>
+
+            <!-- Input dashboard container -->
+            <div class="p-4 bg-black/30 border-t border-white/10 relative">
+              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3"></div>
+              
+              <div class="flex items-end space-x-3">
+                <button id="attachment-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Upload Media">
+                  📎
+                </button>
+                <button id="mic-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Voice Input">
+                  🎤
+                </button>
+                
+                <div class="flex-1 relative">
+                  <textarea id="message-input" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
+                </div>
+
+                <button id="send-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white p-3.5 rounded-2xl shadow-xl transition-all active:scale-95">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+              </div>
+              <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 
+  <!-- Dynamic ESM module load for Mermaid.js Integration -->
   <script type="module">
-    // --- CONFIGURATION ---
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    window.mermaid = mermaid;
+  </script>
+
+  <script type="module">
+    // --- APP SETUP & SYNC ---
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
+    
+    let sessions = [];
+    let currentSessionId = null;
+    let activeFilename = null;
     let chatHistory = [];
     let selectedAttachment = null;
     
@@ -98,8 +174,15 @@
     const chatMessages = document.getElementById('chat-messages');
     const chatModeSelect = document.getElementById('chat-mode-select');
     const micBtn = document.getElementById('mic-btn');
+    const sessionList = document.getElementById('session-list');
+    const newChatBtn = document.getElementById('new-chat-btn');
 
-    // Clipboard copy mechanism helper
+    // Sidebar selectors
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOpenBtn = document.getElementById('sidebar-open-btn');
+    const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+
+    // Global copy triggers
     window.copyToClipboard = (btn, encodedText) => {
         const text = decodeURIComponent(encodedText);
         navigator.clipboard.writeText(text).then(() => {
@@ -112,17 +195,32 @@
         });
     };
 
-    // Initial load cleanup
+    // Initial lifecycle setups
     document.addEventListener('DOMContentLoaded', () => {
-        showWelcome(true);
         setupEventListeners();
         setupSpeechRecognition();
+        setupSidebarHandlers();
+        
+        // Load sessions from Koofr cloud storage
+        fetchSessions();
+        showWelcome(true);
+
         setTimeout(() => {
             const loader = document.getElementById('page-loader');
             loader.style.opacity = '0';
             setTimeout(() => loader.remove(), 500);
         }, 800);
     });
+
+    function setupSidebarHandlers() {
+        sidebarOpenBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+        });
+        sidebarCloseBtn.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+        });
+        newChatBtn.addEventListener('click', startNewChat);
+    }
 
     function setupEventListeners() {
       sendBtn.addEventListener('click', handleSend);
@@ -137,15 +235,11 @@
       document.getElementById('file-input').addEventListener('change', handleFileSelect);
       
       document.getElementById('clear-btn').addEventListener('click', () => {
-          if (confirm('Clear entire conversation history?')) {
-              chatHistory = [];
-              chatMessages.innerHTML = '';
-              showWelcome(true);
-          }
+          startNewChat();
       });
     }
 
-    // HTML5 Speech Recognition Integration
+    // HTML5 Native Mic implementation
     function setupSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -179,8 +273,127 @@
               recognition.start();
           });
       } else {
-          micBtn.style.display = 'none'; // Safe fallback if browser doesn't support mic
+          micBtn.style.display = 'none';
       }
+    }
+
+    // Sidebar Cloud File Loader System
+    async function fetchSessions() {
+        sessionList.innerHTML = `<p class="text-xs text-white/40 italic px-2">Syncing with Koofr...</p>`;
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats`);
+            if (!response.ok) throw new Error("Failed to load sessions.");
+            sessions = await response.json();
+            renderSessions();
+        } catch (err) {
+            console.error(err);
+            sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
+        }
+    }
+
+    function startNewChat() {
+        currentSessionId = null;
+        activeFilename = null;
+        chatHistory = [];
+        chatMessages.innerHTML = '';
+        renderSessions();
+        showWelcome(true);
+        sidebar.classList.add('-translate-x-full');
+    }
+
+    window.loadSession = async (filename) => {
+        showLoadingIndicator(true);
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`);
+            if (!response.ok) throw new Error("Could not retrieve file.");
+            const data = await response.json();
+            
+            currentSessionId = data.sessionId;
+            activeFilename = filename;
+            chatHistory = data.history || [];
+            chatMessages.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                showWelcome(true);
+            } else {
+                showWelcome(false);
+                chatHistory.forEach(msg => {
+                    addMessageToUI(msg.role, msg.content);
+                });
+            }
+            renderSessions();
+        } catch (err) {
+            alert(`Error loading chat: ${err.message}`);
+        } finally {
+            showLoadingIndicator(false);
+            sidebar.classList.add('-translate-x-full');
+        }
+    };
+
+    window.deleteSession = async (filename) => {
+        if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) return;
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error("Cloud rejected deletion.");
+            
+            if (activeFilename === filename) {
+                startNewChat();
+            }
+            fetchSessions();
+        } catch (err) {
+            alert(`Deletion failed: ${err.message}`);
+        }
+    };
+
+    function renderSessions() {
+        sessionList.innerHTML = '';
+        if (sessions.length === 0) {
+            sessionList.innerHTML = `<p class="text-xs text-white/20 italic px-2">No recent chats</p>`;
+            return;
+        }
+
+        sessions.forEach(sess => {
+            const isActive = sess.filename === activeFilename;
+            const item = document.createElement('div');
+            item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-white/10 text-white border-l-2 border-purple-500' : 'text-white/60 hover:bg-white/5 hover:text-white'}`;
+            item.innerHTML = `
+                <span class="truncate flex-1 pr-2">💬 ${sess.title}</span>
+                <button class="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity ml-1" title="Delete thread">✕</button>
+            `;
+            
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    window.loadSession(sess.filename);
+                } else {
+                    window.deleteSession(sess.filename);
+                }
+            });
+            sessionList.appendChild(item);
+        });
+    }
+
+    // Direct automated cloud backup writer
+    async function saveCurrentChatToCloud(title) {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId: currentSessionId,
+                    title: title,
+                    history: chatHistory
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                activeFilename = data.filename;
+            }
+        } catch (err) {
+            console.warn("Koofr autocommit issue:", err.message);
+        }
     }
 
     async function handleFileSelect(event) {
@@ -221,7 +434,6 @@
         document.getElementById('attachment-chip-container').classList.add('hidden');
     };
 
-    // Quick prompt chip listener
     window.useQuickPrompt = (promptText, preferredMode) => {
         messageInput.value = promptText;
         if (preferredMode) {
@@ -237,15 +449,30 @@
       
       if (!message && !hasAttachment) return;
 
-      // Add user message to UI
+      // Handle file naming / session initialization
+      let activeTitle = '';
+      if (!currentSessionId) {
+          currentSessionId = 'session_' + Date.now();
+          const firstTopic = message || (selectedAttachment ? `Attached: ${selectedAttachment.name}` : 'New Conversation');
+          activeTitle = firstTopic.length > 22 ? firstTopic.substring(0, 22) + '...' : firstTopic;
+      } else {
+          const activeSess = sessions.find(s => s.filename === activeFilename);
+          activeTitle = activeSess ? activeSess.title : 'Saved Chat';
+      }
+
+      // Add user message to local UI & immediately save history to cloud
       addMessageToUI('user', message || `Analyzing: ${selectedAttachment.name}`);
+      chatHistory.push({ role: 'user', content: message || `Analyzed file: ${currentAttachment.name}` });
       
+      // Auto-save user message to Koofr cloud
+      await saveCurrentChatToCloud(activeTitle);
+
       const currentAttachment = selectedAttachment;
       messageInput.value = '';
       window.removeAttachment();
       showWelcome(false);
       
-      showProcessingIndicator(hasAttachment ? 'Gemini 2.5 Flash' : 'Groq Llama');
+      showProcessingIndicator();
 
       try {
         let aiText = '';
@@ -281,8 +508,13 @@
         removeProcessingIndicator();
         addMessageToUI('assistant', aiText);
 
-        chatHistory.push({ role: 'user', content: message });
         chatHistory.push({ role: 'assistant', content: aiText });
+
+        // Auto-save assistant update to Koofr cloud
+        await saveCurrentChatToCloud(activeTitle);
+        
+        // Refresh sidebar sessions from Koofr cloud to populate correct titles
+        await fetchSessions();
 
       } catch (err) {
         removeProcessingIndicator();
@@ -307,62 +539,210 @@
         ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
         : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
 
-      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass}">${formatMarkdown(content)}</div>`;
+      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${formatMarkdown(content)}</div>`;
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Compile newly appended inline vectors
+      if (window.mermaid) {
+          setTimeout(() => {
+              window.mermaid.run({
+                  querySelector: '.mermaid'
+              }).catch(err => console.warn("Mermaid execution skipped:", err));
+          }, 50);
+      }
     }
 
-    function showProcessingIndicator(modelName) {
+    // Dynamic, Staged thinking indicator with cascading wave snake dots
+    function showProcessingIndicator() {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
       div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
       div.innerHTML = `
         <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-3.5 shadow-xl flex items-center space-x-3">
-          <span class="text-xs text-purple-300 italic">Joes AI is processing</span>
-          <div class="flex space-x-1">
-              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+          <span id="processing-text" class="text-xs text-purple-300 italic">Joes AI is thinking</span>
+          <div class="flex space-x-1.5 items-center h-4">
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
           </div>
         </div>
       `;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Staged thinking cycle states
+      const thinkingStages = [
+          "Joes AI is thinking",
+          "Joes AI is processing",
+          "Joes AI is finalizing",
+          "Joes AI is wrapping up"
+      ];
+      let stageCounter = 0;
+      const targetTextSpan = div.querySelector('#processing-text');
+
+      const textStageInterval = setInterval(() => {
+          stageCounter++;
+          if (stageCounter < thinkingStages.length) {
+              targetTextSpan.textContent = thinkingStages[stageCounter];
+          } else {
+              clearInterval(textStageInterval);
+          }
+      }, 1800);
+
+      div.dataset.intervalId = textStageInterval;
     }
 
     function removeProcessingIndicator() {
-      document.getElementById('processing-indicator')?.remove();
+      const indicatorEl = document.getElementById('processing-indicator');
+      if (indicatorEl) {
+          if (indicatorEl.dataset.intervalId) {
+              clearInterval(parseInt(indicatorEl.dataset.intervalId));
+          }
+          indicatorEl.remove();
+      }
+    }
+
+    function showLoadingIndicator(show) {
+        if (show) {
+            chatMessages.innerHTML = `
+              <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
+                <div class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs">Loading conversation from Koofr...</span>
+              </div>
+            `;
+        }
     }
 
     function formatMarkdown(text) {
         if (!text) return '';
-        let escaped = text
+        
+        // Isolate block codes from syntax parses to preserve text formatting
+        const temporaryCodeVault = [];
+        let escaped = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+            const token = `__CODE_TOKEN_REPLACEMENT_${temporaryCodeVault.length}__`;
+            temporaryCodeVault.push({ lang, code });
+            return token;
+        });
+
+        // Safe characters escape
+        escaped = escaped
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // Code blocks formatted elegantly with dynamic copy triggers
-        escaped = escaped.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-            const displayLang = lang ? lang.toUpperCase() : 'CODE';
-            const encoded = encodeURIComponent(code.trim());
+        // Advanced Line-By-Line Markdown Table Parsing
+        const lines = escaped.split('\n');
+        let insideTable = false;
+        let generatedTableBuffer = '';
+        const compiledLines = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const rawLine = lines[i].trim();
+            
+            if (rawLine.startsWith('|') && rawLine.endsWith('|')) {
+                // Ignore separator line metrics but maintain active buffer tags
+                if (/^[|:\-\s]+$/.test(rawLine)) {
+                    insideTable = true;
+                    continue;
+                }
+                
+                const columnValues = rawLine.split('|').slice(1, -1).map(v => v.trim());
+                
+                if (!insideTable) {
+                    insideTable = true;
+                    generatedTableBuffer = `
+                        <div class="overflow-x-auto my-4 border border-white/10 rounded-xl bg-white/5 shadow-lg max-w-full">
+                            <table class="min-w-full divide-y divide-white/10 text-sm text-left">
+                                <thead class="bg-white/10 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                                    <tr>
+                    `;
+                    columnValues.forEach(columnTitle => {
+                        generatedTableBuffer += `<th class="px-4 py-3">${columnTitle}</th>`;
+                    });
+                    generatedTableBuffer += `
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                    `;
+                } else {
+                    generatedTableBuffer += `<tr class="hover:bg-white/5 transition-colors">`;
+                    columnValues.forEach(cellValue => {
+                        generatedTableBuffer += `<td class="px-4 py-3 text-white/90">${cellValue}</td>`;
+                    });
+                    generatedTableBuffer += `</tr>`;
+                }
+            } else {
+                if (insideTable) {
+                    generatedTableBuffer += `</tbody></table></div>`;
+                    compiledLines.push(generatedTableBuffer);
+                    generatedTableBuffer = '';
+                    insideTable = false;
+                }
+                compiledLines.push(lines[i]);
+            }
+        }
+        if (insideTable) {
+            generatedTableBuffer += `</tbody></table></div>`;
+            compiledLines.push(generatedTableBuffer);
+        }
+
+        escaped = compiledLines.join('\n');
+
+        // Dynamic Markdown Links [Text](URL) rendering (Gemini Styled)
+        escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
             return `
-                <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
-                    <div class="flex justify-between items-center px-4 py-1.5 bg-white/5 border-b border-white/10 text-[10px] text-white/40 tracking-wider">
-                        <span>${displayLang}</span>
-                        <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
-                    </div>
-                    <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${code.trim()}</pre>
+                <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 font-semibold underline decoration-indigo-400/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
+                    ${linkText}
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 2 0 00-2 2v10a2 2 2 0 002 2h10a2 2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            `;
+        });
+
+        // Markdown Images ![Alt](URL) rendering
+        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            return `
+                <div class="my-4 overflow-hidden rounded-xl border border-white/10 shadow-xl max-w-full">
+                    <img src="${src}" alt="${alt || 'Illustration'}" class="w-full h-auto object-cover max-h-[350px]">
+                    ${alt ? `<p class="p-2 text-center text-xs text-white/40 bg-black/20">${alt}</p>` : ''}
                 </div>
             `;
         });
-        
-        // Inline code blocks formatting
+
+        // Inline code blocks
         escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-pink-300 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
         // Bold tags formatting
         escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-purple-200">$1</strong>');
-        // Bullet point lists formatting
+        // Bullet points styling
         escaped = escaped.replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-white/90">$1</li>');
-        // Paragraph line break formatting
+
+        // Restore temporarily stashed code blocks
+        temporaryCodeVault.forEach((block, idx) => {
+            const token = `__CODE_TOKEN_REPLACEMENT_${idx}__`;
+            const displayLang = block.lang ? block.lang.toUpperCase() : 'CODE';
+            const encoded = encodeURIComponent(block.code.trim());
+            
+            let finalOutput = '';
+            if (block.lang && block.lang.toLowerCase() === 'mermaid') {
+                // Render custom vector illustration block directly
+                finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
+            } else {
+                finalOutput = `
+                    <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
+                        <div class="flex justify-between items-center px-4 py-1.5 bg-white/5 border-b border-white/10 text-[10px] text-white/40 tracking-wider">
+                            <span>${displayLang}</span>
+                            <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
+                        </div>
+                        <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${block.code.trim()}</pre>
+                    </div>
+                `;
+            }
+            escaped = escaped.replace(token, finalOutput);
+        });
+
         return escaped.replace(/\n/g, '<br>');
     }
 
@@ -374,10 +754,9 @@
                 <h1 class="text-3xl font-bold text-white/90 tracking-wide">Welcome to Joes AI</h1>
                 <p class="max-w-md text-sm text-white/50">Developed & Powered by <strong class="text-purple-400">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
                 
-                <!-- Quick Prompt Selector Chips -->
                 <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
                   <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-                  <button onclick="window.useQuickPrompt('Analyze bugs inside a standard binary search', 'debug')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">💻 Debug Code</button>
+                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
                   <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
                   <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
                 </div>
