@@ -9,16 +9,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; }
+    body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; transition: background-color 0.3s ease; }
     .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1543); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
+    body.light .gradient-bg { background: linear-gradient(-45deg, #f1f5f9, #e2e8f0, #cbd5e1, #f8fafc); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
+    
     @keyframes liveFade { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+    body.light .chat-gradient { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0, 0, 0, 0.08); color: #1e293b !important; }
+
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
+    body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
+
     .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
     @keyframes processPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-    /* Custom Snake Motion CSS Wave Animation */
+    /* Custom Snake Motion Wave Animation */
     @keyframes snakeWave {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-7px); }
@@ -35,30 +41,67 @@
     .snake-dot:nth-child(3) { animation-delay: 0.3s; }
     .snake-dot:nth-child(4) { animation-delay: 0.45s; }
 
-    /* Custom styles for native Markdown tables */
+    /* Custom dynamic color shifting background orbs */
+    @keyframes colorShift1 {
+        0% { background-color: rgba(139, 92, 246, 0.12); transform: translate(0px, 0px) scale(1); }
+        50% { background-color: rgba(236, 72, 153, 0.12); transform: translate(40px, -40px) scale(1.15); }
+        100% { background-color: rgba(139, 92, 246, 0.12); transform: translate(0px, 0px) scale(1); }
+    }
+    @keyframes colorShift2 {
+        0% { background-color: rgba(99, 102, 241, 0.12); transform: translate(0px, 0px) scale(1); }
+        50% { background-color: rgba(59, 130, 246, 0.12); transform: translate(-40px, 40px) scale(0.9); }
+        100% { background-color: rgba(99, 102, 241, 0.12); transform: translate(0px, 0px) scale(1); }
+    }
+    .glowing-blob-1 { animation: colorShift1 10s ease-in-out infinite; }
+    .glowing-blob-2 { animation: colorShift2 14s ease-in-out infinite; }
+
+    /* Color Changing Glowing Textarea Border Animation */
+    @keyframes borderGlow {
+        0% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); }
+        33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.4); }
+        66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); }
+        100% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); }
+    }
+    .glowing-input { animation: borderGlow 6s ease-in-out infinite; border-width: 2px !important; }
+
+    /* Markdown tables layout styling */
     table { border-collapse: collapse; width: 100%; margin: 16px 0; }
     th { background-color: rgba(255, 255, 255, 0.08); color: #a78bfa !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; }
+    body.light th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; }
     td, th { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
+    body.light td { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
     tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+    body.light tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+
+    /* Light Theme typography adjustments */
+    body.light .text-white { color: #1e293b !important; }
+    body.light .text-white\/30 { color: rgba(30, 41, 59, 0.4) !important; }
+    body.light .text-white\/40 { color: rgba(30, 41, 59, 0.5) !important; }
+    body.light .text-white\/50 { color: rgba(30, 41, 59, 0.6) !important; }
+    body.light textarea { color: #1e293b !important; background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+    body.light select { color: #1e293b !important; background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
+    body.light aside { background: rgba(241, 245, 249, 0.95); border-color: rgba(0,0,0,0.1); }
+    body.light header { background: rgba(255, 255, 255, 0.5); border-color: rgba(0,0,0,0.05); }
+    body.light #welcome-msg h1 { color: #1e293b !important; }
+    body.light .chat-gradient p, body.light .chat-gradient li { color: #334155 !important; }
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-white relative">
-  <!-- Glowing ambient blur blobs -->
+  <!-- Dynamic Color Shifting Ambient Glow Background Blobs -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] bg-purple-600/10 rounded-full blur-[130px] animate-pulse"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] bg-indigo-600/10 rounded-full blur-[130px] animate-pulse" style="animation-delay: 3s"></div>
+    <div class="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] glowing-blob-1"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] glowing-blob-2"></div>
   </div>
 
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0b0a1a] flex items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
-  <!-- Main Grid Layout -->
+  <!-- Main App Layout Container -->
   <div class="flex h-screen w-screen overflow-hidden relative z-10">
 
-    <!-- ChatGPT/Gemini Style Sidebar -->
+    <!-- Sidebar Navigation Drawer -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0a1f]/95 border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl">
-        <!-- Sidebar Header -->
         <div class="p-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg text-sm">⚡</div>
@@ -67,22 +110,18 @@
             <button id="sidebar-close-btn" class="md:hidden text-white/60 hover:text-white">✕</button>
         </div>
 
-        <!-- New Chat Trigger -->
         <div class="p-4">
             <button id="new-chat-btn" class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition-all text-sm">
                 <span>+</span> New Chat
             </button>
         </div>
 
-        <!-- Recent Chat Sessions (Directly from Koofr) -->
+        <!-- Recent Chat Sessions loaded from Koofr Cloud -->
         <div class="flex-1 overflow-y-auto px-4 py-2 space-y-1">
             <p class="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2 px-2">Recent Chats</p>
-            <div id="session-list" class="space-y-1">
-                <!-- Loaded dynamically via server WebDAV PROPFIND -->
-            </div>
+            <div id="session-list" class="space-y-1"></div>
         </div>
 
-        <!-- Sidebar Config Panel -->
         <div class="p-4 border-t border-white/5 bg-black/20 space-y-3">
             <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Active Mode</label>
@@ -93,7 +132,7 @@
                     <option value="learn" class="text-black">🧠 Learn Mode</option>
                 </select>
             </div>
-            <div class="text-[9px] text-white/20 text-center pt-2">
+            <div class="text-[9px] text-white/20 text-center pt-2 border-t border-white/5">
                 Created by AKRAM JOES TECHNOLOGIES
             </div>
         </div>
@@ -101,9 +140,8 @@
 
     <!-- Main Chat Window Area -->
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
-      <header class="bg-white/10 backdrop-blur-md shadow-lg p-4 flex items-center justify-between">
+      <header class="bg-white/10 backdrop-blur-md shadow-lg p-4 flex items-center justify-between border-b border-white/5 z-20">
           <div class="flex items-center space-x-3">
-              <!-- Mobile Sidebar Drawer Trigger -->
               <button id="sidebar-open-btn" class="md:hidden text-white hover:text-purple-400 p-1">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
               </button>
@@ -112,32 +150,36 @@
                 <span class="text-lg font-semibold text-white tracking-wide">joes ai</span>
               </div>
           </div>
-          <div class="flex items-center space-x-4">
-              <!-- Reset local UI back to welcome screen -->
-              <button id="clear-btn" class="text-white hover:text-red-400 transition-colors mr-2 p-1.5 hover:bg-white/10 rounded-xl" title="New Conversation Screen">🗑️</button>
+          
+          <!-- Modern Control Dashboard Menu -->
+          <div class="flex items-center space-x-1.5">
+              <button id="theme-btn" class="text-white hover:text-amber-400 transition-colors p-1.5 hover:bg-white/10 rounded-xl" title="Toggle Theme (☀️/🌙)">🌙</button>
+              <button id="export-btn" class="text-white hover:text-green-400 transition-colors p-1.5 hover:bg-white/10 rounded-xl" title="Export conversation to Markdown (.md)">📥</button>
+              <button id="clear-btn" class="text-white hover:text-red-400 transition-colors p-1.5 hover:bg-white/10 rounded-xl" title="New Conversation Screen">🗑️</button>
           </div>
       </header>
 
       <main class="flex-1 overflow-hidden p-4">
         <div class="max-w-5xl mx-auto h-full flex flex-col">
-          <div class="chat-gradient rounded-3xl shadow-2xl overflow-hidden flex-1 flex flex-col relative">
+          <div class="chat-gradient rounded-3xl shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5">
             <!-- Messages stream -->
             <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col"></div>
 
-            <!-- Input dashboard container -->
+            <!-- Input Dashboard Container -->
             <div class="p-4 bg-black/30 border-t border-white/10 relative">
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3"></div>
               
               <div class="flex items-end space-x-3">
-                <button id="attachment-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Upload Media">
+                <button id="attachment-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all border border-white/10" title="Upload Media">
                   📎
                 </button>
-                <button id="mic-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Voice Input">
+                <button id="mic-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all border border-white/10" title="Voice Input">
                   🎤
                 </button>
                 
                 <div class="flex-1 relative">
-                  <textarea id="message-input" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
+                  <!-- Textarea with color-changing glowing border animation -->
+                  <textarea id="message-input" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-white/5 border rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none glowing-input transition-all resize-none"></textarea>
                 </div>
 
                 <button id="send-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white p-3.5 rounded-2xl shadow-xl transition-all active:scale-95">
@@ -152,7 +194,18 @@
     </div>
   </div>
 
-  <!-- Dynamic ESM module load for Mermaid.js Integration -->
+  <!-- Code Sandbox Modal -->
+  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
+      <div class="flex justify-between items-center p-4 border-b border-white/10 bg-[#0c0a1f]/95 text-white">
+          <span class="text-sm font-semibold flex items-center gap-2">💻 Sandbox Live Code Preview</span>
+          <button id="sandbox-close-btn" class="text-white hover:text-red-400 font-bold transition-colors">✕ Close</button>
+      </div>
+      <div class="flex-1 bg-white">
+          <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
+      </div>
+  </div>
+
+  <!-- Dynamic ESM module load for Mermaid.js Diagram Integration -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: false, theme: 'dark' });
@@ -160,7 +213,6 @@
   </script>
 
   <script type="module">
-    // --- APP SETUP & SYNC ---
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     
     let sessions = [];
@@ -182,26 +234,63 @@
     const sidebarOpenBtn = document.getElementById('sidebar-open-btn');
     const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 
-    // Global copy triggers
-    window.copyToClipboard = (btn, encodedText) => {
-        const text = decodeURIComponent(encodedText);
-        navigator.clipboard.writeText(text).then(() => {
-            btn.textContent = 'Copied!';
-            btn.classList.add('text-green-400');
-            setTimeout(() => {
-                btn.textContent = 'Copy';
-                btn.classList.remove('text-green-400');
-            }, 2000);
-        });
+    // Control menu selectors
+    const themeBtn = document.getElementById('theme-btn');
+    const exportBtn = document.getElementById('export-btn');
+
+    // Sandbox selectors
+    const sandboxModal = document.getElementById('sandbox-modal');
+    const sandboxIframe = document.getElementById('sandbox-iframe');
+    const sandboxCloseBtn = document.getElementById('sandbox-close-btn');
+
+    // Text-To-Speech Global Read Aloud
+    window.speakText = (btn, text) => {
+        const cleanString = decodeURIComponent(text).replace(/<\/?[^>]+(>|$)/g, ""); // Strip nested html tags
+        
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            btn.textContent = '🔊';
+            btn.classList.remove('text-red-400');
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanString);
+        utterance.onend = () => { 
+            btn.textContent = '🔊'; 
+            btn.classList.remove('text-red-400'); 
+        };
+        utterance.onerror = () => { 
+            btn.textContent = '🔊'; 
+            btn.classList.remove('text-red-400'); 
+        };
+
+        btn.textContent = '🛑';
+        btn.classList.add('text-red-400');
+        window.speechSynthesis.speak(utterance);
     };
 
-    // Initial lifecycle setups
+    // Live Sandbox Execution Launcher
+    window.runCodeSandbox = (encodedCode) => {
+        const decoded = decodeURIComponent(encodedCode);
+        sandboxModal.classList.remove('hidden');
+        
+        const iframeDoc = sandboxIframe.contentDocument || sandboxIframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(decoded);
+        iframeDoc.close();
+    };
+
+    sandboxCloseBtn.addEventListener('click', () => {
+        sandboxModal.classList.add('hidden');
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
         setupSpeechRecognition();
         setupSidebarHandlers();
+        setupThemeHandler();
+        setupExportHandler();
         
-        // Load sessions from Koofr cloud storage
         fetchSessions();
         showWelcome(true);
 
@@ -222,6 +311,46 @@
         newChatBtn.addEventListener('click', startNewChat);
     }
 
+    // Theme Configurer (☀️/🌙 Toggle)
+    function setupThemeHandler() {
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            const lightActive = document.body.classList.contains('light');
+            themeBtn.innerHTML = lightActive ? '☀️' : '🌙';
+            localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'dark');
+        });
+
+        if (localStorage.getItem('joes_ai_theme') === 'light') {
+            document.body.classList.add('light');
+            themeBtn.innerHTML = '☀️';
+        }
+    }
+
+    // Local Markdown Download Parser
+    function setupExportHandler() {
+        exportBtn.addEventListener('click', () => {
+            if (chatHistory.length === 0) {
+                alert("No chat history to export yet!");
+                return;
+            }
+
+            let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
+            chatHistory.forEach(msg => {
+                const author = msg.role === 'user' ? 'User' : 'Joes AI';
+                mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
+            });
+
+            const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+        });
+    }
+
     function setupEventListeners() {
       sendBtn.addEventListener('click', handleSend);
       messageInput.addEventListener('keydown', (e) => { 
@@ -239,7 +368,6 @@
       });
     }
 
-    // HTML5 Native Mic implementation
     function setupSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -348,6 +476,34 @@
         }
     };
 
+    // Koofr WebDAV MOVE Rename Trigger
+    window.renameSession = async (filename, id, oldTitle) => {
+        const renamedInput = prompt('Enter new conversation title:', oldTitle);
+        if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) return;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats/rename`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    oldFilename: filename,
+                    sessionId: id,
+                    newTitle: renamedInput.trim()
+                })
+            });
+
+            if (!response.ok) throw new Error("Koofr failed to rename file.");
+            const data = await response.json();
+
+            if (activeFilename === filename) {
+                activeFilename = data.filename;
+            }
+            await fetchSessions();
+        } catch (err) {
+            alert(`Rename Failed: ${err.message}`);
+        }
+    };
+
     function renderSessions() {
         sessionList.innerHTML = '';
         if (sessions.length === 0) {
@@ -361,21 +517,28 @@
             item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-white/10 text-white border-l-2 border-purple-500' : 'text-white/60 hover:bg-white/5 hover:text-white'}`;
             item.innerHTML = `
                 <span class="truncate flex-1 pr-2">💬 ${sess.title}</span>
-                <button class="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity ml-1" title="Delete thread">✕</button>
+                <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button class="text-white/40 hover:text-amber-400 p-0.5 rename-btn" title="Rename thread">✏️</button>
+                    <button class="text-white/40 hover:text-red-400 p-0.5 delete-btn" title="Delete thread">✕</button>
+                </div>
             `;
             
             item.addEventListener('click', (e) => {
-                if (!e.target.closest('button')) {
-                    window.loadSession(sess.filename);
-                } else {
+                const renameTarget = e.target.closest('.rename-btn');
+                const deleteTarget = e.target.closest('.delete-btn');
+                
+                if (renameTarget) {
+                    window.renameSession(sess.filename, sess.id, sess.title);
+                } else if (deleteTarget) {
                     window.deleteSession(sess.filename);
+                } else {
+                    window.loadSession(sess.filename);
                 }
             });
             sessionList.appendChild(item);
         });
     }
 
-    // Direct automated cloud backup writer
     async function saveCurrentChatToCloud(title) {
         try {
             const response = await fetch(`${BACKEND_URL}/api/chats`, {
@@ -449,7 +612,6 @@
       
       if (!message && !hasAttachment) return;
 
-      // Handle file naming / session initialization
       let activeTitle = '';
       if (!currentSessionId) {
           currentSessionId = 'session_' + Date.now();
@@ -460,11 +622,9 @@
           activeTitle = activeSess ? activeSess.title : 'Saved Chat';
       }
 
-      // Add user message to local UI & immediately save history to cloud
       addMessageToUI('user', message || `Analyzing: ${selectedAttachment.name}`);
       chatHistory.push({ role: 'user', content: message || `Analyzed file: ${currentAttachment.name}` });
       
-      // Auto-save user message to Koofr cloud
       await saveCurrentChatToCloud(activeTitle);
 
       const currentAttachment = selectedAttachment;
@@ -510,10 +670,7 @@
 
         chatHistory.push({ role: 'assistant', content: aiText });
 
-        // Auto-save assistant update to Koofr cloud
         await saveCurrentChatToCloud(activeTitle);
-        
-        // Refresh sidebar sessions from Koofr cloud to populate correct titles
         await fetchSessions();
 
       } catch (err) {
@@ -539,21 +696,24 @@
         ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
         : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
 
-      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${formatMarkdown(content)}</div>`;
+      const encodedString = encodeURIComponent(content);
+      const speakerBadge = role === 'assistant' 
+        ? `<div class="flex justify-end pt-1"><button onclick="window.speakText(this, '${encodedString}')" class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide" title="Read Aloud">🔊 Read</button></div>` 
+        : '';
+
+      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${formatMarkdown(content)}${speakerBadge}</div>`;
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Compile newly appended inline vectors
       if (window.mermaid) {
           setTimeout(() => {
               window.mermaid.run({
                   querySelector: '.mermaid'
-              }).catch(err => console.warn("Mermaid execution skipped:", err));
+              }).catch(err => {});
           }, 50);
       }
     }
 
-    // Dynamic, Staged thinking indicator with cascading wave snake dots
     function showProcessingIndicator() {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
@@ -572,7 +732,6 @@
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      // Staged thinking cycle states
       const thinkingStages = [
           "Joes AI is thinking",
           "Joes AI is processing",
@@ -618,7 +777,6 @@
     function formatMarkdown(text) {
         if (!text) return '';
         
-        // Isolate block codes from syntax parses to preserve text formatting
         const temporaryCodeVault = [];
         let escaped = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
             const token = `__CODE_TOKEN_REPLACEMENT_${temporaryCodeVault.length}__`;
@@ -626,7 +784,6 @@
             return token;
         });
 
-        // Safe characters escape
         escaped = escaped
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -642,7 +799,6 @@
             const rawLine = lines[i].trim();
             
             if (rawLine.startsWith('|') && rawLine.endsWith('|')) {
-                // Ignore separator line metrics but maintain active buffer tags
                 if (/^[|:\-\s]+$/.test(rawLine)) {
                     insideTable = true;
                     continue;
@@ -690,7 +846,7 @@
 
         escaped = compiledLines.join('\n');
 
-        // Dynamic Markdown Links [Text](URL) rendering (Gemini Styled)
+        // Dynamic Markdown Links [Text](URL) rendering
         escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
             return `
                 <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 font-semibold underline decoration-indigo-400/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
@@ -712,14 +868,12 @@
             `;
         });
 
-        // Inline code blocks
+        // Inline code blocks, Bold text, lists formatting
         escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-pink-300 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
-        // Bold tags formatting
         escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-purple-200">$1</strong>');
-        // Bullet points styling
         escaped = escaped.replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-white/90">$1</li>');
 
-        // Restore temporarily stashed code blocks
+        // Restore temporarily stashed code blocks with copy/run triggers
         temporaryCodeVault.forEach((block, idx) => {
             const token = `__CODE_TOKEN_REPLACEMENT_${idx}__`;
             const displayLang = block.lang ? block.lang.toUpperCase() : 'CODE';
@@ -727,14 +881,21 @@
             
             let finalOutput = '';
             if (block.lang && block.lang.toLowerCase() === 'mermaid') {
-                // Render custom vector illustration block directly
                 finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
             } else {
+                let runBtn = '';
+                if (['HTML', 'XML', 'JS', 'JAVASCRIPT', 'CSS'].includes(displayLang)) {
+                    runBtn = `<button onclick="window.runCodeSandbox('${encoded}')" class="hover:text-white transition-colors ml-2">Run</button>`;
+                }
+
                 finalOutput = `
                     <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
                         <div class="flex justify-between items-center px-4 py-1.5 bg-white/5 border-b border-white/10 text-[10px] text-white/40 tracking-wider">
                             <span>${displayLang}</span>
-                            <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
+                            <div class="flex items-center">
+                                <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
+                                ${runBtn}
+                            </div>
                         </div>
                         <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${block.code.trim()}</pre>
                     </div>
