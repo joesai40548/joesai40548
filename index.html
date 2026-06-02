@@ -16,13 +16,17 @@
     .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
-    .ai-message pre { background: rgba(0,0,0,0.5); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 10px 0; border: 1px solid rgba(255,255,255,0.1); font-family: monospace; color: #a78bfa; }
     .processing-pulse { animation: processPulse 2s ease-in-out infinite; }
     @keyframes processPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-    code { background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 4px; font-family: monospace; color: #f472b6; }
   </style>
 </head>
-<body class="gradient-bg min-h-screen">
+<body class="gradient-bg min-h-screen relative">
+  <!-- Glowing ambient blur blobs for high-end aesthetic -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] bg-purple-600/10 rounded-full blur-[130px] animate-pulse"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] bg-indigo-600/10 rounded-full blur-[130px] animate-pulse" style="animation-delay: 3s;"></div>
+  </div>
+
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0b0a1a] flex items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
@@ -35,10 +39,12 @@
               <span class="text-2xl font-bold text-white tracking-tight">joes ai</span>
             </div>
             <div class="flex items-center space-x-4">
+                <button id="clear-btn" class="text-white hover:text-red-400 transition-colors mr-2" title="Clear Conversation">🗑️</button>
                 <select id="chat-mode-select" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none">
                     <option value="chat" class="text-black">Chat Mode</option>
                     <option value="code" class="text-black">Code Mode</option>
                     <option value="debug" class="text-black">Debug Mode</option>
+                    <option value="study" class="text-black">Study Mode</option>
                 </select>
                 <button id="settings-btn" class="text-white hover:rotate-90 transition-transform">⚙️</button>
             </div>
@@ -60,8 +66,13 @@
                 📎
               </button>
               
+              <!-- Microphone Speech-To-Text Button -->
+              <button id="mic-btn" class="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all" title="Voice Input">
+                🎤
+              </button>
+              
               <div class="flex-1 relative">
-                <textarea id="message-input" placeholder="Type a message or analyze a file..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
+                <textarea id="message-input" placeholder="Type a message or voice command..." rows="1" class="w-full bg-white/5 border border-white/20 rounded-2xl px-5 py-3.5 text-white placeholder-white/40 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all resize-none"></textarea>
               </div>
 
               <button id="send-btn" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white p-3.5 rounded-2xl shadow-xl transition-all active:scale-95">
@@ -69,7 +80,7 @@
               </button>
             </div>
             <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
-            <div class="text-[10px] text-white/30 mt-2 ml-1">Powered by Groq & Gemini 1.5</div>
+            <div class="text-[10px] text-white/30 mt-2 ml-1">Powered by Groq, Gemini 2.5 & AKRAM JOES TECHNOLOGIES</div>
           </div>
         </div>
       </div>
@@ -85,11 +96,27 @@
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     const chatMessages = document.getElementById('chat-messages');
+    const chatModeSelect = document.getElementById('chat-mode-select');
+    const micBtn = document.getElementById('mic-btn');
+
+    // Clipboard copy mechanism helper
+    window.copyToClipboard = (btn, encodedText) => {
+        const text = decodeURIComponent(encodedText);
+        navigator.clipboard.writeText(text).then(() => {
+            btn.textContent = 'Copied!';
+            btn.classList.add('text-green-400');
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+                btn.classList.remove('text-green-400');
+            }, 2000);
+        });
+    };
 
     // Initial load cleanup
     document.addEventListener('DOMContentLoaded', () => {
         showWelcome(true);
         setupEventListeners();
+        setupSpeechRecognition();
         setTimeout(() => {
             const loader = document.getElementById('page-loader');
             loader.style.opacity = '0';
@@ -108,28 +135,83 @@
       
       document.getElementById('attachment-btn').addEventListener('click', () => document.getElementById('file-input').click());
       document.getElementById('file-input').addEventListener('change', handleFileSelect);
+      
+      document.getElementById('clear-btn').addEventListener('click', () => {
+          if (confirm('Clear entire conversation history?')) {
+              chatHistory = [];
+              chatMessages.innerHTML = '';
+              showWelcome(true);
+          }
+      });
+    }
+
+    // HTML5 Speech Recognition Integration
+    function setupSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+          const recognition = new SpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = 'en-US';
+
+          recognition.onstart = () => {
+              micBtn.innerHTML = '🔴';
+              micBtn.classList.add('animate-pulse', 'bg-red-500/30');
+          };
+
+          recognition.onresult = (event) => {
+              const transcript = event.results[0][0].transcript;
+              messageInput.value = (messageInput.value + ' ' + transcript).trim();
+              messageInput.focus();
+          };
+
+          recognition.onerror = () => {
+              micBtn.innerHTML = '🎤';
+              micBtn.classList.remove('animate-pulse', 'bg-red-500/30');
+          };
+
+          recognition.onend = () => {
+              micBtn.innerHTML = '🎤';
+              micBtn.classList.remove('animate-pulse', 'bg-red-500/30');
+          };
+
+          micBtn.addEventListener('click', () => {
+              recognition.start();
+          });
+      } else {
+          micBtn.style.display = 'none'; // Safe fallback if browser doesn't support mic
+      }
     }
 
     async function handleFileSelect(event) {
         const file = event.target.files[0];
         if (!file) return;
 
-        // Size check (Max 50MB for free tiers usually)
         if (file.size > 50 * 1024 * 1024) {
-            alert("File is too heavy (Limit: 50MB).");
+            alert("File size exceeds 50MB limit.");
             return;
         }
 
         selectedAttachment = file;
-        showAttachmentChip(file.name);
+        showAttachmentChip(file);
     }
 
-    function showAttachmentChip(name) {
+    function showAttachmentChip(file) {
         const container = document.getElementById('attachment-chip-container');
-        container.innerHTML = `<div class="bg-purple-600/80 backdrop-blur-sm border border-purple-400 text-white px-4 py-1.5 rounded-full text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
-            <span class="font-medium">📎 ${name}</span>
-            <button onclick="window.removeAttachment()" class="hover:text-black transition-colors font-bold">✕</button>
-        </div>`;
+        let previewHtml = '';
+
+        if (file.type.startsWith('image/')) {
+            const imgUrl = URL.createObjectURL(file);
+            previewHtml = `<img src="${imgUrl}" class="w-8 h-8 rounded-lg object-cover border border-white/20 shadow-md">`;
+        }
+
+        container.innerHTML = `
+            <div class="bg-purple-600/80 backdrop-blur-md border border-purple-400 text-white pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
+                ${previewHtml}
+                <span class="font-medium truncate max-w-[200px]">📎 ${file.name}</span>
+                <button onclick="window.removeAttachment()" class="hover:text-pink-300 transition-colors font-bold ml-2">✕</button>
+            </div>
+        `;
         container.classList.remove('hidden');
     }
 
@@ -139,21 +221,31 @@
         document.getElementById('attachment-chip-container').classList.add('hidden');
     };
 
+    // Quick prompt chip listener
+    window.useQuickPrompt = (promptText, preferredMode) => {
+        messageInput.value = promptText;
+        if (preferredMode) {
+            chatModeSelect.value = preferredMode;
+        }
+        messageInput.focus();
+    };
+
     async function handleSend() {
       const message = messageInput.value.trim();
       const hasAttachment = !!selectedAttachment;
+      const currentMode = chatModeSelect.value;
       
       if (!message && !hasAttachment) return;
 
-      // Add user message UI
-      addMessageToUI('user', message || `Analysing: ${selectedAttachment.name}`);
+      // Add user message to UI
+      addMessageToUI('user', message || `Analyzing: ${selectedAttachment.name}`);
       
       const currentAttachment = selectedAttachment;
       messageInput.value = '';
       window.removeAttachment();
       showWelcome(false);
       
-      showProcessingIndicator(hasAttachment ? 'Gemini 1.5' : 'Groq Llama');
+      showProcessingIndicator(hasAttachment ? 'Gemini 2.5 Flash' : 'Groq Llama');
 
       try {
         let aiText = '';
@@ -165,7 +257,7 @@
             const response = await fetch(`${BACKEND_URL}/api/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, fileData: base64Data, mimeType })
+                body: JSON.stringify({ message, fileData: base64Data, mimeType, mode: currentMode })
             });
 
             const data = await response.json();
@@ -176,7 +268,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    messages: [...chatHistory.slice(-6), { role: 'user', content: message }]
+                    messages: [...chatHistory.slice(-6), { role: 'user', content: message }],
+                    mode: currentMode
                 })
             });
 
@@ -208,11 +301,11 @@
 
     function addMessageToUI(role, content) {
       const wrapper = document.createElement('div');
-      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster`;
+      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster z-10 relative`;
       
       const innerClass = role === 'user' 
-        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none' 
-        : 'chat-gradient text-white rounded-2xl rounded-tl-none';
+        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
+        : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
 
       wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass}">${formatMarkdown(content)}</div>`;
       chatMessages.appendChild(wrapper);
@@ -222,8 +315,17 @@
     function showProcessingIndicator(modelName) {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
-      div.className = 'flex justify-start text-purple-400 text-xs italic tracking-wide ml-2 mb-4 processing-pulse';
-      div.innerHTML = `<span class="mr-2">⚡</span> Joes AI (${modelName}) is processing...`;
+      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
+      div.innerHTML = `
+        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-3.5 shadow-xl flex items-center space-x-3">
+          <span class="text-xs text-purple-300 italic">Joes AI is processing</span>
+          <div class="flex space-x-1">
+              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+              <span class="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+          </div>
+        </div>
+      `;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -239,29 +341,48 @@
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
-        // Code blocks
-        escaped = escaped.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-        // Inline code
-        escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
-        // Bold
-        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        // Newlines
+        // Code blocks formatted elegantly with dynamic copy triggers
+        escaped = escaped.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+            const displayLang = lang ? lang.toUpperCase() : 'CODE';
+            const encoded = encodeURIComponent(code.trim());
+            return `
+                <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
+                    <div class="flex justify-between items-center px-4 py-1.5 bg-white/5 border-b border-white/10 text-[10px] text-white/40 tracking-wider">
+                        <span>${displayLang}</span>
+                        <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
+                    </div>
+                    <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${code.trim()}</pre>
+                </div>
+            `;
+        });
+        
+        // Inline code blocks formatting
+        escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-pink-300 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+        // Bold tags formatting
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-purple-200">$1</strong>');
+        // Bullet point lists formatting
+        escaped = escaped.replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-white/90">$1</li>');
+        // Paragraph line break formatting
         return escaped.replace(/\n/g, '<br>');
     }
 
     function showWelcome(show) {
         if(show) {
-            chatMessages.innerHTML = `<div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-20 text-white/40 space-y-4">
-                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">🤖</div>
-                <h1 class="text-3xl font-bold text-white/90">Welcome to Joes AI</h1>
-                <p class="max-w-xs text-sm">Ask anything, or attach a video, photo, or PDF to begin the analysis.</p>
-                <div class="flex gap-2 pt-4">
-                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Images</span>
-                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Videos</span>
-                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Audio</span>
-                  <span class="px-3 py-1 bg-white/10 rounded-full text-[10px]">Docs</span>
+            chatMessages.innerHTML = `
+              <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-white/40 space-y-4">
+                <div class="w-20 h-20 bg-gradient-to-tr from-purple-500/20 to-indigo-500/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
+                <h1 class="text-3xl font-bold text-white/90 tracking-wide">Welcome to Joes AI</h1>
+                <p class="max-w-md text-sm text-white/50">Developed & Powered by <strong class="text-purple-400">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
+                
+                <!-- Quick Prompt Selector Chips -->
+                <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
+                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
+                  <button onclick="window.useQuickPrompt('Analyze bugs inside a standard binary search', 'debug')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">💻 Debug Code</button>
+                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
+                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
                 </div>
-            </div>`;
+              </div>
+            `;
         } else {
             document.getElementById('welcome-msg')?.remove();
         }
