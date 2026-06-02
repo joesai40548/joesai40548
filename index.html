@@ -173,7 +173,7 @@
           <!-- Translucent core element removes border radii on mobile edge layouts -->
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5 h-full">
             <!-- Messages stream -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col flex-1"></div>
 
             <!-- Input Dashboard Container -->
             <div class="p-3 md:p-4 bg-black/30 border-t border-white/10 flex items-center space-x-2 md:space-x-3 shrink-0">
@@ -188,7 +188,7 @@
               <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
                 
                 <!-- Enlarged, Elastic Text Area (Gemini Style) -->
-                <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="flex-grow bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
                 
                 <!-- Google Style Mic Button inside input bar wrapper -->
                 <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
@@ -270,30 +270,71 @@
         messageInput.style.height = (messageInput.scrollHeight) + 'px';
     });
 
-    // Text-To-Speech Global Read Aloud
+    // Mobile-optimized speech synthesis player
     window.speakText = (btn, text) => {
-        const cleanString = decodeURIComponent(text).replace(/<\/?[^>]+(>|$)/g, "");
+        window.speechSynthesis.cancel();
         
-        if (window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
+        if (btn.dataset.speaking === "true") {
             btn.textContent = '🔊 Read';
             btn.classList.remove('text-red-400');
+            btn.dataset.speaking = "false";
             return;
         }
 
-        const utterance = new SpeechSynthesisUtterance(cleanString);
+        // Reset other active speaker states
+        document.querySelectorAll('button[title="Read Aloud"]').forEach(b => {
+            b.textContent = '🔊 Read';
+            b.classList.remove('text-red-400');
+            b.dataset.speaking = "false";
+        });
+
+        const decoded = decodeURIComponent(text);
+        let cleanTextString = decoded.replace(/<\/?[^>]+(>|$)/g, ""); // Strip html elements
+
+        // Strip heavy raw code block formats from the reading queue
+        cleanTextString = cleanTextString
+            .replace(/```[\s\S]*?```/g, "[Code Block]")
+            .replace(/`([^`]+)`/g, "$1")
+            .replace(/\*\*([^*]+)\*\*/g, "$1")
+            .replace(/_([^_]+)_/g, "$1")
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+            .trim();
+
+        if (!cleanTextString) {
+            alert("No readable content inside this bubble.");
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanTextString);
+
+        // Map highest-quality English device voices
+        const loadedVoices = window.speechSynthesis.getVoices();
+        if (loadedVoices.length > 0) {
+            const preferedVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
+                                  loadedVoices.find(v => v.lang.startsWith('en')) || 
+                                  loadedVoices[0];
+            utterance.voice = preferedVoice;
+        }
+
         utterance.onend = () => { 
             btn.textContent = '🔊 Read'; 
             btn.classList.remove('text-red-400'); 
+            btn.dataset.speaking = "false";
         };
         utterance.onerror = () => { 
             btn.textContent = '🔊 Read'; 
             btn.classList.remove('text-red-400'); 
+            btn.dataset.speaking = "false";
         };
 
         btn.textContent = '🛑 Stop';
         btn.classList.add('text-red-400');
-        window.speechSynthesis.speak(utterance);
+        btn.dataset.speaking = "true";
+        
+        // 100ms offset delay solves immediate audio-channel congestion errors on iOS Safari
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+        }, 100);
     };
 
     // Live Sandbox Execution Launcher
@@ -410,7 +451,7 @@
               const transcript = event.results[0][0].transcript;
               messageInput.value = (messageInput.value + ' ' + transcript).trim();
               messageInput.focus();
-              messageInput.dispatchEvent(new Event('input')); // trigger autoheight calculation
+              messageInput.dispatchEvent(new Event('input')); // trigger autoheight calculations
           };
 
           recognition.onerror = () => {
@@ -463,4 +504,594 @@
             const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
                 headers: { 'x-user-id': userId }
             });
-            if (!response.ok
+            if (!response.ok) throw new Error("Could not retrieve file.");
+            const data = await response.json();
+            
+            currentSessionId = data.sessionId;
+            activeFilename = filename;
+            chatHistory = data.history || [];
+            chatMessages.innerHTML = '';
+            
+            if (chatHistory.length === 0) {
+                showWelcome(true);
+            } else {
+                showWelcome(false);
+                chatHistory.forEach(msg => {
+                    addMessageToUI(msg.role, msg.content, msg.attachment);
+                });
+            }
+            renderSessions();
+        } catch (err) {
+            alert(`Error loading chat: ${err.message}`);
+        } finally {
+            showLoadingIndicator(false);
+            sidebar.classList.add('-translate-x-full');
+        }
+    };
+
+    window.deleteSession = async (filename) => {
+        if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) return;
+        
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                method: 'DELETE',
+                headers: { 'x-user-id': userId }
+            });
+            if (!response.ok) throw new Error("Cloud rejected deletion.");
+            
+            if (activeFilename === filename) {
+                startNewChat();
+            }
+            fetchSessions();
+        } catch (err) {
+            alert(`Deletion failed: ${err.message}`);
+        }
+    };
+
+    // Koofr WebDAV MOVE Rename Trigger
+    window.renameSession = async (filename, id, oldTitle) => {
+        const renamedInput = prompt('Enter new conversation title:', oldTitle);
+        if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) return;
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats/rename`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
+                body: JSON.stringify({
+                    oldFilename: filename,
+                    sessionId: id,
+                    newTitle: renamedInput.trim()
+                })
+            });
+
+            if (!response.ok) throw new Error("Koofr failed to rename file.");
+            const data = await response.json();
+
+            if (activeFilename === filename) {
+                activeFilename = data.filename;
+            }
+            await fetchSessions();
+        } catch (err) {
+            alert(`Rename Failed: ${err.message}`);
+        }
+    };
+
+    function renderSessions() {
+        sessionList.innerHTML = '';
+        if (sessions.length === 0) {
+            sessionList.innerHTML = `<p class="text-xs text-white/20 italic px-2">No recent chats</p>`;
+            return;
+        }
+
+        sessions.forEach(sess => {
+            const isActive = sess.filename === activeFilename;
+            const item = document.createElement('div');
+            item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-white/10 text-white border-l-2 border-purple-500' : 'text-white/60 hover:bg-white/5 hover:text-white'}`;
+            item.innerHTML = `
+                <span class="truncate flex-1 pr-2">💬 ${sess.title}</span>
+                <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button class="text-white/40 hover:text-amber-400 p-0.5 rename-btn" title="Rename thread">✏️</button>
+                    <button class="text-white/40 hover:text-red-400 p-0.5 delete-btn" title="Delete thread">✕</button>
+                </div>
+            `;
+            
+            item.addEventListener('click', (e) => {
+                const renameTarget = e.target.closest('.rename-btn');
+                const deleteTarget = e.target.closest('.delete-btn');
+                
+                if (renameTarget) {
+                    window.renameSession(sess.filename, sess.id, sess.title);
+                } else if (deleteTarget) {
+                    window.deleteSession(sess.filename);
+                } else {
+                    window.loadSession(sess.filename);
+                }
+            });
+            sessionList.appendChild(item);
+        });
+    }
+
+    async function saveCurrentChatToCloud(title) {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/chats`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
+                body: JSON.stringify({
+                    sessionId: currentSessionId,
+                    title: title,
+                    history: chatHistory
+                })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                activeFilename = data.filename;
+            }
+        } catch (err) {
+            console.warn("Koofr autocommit issue:", err.message);
+        }
+    }
+
+    async function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 50 * 1024 * 1024) {
+            alert("File size exceeds 50MB limit.");
+            return;
+        }
+
+        selectedAttachment = file;
+        showAttachmentChip(file);
+    }
+
+    function showAttachmentChip(file) {
+        const container = document.getElementById('attachment-chip-container');
+        let previewHtml = '';
+
+        if (file.type.startsWith('image/')) {
+            const imgUrl = URL.createObjectURL(file);
+            previewHtml = `<img src="${imgUrl}" class="w-8 h-8 rounded-lg object-cover border border-white/20 shadow-md">`;
+        }
+
+        container.innerHTML = `
+            <div class="bg-purple-600/80 backdrop-blur-md border border-purple-400 text-white pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
+                ${previewHtml}
+                <span class="font-medium truncate max-w-[200px]">📎 ${file.name}</span>
+                <button onclick="window.removeAttachment()" class="hover:text-pink-300 transition-colors font-bold ml-2">✕</button>
+            </div>
+        `;
+        container.classList.remove('hidden');
+    }
+
+    window.removeAttachment = () => {
+        selectedAttachment = null;
+        document.getElementById('file-input').value = "";
+        document.getElementById('attachment-chip-container').classList.add('hidden');
+    };
+
+    window.useQuickPrompt = (promptText, preferredMode) => {
+        messageInput.value = promptText;
+        if (preferredMode) {
+            chatModeSelect.value = preferredMode;
+        }
+        messageInput.focus();
+        messageInput.dispatchEvent(new Event('input')); // trigger autoheight calculations
+    };
+
+    // Lock/Unlock message input system during generation cycle
+    function toggleInputState(disabled) {
+        messageInput.disabled = disabled;
+        sendBtn.disabled = disabled;
+        document.getElementById('attachment-btn').disabled = disabled;
+        micBtn.disabled = disabled;
+
+        if (disabled) {
+            messageInput.classList.add('opacity-50');
+            sendIcon.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            `;
+        } else {
+            messageInput.classList.remove('opacity-50');
+            sendIcon.innerHTML = `
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            `;
+        }
+    }
+
+    async function handleSend() {
+      const message = messageInput.value.trim();
+      const hasAttachment = !!selectedAttachment;
+      const currentMode = chatModeSelect.value;
+      
+      if (!message && !hasAttachment) return;
+
+      // Clear the input area immediately so it never lingers or gets sent twice
+      messageInput.value = '';
+      messageInput.style.height = 'auto'; // Reset the dynamic autoheight on send
+
+      // Hide the mobile soft keyboard instantly by removing input focus (solves screen real-estate issue)
+      messageInput.blur();
+
+      // Lock input window instantly
+      toggleInputState(true);
+
+      // Handle file naming / session initialization
+      let activeTitle = '';
+      if (!currentSessionId) {
+          currentSessionId = 'session_' + Date.now();
+          const firstTopic = message || (selectedAttachment ? `Attached: ${selectedAttachment.name}` : 'New Conversation');
+          activeTitle = firstTopic.length > 22 ? firstTopic.substring(0, 22) + '...' : firstTopic;
+      } else {
+          const activeSess = sessions.find(s => s.filename === activeFilename);
+          activeTitle = activeSess ? activeSess.title : 'Saved Chat';
+      }
+
+      // Convert current attachment into a persistent preview payload
+      let attachmentPayload = null;
+      let base64AttachmentData = null;
+      let currentMimeType = null;
+
+      if (hasAttachment) {
+          base64AttachmentData = await readFileAsBase64(selectedAttachment);
+          currentMimeType = selectedAttachment.type || 'application/octet-stream';
+          
+          attachmentPayload = {
+              name: selectedAttachment.name,
+              type: currentMimeType,
+              base64: selectedAttachment.type.startsWith('image/') ? `data:${currentMimeType};base64,${base64AttachmentData}` : null
+          };
+      }
+
+      // Pastes the attachment preview directly inside the chat window
+      addMessageToUI('user', message, attachmentPayload);
+      chatHistory.push({ 
+          role: 'user', 
+          content: message, 
+          attachment: attachmentPayload 
+      });
+      
+      // Auto-save user message update to Koofr cloud
+      await saveCurrentChatToCloud(activeTitle);
+
+      window.removeAttachment();
+      showWelcome(false);
+      showProcessingIndicator();
+
+      try {
+        let aiText = '';
+        
+        if (hasAttachment) {
+            const response = await fetch(`${BACKEND_URL}/api/gemini`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
+                body: JSON.stringify({ 
+                    message, 
+                    fileData: base64AttachmentData, 
+                    mimeType: currentMimeType, 
+                    mode: currentMode,
+                    chatHistory: chatHistory.slice(0, -1) // Send context history excluding the current message
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Server error');
+            aiText = data.text;
+        } else {
+            const response = await fetch(`${BACKEND_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-user-id': userId
+                },
+                body: JSON.stringify({
+                    messages: [...chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: message }],
+                    mode: currentMode
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error('Groq Offline');
+            aiText = data.choices?.[0]?.message?.content || data.text;
+        }
+
+        removeProcessingIndicator();
+        addMessageToUI('assistant', aiText);
+
+        chatHistory.push({ role: 'assistant', content: aiText });
+
+        // Auto-save assistant update to Koofr cloud
+        await saveCurrentChatToCloud(activeTitle);
+        
+        // Refresh sidebar sessions from Koofr cloud to populate correct titles
+        await fetchSessions();
+
+      } catch (err) {
+        removeProcessingIndicator();
+        addMessageToUI('assistant', `⚠️ **Error:** ${err.message}`);
+      } finally {
+        // Unlock input system and return spinner to Enter button
+        toggleInputState(false);
+      }
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function addMessageToUI(role, content, attachmentData = null) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster z-10 relative`;
+      
+      const innerClass = role === 'user' 
+        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
+        : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
+
+      let attachmentHtml = '';
+      if (attachmentData) {
+          if (attachmentData.base64) {
+              attachmentHtml = `<img src="${attachmentData.base64}" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
+          } else {
+              attachmentHtml = `
+                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/20 border border-white/5 rounded-xl max-w-sm text-xs">
+                      <span class="text-xl">📄</span>
+                      <div class="truncate flex-1">
+                          <p class="font-medium truncate text-white/90">${attachmentData.name}</p>
+                          <p class="text-white/40 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
+                      </div>
+                  </div>
+              `;
+          }
+      }
+
+      const encodedString = encodeURIComponent(content || '');
+      const speakerBadge = role === 'assistant' 
+        ? `<div class="flex justify-end pt-1"><button onclick="window.speakText(this, '${encodedString}')" class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide" title="Read Aloud">🔊 Read</button></div>` 
+        : '';
+
+      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
+      chatMessages.appendChild(wrapper);
+      
+      // Auto Scroll Anchor
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      if (window.mermaid) {
+          setTimeout(() => {
+              window.mermaid.run({
+                  querySelector: '.mermaid'
+              }).catch(err => {});
+          }, 50);
+      }
+    }
+
+    // Dynamic, Staged thinking indicator with cascading wave snake dots
+    function showProcessingIndicator() {
+      const div = document.createElement('div');
+      div.id = 'processing-indicator';
+      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
+      div.innerHTML = `
+        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-3.5 shadow-xl flex items-center space-x-3">
+          <span id="processing-text" class="text-xs text-purple-300 italic">Joes AI is thinking</span>
+          <div class="flex space-x-1.5 items-center h-4">
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
+              <span class="snake-dot"></span>
+          </div>
+        </div>
+      `;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      const thinkingStages = [
+          "Joes AI is thinking",
+          "Joes AI is processing",
+          "Joes AI is finalizing",
+          "Joes AI is wrapping up"
+      ];
+      let stageCounter = 0;
+      const targetTextSpan = div.querySelector('#processing-text');
+
+      const textStageInterval = setInterval(() => {
+          stageCounter++;
+          if (stageCounter < thinkingStages.length) {
+              targetTextSpan.textContent = thinkingStages[stageCounter];
+              chatMessages.scrollTop = chatMessages.scrollHeight; // Keep view anchored during progress
+          } else {
+              clearInterval(textStageInterval);
+          }
+      }, 1800);
+
+      div.dataset.intervalId = textStageInterval;
+    }
+
+    function removeProcessingIndicator() {
+      const indicatorEl = document.getElementById('processing-indicator');
+      if (indicatorEl) {
+          if (indicatorEl.dataset.intervalId) {
+              clearInterval(parseInt(indicatorEl.dataset.intervalId));
+          }
+          indicatorEl.remove();
+      }
+    }
+
+    function showLoadingIndicator(show) {
+        if (show) {
+            chatMessages.innerHTML = `
+              <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
+                <div class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs">Loading conversation from Koofr...</span>
+              </div>
+            `;
+        }
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        
+        const temporaryCodeVault = [];
+        let escaped = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+            const token = `__CODE_TOKEN_REPLACEMENT_${temporaryCodeVault.length}__`;
+            temporaryCodeVault.push({ lang, code });
+            return token;
+        });
+
+        escaped = escaped
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        const lines = escaped.split('\n');
+        let insideTable = false;
+        let generatedTableBuffer = '';
+        const compiledLines = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const rawLine = lines[i].trim();
+            
+            if (rawLine.startsWith('|') && rawLine.endsWith('|')) {
+                if (/^[|:\-\s]+$/.test(rawLine)) {
+                    insideTable = true;
+                    continue;
+                }
+                
+                const columnValues = rawLine.split('|').slice(1, -1).map(v => v.trim());
+                
+                if (!insideTable) {
+                    insideTable = true;
+                    generatedTableBuffer = `
+                        <div class="overflow-x-auto my-4 border border-white/10 rounded-xl bg-white/5 shadow-lg max-w-full">
+                            <table class="min-w-full divide-y divide-white/10 text-sm text-left">
+                                <thead class="bg-white/10 text-xs font-semibold text-purple-300 uppercase tracking-wider">
+                                    <tr>
+                    `;
+                    columnValues.forEach(columnTitle => {
+                        generatedTableBuffer += `<th class="px-4 py-3">${columnTitle}</th>`;
+                    });
+                    generatedTableBuffer += `
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                    `;
+                } else {
+                    generatedTableBuffer += `<tr class="hover:bg-white/5 transition-colors">`;
+                    columnValues.forEach(cellValue => {
+                        generatedTableBuffer += `<td class="px-4 py-3 text-white/90">${cellValue}</td>`;
+                    });
+                    generatedTableBuffer += `</tr>`;
+                }
+            } else {
+                if (insideTable) {
+                    generatedTableBuffer += `</tbody></table></div>`;
+                    compiledLines.push(generatedTableBuffer);
+                    generatedTableBuffer = '';
+                    insideTable = false;
+                }
+                compiledLines.push(lines[i]);
+            }
+        }
+        if (insideTable) {
+            generatedTableBuffer += `</tbody></table></div>`;
+            compiledLines.push(generatedTableBuffer);
+        }
+
+        escaped = compiledLines.join('\n');
+
+        // Dynamic Markdown Links [Text](URL) rendering
+        escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
+            return `
+                <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 font-semibold underline decoration-indigo-400/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
+                    ${linkText}
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            `;
+        });
+
+        // Markdown Images ![Alt](URL) rendering
+        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            return `
+                <div class="my-4 overflow-hidden rounded-xl border border-white/10 shadow-xl max-w-full">
+                    <img src="${src}" alt="${alt || 'Illustration'}" class="w-full h-auto object-cover max-h-[350px]">
+                    ${alt ? `<p class="p-2 text-center text-xs text-white/40 bg-black/20">${alt}</p>` : ''}
+                </div>
+            `;
+        });
+
+        escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-pink-300 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>');
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-purple-200">$1</strong>');
+        escaped = escaped.replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-white/90">$1</li>');
+
+        temporaryCodeVault.forEach((block, idx) => {
+            const token = `__CODE_TOKEN_REPLACEMENT_${idx}__`;
+            const displayLang = block.lang ? block.lang.toUpperCase() : 'CODE';
+            const encoded = encodeURIComponent(block.code.trim());
+            
+            let finalOutput = '';
+            if (block.lang && block.lang.toLowerCase() === 'mermaid') {
+                finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
+            } else {
+                let runBtn = '';
+                if (['HTML', 'XML', 'JS', 'JAVASCRIPT', 'CSS'].includes(displayLang)) {
+                    runBtn = `<button onclick="window.runCodeSandbox('${encoded}')" class="hover:text-white transition-colors ml-2">Run</button>`;
+                }
+
+                finalOutput = `
+                    <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
+                        <div class="flex justify-between items-center px-4 py-1.5 bg-white/5 border-b border-white/10 text-[10px] text-white/40 tracking-wider">
+                            <span>${displayLang}</span>
+                            <div class="flex items-center">
+                                <button onclick="window.copyToClipboard(this, '${encoded}')" class="hover:text-white transition-colors">Copy</button>
+                                ${runBtn}
+                            </div>
+                        </div>
+                        <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${block.code.trim()}</pre>
+                    </div>
+                `;
+            }
+            escaped = escaped.replace(token, finalOutput);
+        });
+
+        return escaped.replace(/\n/g, '<br>');
+    }
+
+    function showWelcome(show) {
+        if(show) {
+            chatMessages.innerHTML = `
+              <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-white/40 space-y-4">
+                <div class="w-20 h-20 bg-gradient-to-tr from-purple-500/20 to-indigo-500/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
+                <h1 class="text-3xl font-bold text-white/90 tracking-wide">Welcome to Joes AI</h1>
+                <p class="max-w-md text-sm text-white/50">Developed & Powered by <strong class="text-purple-400">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
+                
+                <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
+                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
+                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
+                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
+                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
+                </div>
+              </div>
+            `;
+        } else {
+            document.getElementById('welcome-msg')?.remove();
+        }
+    }
+  </script>
+</body>
+</html>
