@@ -9,24 +9,70 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Reset margins and force full-height canvas safely */
     html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
+    
     .gradient-bg { background: #070514; background-size: 400% 400%; }
-    body.light .gradient-bg { background: #eef2ff; }
-    .chat-gradient { background: rgba(12, 10, 31, 0.45) !important; backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.06); }
-    body.light .chat-gradient { background: rgba(255, 255, 255, 0.65) !important; backdrop-filter: blur(24px); border: 1px solid rgba(0, 0, 0, 0.06); color: #1e293b !important; }
+    body.light .gradient-bg { background: #e0e7ff; }
+    
+    /* Hardware Accelerated Glassmorphism saturated panels */
+    .chat-gradient { 
+      background: rgba(12, 10, 31, 0.45) !important; 
+      backdrop-filter: blur(24px) saturate(180%); 
+      border: 1px solid rgba(255, 255, 255, 0.06); 
+    }
+    body.light .chat-gradient { 
+      background: rgba(255, 255, 255, 0.65) !important; 
+      backdrop-filter: blur(24px); 
+      border: 1px solid rgba(0, 0, 0, 0.06); 
+      color: #1e293b !important; 
+    }
+
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
     body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
-    @keyframes snakeWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-    .snake-dot { animation: snakeWave 1.2s ease-in-out infinite; width: 6px; height: 6px; background-color: #a78bfa; border-radius: 50%; display: inline-block; }
+
+    /* Custom Snake Motion Wave Animation */
+    @keyframes snakeWave {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
+    }
+    .snake-dot {
+        animation: snakeWave 1.2s ease-in-out infinite;
+        width: 6px;
+        height: 6px;
+        background-color: #a78bfa;
+        border-radius: 50%;
+        display: inline-block;
+    }
     .snake-dot:nth-child(2) { animation-delay: 0.15s; }
     .snake-dot:nth-child(3) { animation-delay: 0.3s; }
     .snake-dot:nth-child(4) { animation-delay: 0.45s; }
-    body:not(.light) { background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.08) 0%, #0c0822 60%); }
-    body.light { background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(79, 70, 229, 0.05) 0%, #f1f5f9 60%); }
-    @keyframes borderGlow { 0%, 100% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); } 33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); } 66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); } }
+
+    /* Custom dynamic color shifting background orbs */
+    @keyframes colorShift1 {
+        0% { background-color: rgba(139, 92, 246, 0.12); transform: translate(0px, 0px) scale(1); }
+        50% { background-color: rgba(236, 72, 153, 0.12); transform: translate(40px, -40px) scale(1.15); }
+        100% { background-color: rgba(139, 92, 246, 0.12); transform: translate(0px, 0px) scale(1); }
+    }
+    @keyframes colorShift2 {
+        0% { background-color: rgba(99, 102, 241, 0.12); transform: translate(0px, 0px) scale(1); }
+        50% { background-color: rgba(59, 130, 246, 0.12); transform: translate(-40px, 40px) scale(0.9); }
+        100% { background-color: rgba(99, 102, 241, 0.12); transform: translate(0px, 0px) scale(1); }
+    }
+    .glowing-blob-1 { animation: colorShift1 10s ease-in-out infinite; }
+    .glowing-blob-2 { animation: colorShift2 14s ease-in-out infinite; }
+
+    /* Color Changing Glowing Textarea Border Animation */
+    @keyframes borderGlow {
+        0%, 100% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); }
+        33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); }
+        66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
+    }
     .glowing-input { animation: borderGlow 6s ease-in-out infinite; }
+
+    /* Markdown tables layout styling */
     table { border-collapse: collapse; width: 100%; margin: 16px 0; }
     th { background-color: rgba(255, 255, 255, 0.08); color: #a78bfa !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
     body.light th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; }
@@ -34,6 +80,8 @@
     body.light td { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
     tr:hover { background-color: rgba(255, 255, 255, 0.03); }
     body.light tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+
+    /* Light Theme typography adjustments */
     body.light .text-white { color: #1e293b !important; }
     body.light .text-white\/30 { color: rgba(30, 41, 59, 0.5) !important; }
     body.light .text-white\/40 { color: rgba(30, 41, 59, 0.6) !important; }
@@ -45,11 +93,24 @@
     body.light #welcome-msg h1 { color: #1e293b !important; }
     body.light .chat-gradient p, body.light .chat-gradient li { color: #334155 !important; }
     body.light .chat-gradient strong { color: #4338ca !important; }
-    .app-container { height: 100dvh; max-height: 100dvh; width: 100vw; display: flex; overflow: hidden; position: relative; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+
+    /* Unified mobile-responsive container protecting Safe Areas on phones */
+    .app-container {
+        height: 100dvh;
+        max-height: 100dvh;
+        width: 100vw;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+    }
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-white relative">
-  <!-- Dynamic Color Shifting Background Layers -->
+  <!-- Dynamic Color Shifting Ambient Glow Background Orbs -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-purple-600/15 via-indigo-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-600/10 via-purple-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -122,26 +183,34 @@
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5 h-full">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
 
-            <!-- Input Dashboard Container -->
-            <div class="p-3 md:p-4 bg-black/30 border-t border-white/10 flex items-center space-x-2 md:space-x-3 shrink-0">
-              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 animate__animated animate__fadeInUp"></div>
+            <!-- Input Dashboard Container (Fixed Stacking Flow) -->
+            <div class="flex flex-col w-full bg-black/40 border-t border-white/10 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0">
+              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
-              <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl flex items-center justify-center text-2xl transition-all border border-white/10" title="Upload Media">
-                ＋
-              </button>
-              
-              <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
-                <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
-                  🎤
+              <div class="flex items-center space-x-2 md:space-x-3 w-full">
+                <!-- Minimalist Plus Button for Media Upload -->
+                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl flex items-center justify-center text-2xl transition-all border border-white/10" title="Upload Media">
+                  ＋
+                </button>
+                
+                <!-- Pill Input Box (Wrapper with active color-changing glow) -->
+                <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
+                  <!-- Enlarged, Elastic Text Area (Gemini Style) -->
+                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                  
+                  <!-- Google Style Mic Button inside input bar wrapper -->
+                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
+                    🎤
+                  </button>
+                </div>
+
+                <!-- Send Action Button -->
+                <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
+                  <span id="send-icon" class="flex items-center justify-center w-full h-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                  </span>
                 </button>
               </div>
-
-              <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
-                <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                </span>
-              </button>
               <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
             </div>
           </div>
@@ -268,6 +337,16 @@
         } else if (welcomeMsg) {
             welcomeMsg.remove();
         }
+    }
+
+    // Binary file reader helper (restored to fix uncaught promise reference error)
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
     window.speakText = (btn, text) => {
