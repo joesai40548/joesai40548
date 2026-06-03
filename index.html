@@ -9,27 +9,64 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+    /* Reset margins and lock viewport height to prevent browser rubber-banding scroll bugs */
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
     body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
-    .gradient-bg { background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0c0822); background-size: 400% 400%; animation: liveFade 15s ease infinite; }
-    body.light .gradient-bg { background: linear-gradient(-45deg, #e0e7ff, #eef2ff, #f8fafc, #cbd5e1); }
-    @keyframes liveFade { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-    .chat-gradient { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-    body.light .chat-gradient { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.08); color: #1e293b !important; }
+    
+    .gradient-bg { background: #070514; background-size: 400% 400%; }
+    body.light .gradient-bg { background: #f1f5f9; }
+    
+    /* Hardware Accelerated Glassmorphism saturated panels */
+    .chat-gradient { 
+      background: rgba(12, 10, 31, 0.45) !important; 
+      backdrop-filter: blur(24px) saturate(180%); 
+      border: 1px solid rgba(255, 255, 255, 0.06); 
+    }
+    body.light .chat-gradient { 
+      background: rgba(255, 255, 255, 0.65) !important; 
+      backdrop-filter: blur(24px); 
+      border: 1px solid rgba(0, 0, 0, 0.06); 
+      color: #1e293b !important; 
+    }
+
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
     body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
-    @keyframes snakeWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-    .snake-dot { animation: snakeWave 1.2s ease-in-out infinite; width: 6px; height: 6px; background-color: #a78bfa; border-radius: 50%; display: inline-block; }
+
+    /* Custom Snake Motion Wave Animation */
+    @keyframes snakeWave {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-7px); }
+    }
+    .snake-dot {
+        animation: snakeWave 1.2s ease-in-out infinite;
+        width: 6px;
+        height: 6px;
+        background-color: #a78bfa;
+        border-radius: 50%;
+        display: inline-block;
+    }
     .snake-dot:nth-child(2) { animation-delay: 0.15s; }
     .snake-dot:nth-child(3) { animation-delay: 0.3s; }
     .snake-dot:nth-child(4) { animation-delay: 0.45s; }
-    @keyframes colorShift1 { 0%, 100% { background-color: rgba(139, 92, 246, 0.12); transform: translate(0, 0) scale(1); } 50% { background-color: rgba(236, 72, 153, 0.12); transform: translate(40px, -40px) scale(1.15); } }
-    @keyframes colorShift2 { 0%, 100% { background-color: rgba(99, 102, 241, 0.12); transform: translate(0, 0) scale(1); } 50% { background-color: rgba(59, 130, 246, 0.12); transform: translate(-40px, 40px) scale(0.9); } }
-    .glowing-blob-1 { animation: colorShift1 10s ease-in-out infinite; }
-    .glowing-blob-2 { animation: colorShift2 14s ease-in-out infinite; }
-    @keyframes borderGlow { 0%, 100% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); } 33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.4); } 66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.4); } }
+
+    /* Dynamic mouse tracking ambient radial fallback gradient */
+    body:not(.light) {
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.08) 0%, #0c0822 60%);
+    }
+    body.light {
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(79, 70, 229, 0.05) 0%, #f1f5f9 60%);
+    }
+
+    /* Glowing Input Border keyframes */
+    @keyframes borderGlow {
+        0%, 100% { border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); }
+        33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.3); }
+        66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
+    }
     .glowing-input { animation: borderGlow 6s ease-in-out infinite; }
+
+    /* Markdown tables layout styling */
     table { border-collapse: collapse; width: 100%; margin: 16px 0; }
     th { background-color: rgba(255, 255, 255, 0.08); color: #a78bfa !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
     body.light th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; }
@@ -37,6 +74,8 @@
     body.light td { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
     tr:hover { background-color: rgba(255, 255, 255, 0.03); }
     body.light tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+
+    /* Light Theme typography adjustments */
     body.light .text-white { color: #1e293b !important; }
     body.light .text-white\/30 { color: rgba(30, 41, 59, 0.5) !important; }
     body.light .text-white\/40 { color: rgba(30, 41, 59, 0.6) !important; }
@@ -48,20 +87,39 @@
     body.light #welcome-msg h1 { color: #1e293b !important; }
     body.light .chat-gradient p, body.light .chat-gradient li { color: #334155 !important; }
     body.light .chat-gradient strong { color: #4338ca !important; }
-    .app-container { height: 100dvh; max-height: 100dvh; width: 100vw; display: flex; overflow: hidden; position: relative; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+
+    /* Unified mobile-responsive container protecting Safe Areas on phones (Notches/Bottom bars) */
+    .app-container {
+        height: 100dvh;
+        max-height: 100dvh;
+        width: 100vw;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-left: env(safe-area-inset-left, 0px);
+        padding-right: env(safe-area-inset-right, 0px);
+    }
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-white relative">
+  <!-- Enhanced Glowing Hardware-Accelerated SaaS Background Stack Layer -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-1/4 left-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] glowing-blob-1"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-[35vw] h-[35vw] rounded-full blur-[130px] glowing-blob-2"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-purple-600/15 via-indigo-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-600/10 via-purple-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
+    
+    <!-- Fine SaaS-grade Micro-Grid Overlay -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
   </div>
 
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0b0a1a] flex items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
+  <!-- Main Grid Layout Container -->
   <div id="app" class="app-container">
+
     <!-- ChatGPT/Gemini Style Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0a1f]/95 border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl shrink-0 h-full">
         <div class="p-4 flex items-center justify-between border-b border-white/5">
@@ -78,6 +136,7 @@
             </button>
         </div>
 
+        <!-- Recent Chat Sessions loaded from Koofr Cloud -->
         <div class="flex-1 overflow-y-auto px-4 py-2 space-y-1">
             <p class="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2 px-2">Recent Chats</p>
             <div id="session-list" class="space-y-1"></div>
@@ -99,8 +158,9 @@
         </div>
     </aside>
 
+    <!-- Main Chat Window Area (Full Width Edge-to-Edge on Mobile) -->
     <div class="flex-grow flex flex-col h-full overflow-hidden relative">
-      <header class="bg-white/10 backdrop-blur-md shadow-lg md:p-4 p-3.5 flex items-center justify-between border-b border-white/5 z-20 shrink-0">
+      <header class="bg-white/10 backdrop-blur-md shadow-lg md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-white/5 z-20 shrink-0">
           <div class="flex items-center space-x-3">
               <button id="sidebar-open-btn" class="md:hidden text-white hover:text-purple-400 p-1">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -111,6 +171,7 @@
               </div>
           </div>
           
+          <!-- Modern Control Dashboard Menu -->
           <div class="flex items-center space-x-1">
               <button id="theme-btn" class="text-white hover:text-amber-400 transition-colors p-1.5 hover:bg-white/10 rounded-xl" title="Toggle Theme">🌙</button>
               <button id="export-btn" class="text-white hover:text-green-400 transition-colors p-1.5 hover:bg-white/10 rounded-xl" title="Export to Markdown">📥</button>
@@ -118,31 +179,42 @@
           </div>
       </header>
 
+      <!-- Grid view: full screen padding overrides on mobile phones -->
       <main class="flex-1 overflow-hidden md:p-4 p-0">
         <div class="max-w-5xl mx-auto h-full flex flex-col">
+          <!-- Translucent core element removes border radii on mobile edge layouts -->
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5 h-full">
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
+            <!-- Messages stream (Protects flex structure from squishing on mobile) -->
+            <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col scroll-smooth"></div>
 
-            <!-- Input Dashboard Container -->
-            <div class="p-3 md:p-4 bg-black/30 border-t border-white/10 flex items-center space-x-2 md:space-x-3 shrink-0">
-              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 animate__animated animate__fadeInUp"></div>
+            <!-- Input Dashboard Container (Firmly locked shrink-0 wrapper) -->
+            <div class="flex flex-col w-full bg-black/40 border-t border-white/10 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0">
+              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
-              <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl flex items-center justify-center text-2xl transition-all border border-white/10" title="Upload Media">
-                ＋
-              </button>
-              
-              <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
-                <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
-                  🎤
+              <div class="flex items-center space-x-2 md:space-x-3 w-full">
+                <!-- Minimalist Plus Button for Media Upload -->
+                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl flex items-center justify-center text-2xl transition-all border border-white/10" title="Upload Media">
+                  ＋
+                </button>
+                
+                <!-- Pill Input Box (Wrapper with active color-changing glow) -->
+                <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
+                  <!-- Enlarged, Elastic Text Area (Gemini Style) -->
+                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                  
+                  <!-- Google Style Mic Button inside input bar wrapper -->
+                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
+                    🎤
+                  </button>
+                </div>
+
+                <!-- Send Action Button -->
+                <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
+                  <span id="send-icon" class="flex items-center justify-center w-full h-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                  </span>
                 </button>
               </div>
-
-              <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
-                <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                </span>
-              </button>
               <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
             </div>
           </div>
@@ -175,6 +247,23 @@
   <script type="module">
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     
+    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('page-loader');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    });
+
+    // Hardware-accelerated cursor mouse glow tracker
+    document.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth) * 100;
+        const y = (e.clientY / window.innerHeight) * 100;
+        document.body.style.setProperty('--mouse-x', `${x}%`);
+        document.body.style.setProperty('--mouse-y', `${y}%`);
+    });
+
     const userId = localStorage.getItem('joes_ai_user_id') || 'user_' + Math.random().toString(36).substring(2, 11);
     localStorage.setItem('joes_ai_user_id', userId);
 
@@ -826,6 +915,7 @@
       div.dataset.intervalId = textStageInterval;
     }
 
+    // Loader safely finishes and unlocks screen UI
     function removeProcessingIndicator() {
       const indicatorEl = document.getElementById('processing-indicator');
       if (indicatorEl) {
@@ -847,6 +937,7 @@
         }
     }
 
+    // Markdown Parser
     function formatMarkdown(text) {
         if (!text) return '';
         
@@ -857,10 +948,26 @@
             return token;
         });
 
+        // Parse Images before escaping HTML tags
+        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+            return `___IMG_START___${src}___ALT___${alt || 'Image'}___IMG_END___`;
+        });
+
+        // Safely escape brackets to avoid DOM break crashes
         escaped = escaped
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
+
+        // Convert safe image tokens back to native fluid HTML image tags with fallbacks
+        escaped = escaped.replace(/___IMG_START___(.*?)___ALT___(.*?)___IMG_END___/g, (match, src, alt) => {
+            return `
+                <div class="my-4 overflow-hidden rounded-xl border border-white/10 shadow-xl max-w-full bg-black/20">
+                    <img src="${src}" alt="${alt}" class="w-full h-auto object-cover max-h-[350px]" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Unavailable';">
+                    <p class="p-2 text-center text-xs text-white/40 bg-black/20">${alt}</p>
+                </div>
+            `;
+        });
 
         const lines = escaped.split('\n');
         let insideTable = false;
@@ -920,18 +1027,9 @@
                 <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 font-semibold underline decoration-indigo-400/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
                     ${linkText}
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
                 </a>
-            `;
-        });
-
-        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-            return `
-                <div class="my-4 overflow-hidden rounded-xl border border-white/10 shadow-xl max-w-full">
-                    <img src="${src}" alt="${alt || 'Illustration'}" class="w-full h-auto object-cover max-h-[350px]">
-                    ${alt ? `<p class="p-2 text-center text-xs text-white/40 bg-black/20">${alt}</p>` : ''}
-                </div>
             `;
         });
 
@@ -980,26 +1078,19 @@
         return escaped.replace(/\n/g, '<br>');
     }
 
-    function showWelcome(show) {
-        if(show) {
-            chatMessages.innerHTML = `
-              <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-white/40 space-y-4">
-                <div class="w-20 h-20 bg-gradient-to-tr from-purple-500/20 to-indigo-500/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
-                <h1 class="text-3xl font-bold text-white/90 tracking-wide">Welcome to Joes AI</h1>
-                <p class="max-w-md text-sm text-white/50">Developed & Powered by <strong class="text-purple-400">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
-                
-                <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
-                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
-                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
-                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
-                </div>
-              </div>
-            `;
-        } else {
-            document.getElementById('welcome-msg')?.remove();
-        }
+    // Trigger primary boot-up sequence instantly
+    function initializeApp() {
+        setupEventListeners();
+        setupSidebarHandlers();
+        setupThemeHandler();
+        setupExportHandler();
+        setupSpeechRecognition();
+        
+        showWelcome(true);
+        fetchSessions();
     }
+
+    initializeApp();
   </script>
 </body>
 </html>
