@@ -4,8 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Joes AI - Intelligent AI Assistant</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
+  <meta name="title" content="Joes AI - Intelligent AI Assistant & Coding Workspace">
+  <meta name="description" content="Meet Joes AI, a powerful web companion designed by Akram Joes Technologies. Switch between Chat, Code, Study, and Learning modes with an integrated sandbox canvas code previewer.">
+  <meta name="keywords" content="Joes AI, joes ai, joes-ai-server, Akram Joes Technologies, intelligent assistant, chat mode, sandbox code preview, study companion, free domain one, work.gd">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  <meta name="author" content="Akram Joes Technologies">
+
+  <!-- Mobile Browser Theme Color Integration (Matches your layout background styling) -->
+  <meta name="theme-color" content="#070514">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Open Graph / Facebook / WhatsApp (Controls how your link card previews when shared) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://joesai.work.gd/">
+  <meta property="og:title" content="Joes AI - Intelligent AI Assistant & Workspace">
+  <meta property="og:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
+  <meta property="og:image" content="https://joesai.work.gd/assets/og-preview.png"> <!-- Upload an app screenshot to this path later -->
+
+  <!-- Twitter / X -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://joesai.work.gd/">
+  <meta property="twitter:title" content="Joes AI - Intelligent AI Assistant & Workspace">
+  <meta property="twitter:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
+  <meta property="twitter:image" content="https://joesai.work.gd/assets/og-preview.png">
+
+  <!-- Canonical Relationship Tag (Locks ranking equity to your free domain route) -->
+  <link rel="canonical" href="https://joesai.work.gd/">
+
+  <link class="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -444,6 +474,18 @@
             themeBtn.innerHTML = '☀️';
         }
     }
+
+    // Dynamic copy handler fallback for iOS or legacy protocols
+    window.copyToClipboard = (btn, encodedText) => {
+        const text = decodeURIComponent(encodedText);
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = originalText; }, 2000);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    };
 
     function setupExportHandler() {
         exportBtn.addEventListener('click', () => {
