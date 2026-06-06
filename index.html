@@ -12,10 +12,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  
-  <!-- Use the UMD bundle for Lucide to ensure GitHub and other specific icons load -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -47,6 +44,7 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
+
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -138,7 +136,7 @@
         <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3 shrink-0">
             <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                 <div class="truncate mr-2 flex flex-col">
-                    <span id="user-status-email" class="font-bold text-slate-800 truncate"></span>
+                    <span id="user-status-email" class="font-bold text-slate-800 truncate">Guest User</span>
                     <span class="text-slate-400 text-[9px] uppercase tracking-wide mt-0.5">Verified Profile</span>
                 </div>
                 <button id="logout-btn" class="text-red-500 hover:text-red-600 ml-1 flex items-center justify-center" title="Log Out">
@@ -176,10 +174,10 @@
           </div>
           
           <div class="flex items-center space-x-1">
-              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Export to Markdown">
+              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Export PDF">
                   <i data-lucide="download" class="w-4.5 h-4.5"></i>
               </button>
-              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="New Conversation Screen">
+              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Clear Screen">
                   <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
               </button>
           </div>
@@ -199,19 +197,19 @@
               
               <div id="slash-menu" class="hidden absolute bottom-[72px] md:bottom-[80px] left-4 bg-white border border-slate-200 rounded-2xl p-2 w-60 shadow-xl text-xs space-y-1 z-30">
                   <p class="text-[10px] text-slate-400 uppercase tracking-wider px-2 py-1 font-semibold">Slash Commands</p>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/explain')">
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/explain">
                       <span class="flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-indigo-500"></i> /explain</span>
                       <span class="text-[10px] text-slate-400">Concepts</span>
                   </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/refactor')">
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/refactor">
                       <span class="flex items-center gap-1.5"><i data-lucide="code-2" class="w-3.5 h-3.5 text-indigo-500"></i> /refactor</span>
                       <span class="text-[10px] text-slate-400">Optimize</span>
                   </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/test')">
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/test">
                       <span class="flex items-center gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5 text-indigo-500"></i> /test</span>
                       <span class="text-[10px] text-slate-400">Unit Tests</span>
                   </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/summarize')">
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/summarize">
                       <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i> /summarize</span>
                       <span class="text-[10px] text-slate-400">Abstract</span>
                   </button>
@@ -225,7 +223,7 @@
                 </button>
                 
                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or use / commands..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
                   <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center" title="Voice Input">
                       <i data-lucide="mic" class="w-5 h-5"></i>
                   </button>
@@ -255,127 +253,133 @@
       <div class="flex-1 bg-white relative">
           <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
       </div>
-      <div class="bg-slate-900 border-t border-slate-800 h-44 flex flex-col font-mono text-xs text-emerald-400 shrink-0">
-          <div class="flex justify-between items-center bg-slate-950 px-4 py-2 border-b border-slate-800">
-              <span class="text-[10px] text-slate-500 tracking-wider">DEVELOPER CONSOLE</span>
-              <button onclick="document.getElementById('console-log-stream').innerHTML=''" class="hover:text-white transition-colors text-slate-400">Clear</button>
-          </div>
-          <div id="console-log-stream" class="flex-grow overflow-y-auto p-4 space-y-2"></div>
-      </div>
-  </div>
-
-  <div id="admin-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-md hidden flex items-center justify-center animate__animated animate__fadeIn animate__faster">
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-4xl shadow-2xl text-slate-800 flex flex-col max-h-[85vh]">
-          <div class="flex justify-between items-center pb-4 border-b border-slate-100 shrink-0">
-              <span class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                  <i data-lucide="crown" class="w-5 h-5 text-amber-500 animate-bounce"></i> Admin Command Dashboard
-              </span>
-              <div class="flex items-center gap-3">
-                  <button id="admin-export-pdf-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
-                      <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Export PDF Report
-                  </button>
-                  <button id="admin-close-btn" class="text-slate-400 hover:text-slate-600 text-lg p-1">
-                      <i data-lucide="x" class="w-5 h-5"></i>
-                  </button>
-              </div>
-          </div>
-
-          <div class="flex border-b border-slate-100 mt-2 shrink-0">
-              <button id="admin-tab-overview" class="pb-2.5 px-4 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600 transition-all cursor-pointer">System Overview</button>
-              <button id="admin-tab-users" class="pb-2.5 px-4 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600 transition-all flex items-center gap-1.5 cursor-pointer">
-                  User Management Profile Board <span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold" id="admin-user-count-badge">0</span>
-              </button>
-          </div>
-          
-          <div class="flex-grow overflow-y-auto py-4 space-y-4">
-              <div id="admin-panel-overview" class="space-y-4">
-                  <div class="grid grid-cols-2 gap-3">
-                      <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Cloud Sessions</p>
-                          <p id="admin-stat-chats" class="text-2xl font-bold text-indigo-600 mt-1">Fetching...</p>
-                      </div>
-                      <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Isolated Active Users</p>
-                          <p id="admin-stat-users" class="text-2xl font-bold text-purple-600 mt-1">Fetching...</p>
-                      </div>
-                  </div>
-                  <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
-                      <p class="text-xs font-bold text-slate-800">System Telemetry & Connections</p>
-                      <div class="text-xs space-y-1 text-slate-600">
-                          <p>🟢 Server Status: <span class="text-green-600 font-medium">Online (Render Uptime)</span></p>
-                          <p>🟢 Cloud Storage: <span class="text-green-600 font-medium">Koofr WebDAV Connected</span></p>
-                          <p>👤 Active Admin: <span id="admin-active-email" class="font-semibold text-indigo-600"></span></p>
-                      </div>
-                  </div>
-              </div>
-
-              <div id="admin-panel-users" class="hidden space-y-4">
-                  <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-slate-50 p-3 border border-slate-200 rounded-2xl">
-                      <div class="flex flex-wrap gap-1.5" id="user-status-filters">
-                          <button data-filter="all" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-indigo-600 text-white transition-all cursor-pointer">All Accounts</button>
-                          <button data-filter="active" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Active</button>
-                          <button data-filter="registered" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Registered</button>
-                          <button data-filter="rejected" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Rejected</button>
-                      </div>
-                      <div class="relative w-full sm:w-64">
-                          <input id="admin-user-search" type="text" placeholder="Filter email or date logs..." class="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition-all">
-                          <i data-lucide="search" class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                      </div>
-                  </div>
-
-                  <div id="pdf-report-content" class="overflow-x-auto border border-slate-200 rounded-2xl bg-white p-1">
-                      <div id="pdf-only-header" class="hidden p-6 border-b border-slate-200 bg-slate-50 mb-4 rounded-t-xl">
-                          <h2 class="text-xl font-bold text-slate-900 tracking-wide">Joes AI - Administrative Audit & User Report</h2>
-                          <p id="pdf-report-timestamp" class="text-xs text-slate-500 mt-1"></p>
-                      </div>
-                      
-                      <table class="w-full min-w-[650px] text-left border-collapse m-0">
-                          <thead>
-                              <tr class="bg-slate-50/50 text-[10px] font-bold tracking-wider uppercase text-slate-400 border-b border-slate-200">
-                                  <th class="p-4">User Email / ID</th>
-                                  <th class="p-4">Date Registered</th>
-                                  <th class="p-4">Status Token</th>
-                                  <th class="p-4 text-right print:hidden">Administrative Operations</th>
-                              </tr>
-                          </thead>
-                          <tbody id="admin-users-table-body" class="text-xs divide-y divide-slate-100 text-slate-700">
-                              </tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
   </div>
 
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ 
-        startOnLoad: false, 
-        theme: 'default',
-        look: 'handDrawn',
-        flowchart: { curve: 'cardinal' }
-    });
+    mermaid.initialize({ startOnLoad: false, theme: 'default', look: 'handDrawn' });
     window.mermaid = mermaid;
   </script>
 
   <script type="module">
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
-    
-    let auth = null;
-    let currentUser = null;
     let userId = 'default';
-    let activeAbortController = null;
+    let currentSessionId = null;
 
-    window.addEventListener('load', () => {
+    // Remove Spinning Circle Loader on Complete Parse Execution Window
+    async function initApp() {
         const loader = document.getElementById('page-loader');
-        if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => { loader.style.display = 'none'; }, 500);
-        }
-        if (window.lucide) { lucide.createIcons(); }
-    });
+        
+        try {
+            // Step 1: Query Dynamic Configuration Setup from Cloud Backend Env Layers
+            const configRes = await fetch(`${BACKEND_URL}/api/config`);
+            if (!configRes.ok) throw new Error("Backend setup configurations unreached.");
+            const firebaseConfig = await configRes.json();
+            
+            // Step 2: Initialize Firebase Client
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
 
+            // Step 3: Configure Auth State Observability Change Flow
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('user-status-email').innerText = user.email || 'Verified Account';
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('app').classList.remove('hidden');
+                    checkAdminStatus(user.email);
+                } else {
+                    document.getElementById('app').classList.add('hidden');
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }
+                
+                // Clear the loader layout once auth determination completes
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 500);
+                }
+            });
+
+        } catch (err) {
+            console.error("Initialization Failed:", err);
+            // Fallback clear loader layout so developer can troubleshoot console
+            if (loader) loader.style.display = 'none';
+            alert("Backend status offline. Ensure your Render web service is live and active.");
+        }
+
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
+    async function checkAdminStatus(email) {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/check-admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (data.isAdmin) {
+                document.getElementById('admin-trigger').classList.remove('hidden');
+            }
+        } catch(e) { console.error("Admin verification step failed."); }
+    }
+
+    // Dynamic Tracking Mesh UI Lighting Effect
     document.addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth) * 100;
         const y = (e.clientY / window.innerHeight) * 100;
-        document.bo
+        document.body.style.setProperty('--mouse-x', `${x}%`);
+        document.body.style.setProperty('--mouse-y', `${y}%`);
+    });
+
+    // Setup Layout Routing Triggers
+    document.getElementById('sidebar-open-btn').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+    });
+    document.getElementById('sidebar-close-btn').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+    });
+
+    // Slash Utility Interaction Framework Helper
+    window.insertSlashCommand = function(cmd) {
+        const txtArea = document.getElementById('message-input');
+        txtArea.value = cmd + " " + txtArea.value;
+        document.getElementById('slash-menu').classList.add('hidden');
+        txtArea.focus();
+    };
+
+    document.querySelectorAll('#slash-menu button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cmd = btn.getAttribute('data-cmd');
+            if(cmd) window.insertSlashCommand(cmd);
+        });
+    });
+
+    document.getElementById('message-input').addEventListener('input', (e) => {
+        const menu = document.getElementById('slash-menu');
+        if (e.target.value === '/') {
+            menu.classList.remove('hidden');
+        } else if (!e.target.value.startsWith('/')) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    // Google/Github Authentication Strategy Bindings
+    document.getElementById('google-login-btn').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).catch(alert);
+    });
+    document.getElementById('github-login-btn').addEventListener('click', () => {
+        const provider = new firebase.auth.GithubAuthProvider();
+        firebase.auth().signInWithPopup(provider).catch(alert);
+    });
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        firebase.auth().signOut();
+    });
+
+    // Run core engine stack initiation sequence
+    initApp();
+  </script>
+</body>
+</html>
