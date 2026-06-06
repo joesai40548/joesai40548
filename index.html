@@ -13,7 +13,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
-  <!-- Firebase Web SDK CDNs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
@@ -43,18 +42,16 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
-  <!-- Glowing Background elements -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
   </div>
 
-  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
+  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
-  <!-- Gateway Authentication Screen -->
   <div id="auth-screen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-100/40 backdrop-blur-md hidden animate__animated animate__fadeIn">
       <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl space-y-6">
           <div class="text-center">
@@ -86,27 +83,38 @@
                   <input id="auth-otp" type="text" placeholder="Enter 6-digit Code" class="hidden w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-800">
               </div>
           </div>
-          <button id="auth-submit-btn" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-sm shadow-md transition-all active:scale-95">Continue</button>
+          <button id="auth-submit-btn" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl text-sm shadow-md transition-all active:scale-95">Continue</button>
           
           <div class="space-y-3">
               <div class="flex items-center my-4"><div class="flex-grow border-t border-slate-100"></div><span class="px-3 text-xs text-slate-400 font-medium">Or continue with</span><div class="flex-grow border-t border-slate-100"></div></div>
               <div class="grid grid-cols-2 gap-3">
-                  <button id="google-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">🌐 Google</button>
-                  <button id="github-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">💻 GitHub</button>
+                  <button id="google-login-btn" class="py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700 shadow-sm transition-all">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                      </svg>
+                      Google
+                  </button>
+                  <button id="github-login-btn" class="py-2.5 bg-[#24292e] hover:bg-[#1c1f23] border border-[#24292e] rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-white shadow-sm transition-all">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+                      </svg>
+                      GitHub
+                  </button>
               </div>
           </div>
       </div>
   </div>
 
   <div id="app" class="app-container hidden">
-    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl shrink-0 h-full">
         <div class="p-4 flex items-center justify-between border-b border-slate-100">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-sm text-white">⚡</div>
                 <span class="text-lg font-bold text-slate-900 tracking-wide">joes ai</span>
             </div>
-            <!-- Crown Admin Trigger Badge -->
             <button id="admin-trigger" class="hidden text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-300/30 transition-all animate-pulse">👑 Admin</button>
             <button id="sidebar-close-btn" class="md:hidden text-slate-400 hover:text-slate-600">✕</button>
         </div>
@@ -124,7 +132,6 @@
         </div>
 
         <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3 shrink-0">
-            <!-- User Status panel -->
             <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                 <div class="truncate mr-2 flex flex-col">
                     <span id="user-status-email" class="font-bold text-slate-800 truncate"></span>
@@ -169,7 +176,6 @@
       <main class="flex-1 overflow-hidden md:p-4 p-0">
         <div class="max-w-5xl mx-auto h-full flex flex-col relative">
           
-          <!-- Floating Scroll-to-Bottom Badge -->
           <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 shadow-xl transition-all z-30 hover:scale-105 active:scale-95">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7m14-6l-7 7-7-7"></path></svg>
           </button>
@@ -177,10 +183,8 @@
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-xl overflow-hidden flex-1 flex flex-col relative h-full">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
 
-            <!-- Input Dashboard Container (Fixed Light Stacking Flow Column) -->
             <div class="flex flex-col w-full bg-slate-50 border-t border-slate-200 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0 relative">
               
-              <!-- Slash Command Autocomplete popup menu -->
               <div id="slash-menu" class="hidden absolute bottom-[72px] md:bottom-[80px] left-4 bg-white border border-slate-200 rounded-2xl p-2 w-60 shadow-xl text-xs space-y-1 z-30">
                   <p class="text-[10px] text-slate-400 uppercase tracking-wider px-2 py-1 font-semibold">Slash Commands</p>
                   <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/explain')"><span>💡 /explain</span><span class="text-[10px] text-slate-400">Concepts</span></button>
@@ -192,12 +196,10 @@
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
               <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <!-- Plus Button for Media Upload -->
                 <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 rounded-2xl flex items-center justify-center text-2xl transition-all border border-slate-200" title="Upload Media">
                   ＋
                 </button>
                 
-                <!-- Pill Input Box -->
                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
                   <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all" title="Voice Input">
@@ -205,7 +207,6 @@
                   </button>
                 </div>
 
-                <!-- Send / Stop Action Button -->
                 <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
                   <span id="send-icon" class="flex items-center justify-center w-full h-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
@@ -220,7 +221,6 @@
     </div>
   </div>
 
-  <!-- Sandbox Live Preview Modal with Console Panel -->
   <div id="sandbox-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
       <div class="flex justify-between items-center p-4 border-b border-slate-200 bg-white text-slate-800">
           <span class="text-sm font-semibold flex items-center gap-2">💻 Sandbox Live Code Preview</span>
@@ -229,7 +229,6 @@
       <div class="flex-1 bg-white relative">
           <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
       </div>
-      <!-- Collapsible Live Web Developer Console -->
       <div class="bg-slate-900 border-t border-slate-800 h-44 flex flex-col font-mono text-xs text-emerald-400 shrink-0">
           <div class="flex justify-between items-center bg-slate-950 px-4 py-2 border-b border-slate-800">
               <span class="text-[10px] text-slate-500 tracking-wider">DEVELOPER CONSOLE</span>
@@ -239,7 +238,6 @@
       </div>
   </div>
 
-  <!-- Admin Command Dashboard Modal -->
   <div id="admin-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-md hidden flex items-center justify-center animate__animated animate__fadeIn animate__faster">
       <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-800 flex flex-col max-h-[85vh]">
           <div class="flex justify-between items-center pb-4 border-b border-slate-100 shrink-0">
@@ -269,7 +267,6 @@
       </div>
   </div>
 
-  <!-- Dynamic ESM module load for Mermaid.js Diagram Integration -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ 
@@ -283,13 +280,15 @@
 
   <script type="module">
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
-
+    
+    // Globally defined auth reference variable
     let auth = null;
     let currentUser = null;
     let userId = 'default';
     let activeAbortController = null;
+    let loadingInterval = null; // Used for AI processing animations
 
-    // Safety Window Loader dismiss handler
+    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
     window.addEventListener('load', () => {
         const loader = document.getElementById('page-loader');
         if (loader) {
@@ -451,6 +450,33 @@
         messageInput.style.height = (messageInput.scrollHeight) + 'px';
     });
 
+    // Sidebar Toggle Missing Function Added
+    function setupSidebarHandlers() {
+        if (sidebarOpenBtn && sidebar) {
+            sidebarOpenBtn.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+        }
+        if (sidebarCloseBtn && sidebar) {
+            sidebarCloseBtn.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+        }
+    }
+
+    // Welcome Screen Missing Function Added
+    function showWelcome(show) {
+        if (show) {
+            chatMessages.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-slate-400 space-y-4 pt-10 animate__animated animate__fadeIn">
+                    <div class="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-3xl text-white">⚡</div>
+                    <h2 class="text-xl font-bold text-slate-800">Welcome to Joes AI</h2>
+                    <p class="text-sm text-center max-w-sm px-4">Start a new conversation or ask me anything to get started.</p>
+                </div>
+            `;
+        }
+    }
+
     // -----------------------------------------------------------
     // REAL FIREBASE AUTHENTICATION CONFIGURATION AND INITIALIZER
     // -----------------------------------------------------------
@@ -465,7 +491,7 @@
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             
-            // Set up Auth listeners and UI controls
+            // Set up Auth listeners and UI controls safely after initialization
             setupAuthEventListeners();
             setupAuthObserver();
         } catch (err) {
@@ -551,7 +577,7 @@
         }
     }
 
-    // Dynamic, late-bound event setup handles Firebase secure listeners smoothly
+    // Dynamic, late-bound event setup handles Firebase secure listeners safely
     function setupAuthEventListeners() {
         if (!auth) return;
 
@@ -600,19 +626,30 @@
             }
         });
 
+        // Fixed Popup Blocking with Fallback Redirects
         document.getElementById('google-login-btn').addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+                await auth.signInWithPopup(provider);
             } catch (err) {
-                alert(`Google Auth Failed: ${err.message}`);
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+                    await auth.signInWithRedirect(provider);
+                } else {
+                    alert(`Google Auth Failed: ${err.message}`);
+                }
             }
         });
 
         document.getElementById('github-login-btn').addEventListener('click', async () => {
+            const provider = new firebase.auth.GithubAuthProvider();
             try {
-                await auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
+                await auth.signInWithPopup(provider);
             } catch (err) {
-                alert(`GitHub Auth Failed: ${err.message}`);
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+                    await auth.signInWithRedirect(provider);
+                } else {
+                    alert(`GitHub Auth Failed: ${err.message}`);
+                }
             }
         });
 
@@ -679,7 +716,117 @@
       });
     }
 
-    // Dynamic copy handler
+    window.speakText = (btn, text) => {
+        window.speechSynthesis.cancel();
+        
+        if (btn.dataset.speaking === "true") {
+            btn.textContent = '🔊 Read';
+            btn.classList.remove('text-red-500');
+            btn.dataset.speaking = "false";
+            return;
+        }
+
+        document.querySelectorAll('.tts-trigger').forEach(b => {
+            b.textContent = '🔊 Read';
+            b.classList.remove('text-red-500');
+            b.dataset.speaking = "false";
+        });
+
+        const decoded = decodeURIComponent(text);
+        let cleanTextString = decoded.replace(/<\/?[^>]+(>|$)/g, "")
+            .replace(/```[\s\S]*?```/g, "[Code Block]")
+            .replace(/`([^`]+)`/g, "$1")
+            .replace(/\*\*([^*]+)\*\*/g, "$1")
+            .replace(/_([^_]+)_/g, "$1")
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+            .trim();
+
+        if (!cleanTextString) {
+            alert("No readable content.");
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanTextString);
+        utterance.rate = 1.2;
+
+        const loadedVoices = window.speechSynthesis.getVoices();
+        if (loadedVoices.length > 0) {
+            const preferedVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
+                                  loadedVoices.find(v => v.lang.startsWith('en')) || 
+                                  loadedVoices[0];
+            utterance.voice = preferedVoice;
+        }
+
+        utterance.onend = () => { 
+            btn.textContent = '🔊 Read'; 
+            btn.classList.remove('text-red-500'); 
+            btn.dataset.speaking = "false";
+        };
+        utterance.onerror = () => { 
+            btn.textContent = '🔊 Read'; 
+            btn.classList.remove('text-red-500'); 
+            btn.dataset.speaking = "false";
+        };
+
+        btn.textContent = '🛑 Stop';
+        btn.classList.add('text-red-500');
+        btn.dataset.speaking = "true";
+        
+        setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+        }, 100);
+    };
+
+    window.runCodeSandbox = (encodedCode) => {
+        const decoded = decodeURIComponent(encodedCode);
+        sandboxModal.classList.remove('hidden');
+        document.getElementById('console-log-stream').innerHTML = '';
+
+        // Inject the simulated browser developer console script
+        const devConsoleStub = `
+          <script>
+            (function() {
+                const _log = console.log;
+                const _error = console.error;
+                console.log = function(...args) {
+                    _log.apply(console, args);
+                    window.parent.postMessage({ type: 'CONSOLE_LOG', text: args.join(' ') }, '*');
+                };
+                console.error = function(...args) {
+                    _error.apply(console, args);
+                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: args.join(' ') }, '*');
+                };
+                window.onerror = function(msg, url, line) {
+                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: msg + " at line " + line }, '*');
+                    return false;
+                };
+            })();
+          <\/script>
+        `;
+
+        const iframeDoc = sandboxIframe.contentDocument || sandboxIframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(devConsoleStub + decoded);
+        iframeDoc.close();
+    };
+
+    function appendConsoleStream(text, level) {
+        const consoleStream = document.getElementById('console-log-stream');
+        const line = document.createElement('p');
+        line.className = level === 'error' ? 'text-red-400 border-l-2 border-red-500 pl-2' : 'text-emerald-400 border-l-2 border-emerald-500 pl-2';
+        line.textContent = `[${level.toUpperCase()}] ${text}`;
+        consoleStream.appendChild(line);
+        consoleStream.scrollTop = consoleStream.scrollHeight;
+    }
+
+    sandboxCloseBtn.addEventListener('click', () => {
+        sandboxModal.classList.add('hidden');
+    });
+
+    function setupThemeHandler() {
+        // Theme configs are firmly set to light-theme on the current layout version
+    }
+
     window.copyToClipboard = (btn, encodedText) => {
         const text = decodeURIComponent(encodedText);
         navigator.clipboard.writeText(text).then(() => {
@@ -1163,7 +1310,7 @@
       
       const innerClass = role === 'user' 
         ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
-        : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
+        : 'chat-gradient text-slate-800 rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
 
       let attachmentHtml = '';
       if (attachmentData) {
@@ -1171,11 +1318,11 @@
               attachmentHtml = `<img src="${attachmentData.base64}" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
           } else {
               attachmentHtml = `
-                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/20 border border-white/5 rounded-xl max-w-sm text-xs">
+                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/5 border border-black/5 rounded-xl max-w-sm text-xs">
                       <span class="text-xl">📄</span>
                       <div class="truncate flex-1">
-                          <p class="font-medium truncate text-white/90">${attachmentData.name}</p>
-                          <p class="text-white/40 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
+                          <p class="font-medium truncate text-slate-800">${attachmentData.name}</p>
+                          <p class="text-slate-500 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
                       </div>
                   </div>
               `;
@@ -1184,7 +1331,7 @@
 
       const encodedString = encodeURIComponent(content || '');
       const speakerBadge = role === 'assistant' 
-        ? `<div class="flex justify-end pt-1"><button class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}">🔊 Read</button></div>` 
+        ? `<div class="flex justify-end pt-1"><button class="text-slate-400 hover:text-indigo-500 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}">🔊 Read</button></div>` 
         : '';
 
       wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
@@ -1200,22 +1347,43 @@
       }
     }
 
+    // Completely Rebuilt Animated Processing UI Hooked into Snake Animation
     function showProcessingIndicator() {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
-      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
+      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4 z-10 relative';
+      
       div.innerHTML = `
-        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md space-y-2.5">
-          <div class="h-3 w-3/4 rounded claude-shimmer"></div>
-          <div class="h-3 w-5/6 rounded claude-shimmer"></div>
-          <div class="h-3 w-1/2 rounded claude-shimmer"></div>
+        <div class="chat-gradient rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md">
+            <div id="ai-status-text" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Processing...</div>
+            <div class="flex items-center space-x-1.5 h-4">
+                <div class="snake-dot" style="animation-delay: 0s"></div>
+                <div class="snake-dot" style="animation-delay: 0.15s"></div>
+                <div class="snake-dot" style="animation-delay: 0.3s"></div>
+                <div class="snake-dot" style="animation-delay: 0.45s"></div>
+            </div>
         </div>
       `;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      const states = ["Processing...", "Thinking...", "Finalizing...", "Wrapping up..."];
+      let stateIndex = 0;
+      const statusTextElement = document.getElementById('ai-status-text');
+      
+      if(loadingInterval) clearInterval(loadingInterval);
+      loadingInterval = setInterval(() => {
+          if (stateIndex < states.length - 1) {
+              stateIndex++;
+              if (statusTextElement) statusTextElement.innerText = states[stateIndex];
+          } else {
+              clearInterval(loadingInterval);
+          }
+      }, 1200);
     }
 
     function removeProcessingIndicator() {
+      if(loadingInterval) clearInterval(loadingInterval);
       const indicatorEl = document.getElementById('processing-indicator');
       if (indicatorEl) {
           indicatorEl.remove();
@@ -1225,7 +1393,7 @@
     function showLoadingIndicator(show) {
         if (show) {
             chatMessages.innerHTML = `
-              <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
+              <div class="flex flex-col items-center justify-center h-full py-20 text-slate-400 space-y-3">
                 <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                 <span class="text-xs">Loading conversation from Koofr...</span>
               </div>
@@ -1341,7 +1509,7 @@
             
             let finalOutput = '';
             if (block.lang && block.lang.toLowerCase() === 'mermaid') {
-                finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
+                finalOutput = `<div class="mermaid my-4 p-4 bg-black/5 border border-black/10 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
             } else if (displayLang === 'DIFF') {
                 const diffLines = block.code.trim().split('\n').map(line => {
                     if (line.startsWith('+')) return `<div class="bg-green-500/10 text-green-700 font-mono text-xs border-l-4 border-green-500 px-3 py-0.5">${line}</div>`;
@@ -1382,7 +1550,6 @@
     }
 
     function initializeApp() {
-        // Enforce secure dynamic load on startup
         initializeSecureAuth();
     }
 
