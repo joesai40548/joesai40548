@@ -12,7 +12,11 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  
+  <!-- Lucide Modern Icons Library -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase Web SDK CDNs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
@@ -42,6 +46,7 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
+  <!-- Glowing Background elements -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -52,10 +57,13 @@
     <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
+  <!-- Gateway Authentication Screen -->
   <div id="auth-screen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-100/40 backdrop-blur-md hidden animate__animated animate__fadeIn">
       <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl space-y-6">
           <div class="text-center">
-              <div class="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md text-sm text-white font-bold mx-auto mb-3">⚡</div>
+              <div class="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md text-white mx-auto mb-3">
+                  <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+              </div>
               <h1 id="auth-title" class="text-2xl font-bold text-slate-900">Sign In to Joes AI</h1>
               <p class="text-xs text-slate-400 mt-1">Unlock your private, production-ready workspace</p>
           </div>
@@ -88,27 +96,39 @@
           <div class="space-y-3">
               <div class="flex items-center my-4"><div class="flex-grow border-t border-slate-100"></div><span class="px-3 text-xs text-slate-400 font-medium">Or continue with</span><div class="flex-grow border-t border-slate-100"></div></div>
               <div class="grid grid-cols-2 gap-3">
-                  <button id="google-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">🌐 Google</button>
-                  <button id="github-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">💻 GitHub</button>
+                  <button id="google-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">
+                      <i data-lucide="globe" class="w-3.5 h-3.5"></i> Google
+                  </button>
+                  <button id="github-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">
+                      <i data-lucide="github" class="w-3.5 h-3.5"></i> GitHub
+                  </button>
               </div>
           </div>
       </div>
   </div>
 
   <div id="app" class="app-container hidden">
+    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl shrink-0 h-full">
         <div class="p-4 flex items-center justify-between border-b border-slate-100">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-sm text-white">⚡</div>
+                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-white">
+                    <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+                </div>
                 <span class="text-lg font-bold text-slate-900 tracking-wide">joes ai</span>
             </div>
-            <button id="admin-trigger" class="hidden text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-300/30 transition-all animate-pulse">👑 Admin</button>
-            <button id="sidebar-close-btn" class="md:hidden text-slate-400 hover:text-slate-600">✕</button>
+            <!-- Crown Admin Trigger Badge -->
+            <button id="admin-trigger" class="hidden text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-300/30 transition-all animate-pulse">
+                <i data-lucide="crown" class="w-3.5 h-3.5"></i> Admin
+            </button>
+            <button id="sidebar-close-btn" class="md:hidden text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
         </div>
 
         <div class="p-4 space-y-3 shrink-0">
             <button id="new-chat-btn" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-indigo-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-sm hover:scale-[1.01] transition-all text-sm">
-                <span>+</span> New Chat
+                <i data-lucide="plus" class="w-4 h-4"></i> New Chat
             </button>
             <input id="search-bar" type="text" placeholder="Search chats..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-all">
         </div>
@@ -119,12 +139,15 @@
         </div>
 
         <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3 shrink-0">
+            <!-- User Status panel -->
             <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                 <div class="truncate mr-2 flex flex-col">
                     <span id="user-status-email" class="font-bold text-slate-800 truncate"></span>
                     <span class="text-slate-400 text-[9px] uppercase tracking-wide mt-0.5">Verified Profile</span>
                 </div>
-                <button id="logout-btn" class="text-red-500 hover:text-red-600 font-bold ml-1 text-sm" title="Log Out">✕</button>
+                <button id="logout-btn" class="text-red-500 hover:text-red-600 ml-1 flex items-center justify-center" title="Log Out">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -142,61 +165,86 @@
         </div>
     </aside>
 
+    <!-- Main Chat Window Area -->
     <div class="flex-grow flex flex-col h-full overflow-hidden relative">
       <header class="bg-white/80 backdrop-blur-md shadow-sm md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200 z-20 shrink-0">
           <div class="flex items-center space-x-3">
-              <button id="sidebar-open-btn" class="md:hidden text-slate-600 hover:text-indigo-600 p-1">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+              <button id="sidebar-open-btn" class="md:hidden text-slate-600 hover:text-indigo-600 p-1 flex items-center justify-center">
+                  <i data-lucide="menu" class="w-6 h-6"></i>
               </button>
               <div class="flex items-center space-x-2 md:hidden">
-                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-sm text-white">⚡</div>
+                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-white">
+                    <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
+                </div>
                 <span class="text-lg font-bold text-slate-900 tracking-wide">joes ai</span>
               </div>
           </div>
           
           <div class="flex items-center space-x-1">
-              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="Export Chat Options">📥</button>
-              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="New Conversation Screen">🗑️</button>
+              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Export to Markdown">
+                  <i data-lucide="download" class="w-4.5 h-4.5"></i>
+              </button>
+              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="New Conversation Screen">
+                  <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+              </button>
           </div>
       </header>
 
       <main class="flex-1 overflow-hidden md:p-4 p-0">
         <div class="max-w-5xl mx-auto h-full flex flex-col relative">
           
-          <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 shadow-xl transition-all z-30 hover:scale-105 active:scale-95">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7m14-6l-7 7-7-7"></path></svg>
+          <!-- Floating Scroll-to-Bottom Badge -->
+          <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 shadow-xl transition-all z-30 hover:scale-105 active:scale-95 flex items-center justify-center">
+              <i data-lucide="arrow-down" class="w-5 h-5"></i>
           </button>
 
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-xl overflow-hidden flex-1 flex flex-col relative h-full">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
 
+            <!-- Input Dashboard Container (Fixed Light Stacking Flow Column) -->
             <div class="flex flex-col w-full bg-slate-50 border-t border-slate-200 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0 relative">
               
+              <!-- Slash Command Autocomplete popup menu -->
               <div id="slash-menu" class="hidden absolute bottom-[72px] md:bottom-[80px] left-4 bg-white border border-slate-200 rounded-2xl p-2 w-60 shadow-xl text-xs space-y-1 z-30">
                   <p class="text-[10px] text-slate-400 uppercase tracking-wider px-2 py-1 font-semibold">Slash Commands</p>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/explain')"><span>💡 /explain</span><span class="text-[10px] text-slate-400">Concepts</span></button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/refactor')"><span>💻 /refactor</span><span class="text-[10px] text-slate-400">Optimize</span></button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/test')"><span>⚙️ /test</span><span class="text-[10px] text-slate-400">Unit Tests</span></button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/summarize')"><span>📝 /summarize</span><span class="text-[10px] text-slate-400">Abstract</span></button>
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/explain')">
+                      <span class="flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-indigo-500"></i> /explain</span>
+                      <span class="text-[10px] text-slate-400">Concepts</span>
+                  </button>
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/refactor')">
+                      <span class="flex items-center gap-1.5"><i data-lucide="code-2" class="w-3.5 h-3.5 text-indigo-500"></i> /refactor</span>
+                      <span class="text-[10px] text-slate-400">Optimize</span>
+                  </button>
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/test')">
+                      <span class="flex items-center gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5 text-indigo-500"></i> /test</span>
+                      <span class="text-[10px] text-slate-400">Unit Tests</span>
+                  </button>
+                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/summarize')">
+                      <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i> /summarize</span>
+                      <span class="text-[10px] text-slate-400">Abstract</span>
+                  </button>
               </div>
 
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
               <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 rounded-2xl flex items-center justify-center text-2xl transition-all border border-slate-200" title="Upload Media">
-                  ＋
+                <!-- Plus Button for Media Upload -->
+                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 rounded-2xl flex items-center justify-center transition-all border border-slate-200" title="Upload Media">
+                    <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </button>
                 
+                <!-- Pill Input Box -->
                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
-                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all" title="Voice Input">
-                    🎤
+                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center" title="Voice Input">
+                      <i data-lucide="mic" class="w-5 h-5"></i>
                   </button>
                 </div>
 
+                <!-- Send / Stop Action Button -->
                 <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
                   <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                      <i data-lucide="send" class="w-5 h-5"></i>
                   </span>
                 </button>
               </div>
@@ -208,14 +256,18 @@
     </div>
   </div>
 
+  <!-- Sandbox Live Preview Modal with Console Panel -->
   <div id="sandbox-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
       <div class="flex justify-between items-center p-4 border-b border-slate-200 bg-white text-slate-800">
-          <span class="text-sm font-semibold flex items-center gap-2">💻 Sandbox Live Code Preview</span>
-          <button id="sandbox-close-btn" class="text-slate-500 hover:text-red-500 font-bold transition-colors">✕ Close</button>
+          <span class="text-sm font-semibold flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4 text-indigo-600"></i> Sandbox Live Code Preview</span>
+          <button id="sandbox-close-btn" class="text-slate-500 hover:text-red-500 font-semibold transition-colors flex items-center gap-1">
+              <i data-lucide="x" class="w-4 h-4"></i> Close
+          </button>
       </div>
       <div class="flex-1 bg-white relative">
           <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
       </div>
+      <!-- Collapsible Live Web Developer Console -->
       <div class="bg-slate-900 border-t border-slate-800 h-44 flex flex-col font-mono text-xs text-emerald-400 shrink-0">
           <div class="flex justify-between items-center bg-slate-950 px-4 py-2 border-b border-slate-800">
               <span class="text-[10px] text-slate-500 tracking-wider">DEVELOPER CONSOLE</span>
@@ -225,11 +277,16 @@
       </div>
   </div>
 
+  <!-- Admin Command Dashboard Modal -->
   <div id="admin-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-md hidden flex items-center justify-center animate__animated animate__fadeIn animate__faster">
       <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-800 flex flex-col max-h-[85vh]">
           <div class="flex justify-between items-center pb-4 border-b border-slate-100 shrink-0">
-              <span class="font-bold text-slate-900 text-lg flex items-center gap-2">👑 Admin Command Dashboard</span>
-              <button id="admin-close-btn" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+              <span class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                  <i data-lucide="crown" class="w-5 h-5 text-amber-500 animate-bounce"></i> Admin Command Dashboard
+              </span>
+              <button id="admin-close-btn" class="text-slate-400 hover:text-slate-600 text-lg">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+              </button>
           </div>
           <div class="flex-grow overflow-y-auto py-4 space-y-4">
               <div class="grid grid-cols-2 gap-3">
@@ -254,6 +311,7 @@
       </div>
   </div>
 
+  <!-- Dynamic ESM module load for Mermaid.js Diagram Integration -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ 
@@ -281,6 +339,7 @@
             loader.style.opacity = '0';
             setTimeout(() => { loader.style.display = 'none'; }, 500);
         }
+        if (window.lucide) { lucide.createIcons(); }
     });
 
     // Hardware-accelerated cursor mouse glow tracker
@@ -509,6 +568,7 @@
                 adminTrigger.classList.remove('hidden');
             }
         }
+        if (window.lucide) { lucide.createIcons(); }
     }
 
     // Auth tab togglers
@@ -668,21 +728,24 @@
         window.speechSynthesis.cancel();
         
         if (btn.dataset.speaking === "true") {
-            btn.textContent = '🔊 Read';
+            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read';
+            if (window.lucide) { lucide.createIcons(); }
             btn.classList.remove('text-red-500');
             btn.dataset.speaking = "false";
             return;
         }
 
         document.querySelectorAll('.tts-trigger').forEach(b => {
-            b.textContent = '🔊 Read';
+            b.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read';
             b.classList.remove('text-red-500');
             b.dataset.speaking = "false";
         });
+        if (window.lucide) { lucide.createIcons(); }
 
         const decoded = decodeURIComponent(text);
         let cleanTextString = decoded.replace(/<\/?[^>]+(>|$)/g, "")
-            .replace(/```[\s\S]*?```/g, "[Code Block]")
+            .replace(/```[\s\S]*?
+```/g, "[Code Block]")
             .replace(/`([^`]+)`/g, "$1")
             .replace(/\*\*([^*]+)\*\*/g, "$1")
             .replace(/_([^_]+)_/g, "$1")
@@ -706,17 +769,20 @@
         }
 
         utterance.onend = () => { 
-            btn.textContent = '🔊 Read'; 
+            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read'; 
+            if (window.lucide) { lucide.createIcons(); }
             btn.classList.remove('text-red-500'); 
             btn.dataset.speaking = "false";
         };
         utterance.onerror = () => { 
-            btn.textContent = '🔊 Read'; 
+            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read'; 
+            if (window.lucide) { lucide.createIcons(); }
             btn.classList.remove('text-red-500'); 
             btn.dataset.speaking = "false";
         };
 
-        btn.textContent = '🛑 Stop';
+        btn.innerHTML = '<i data-lucide="square" class="w-3.5 h-3.5"></i> Stop';
+        if (window.lucide) { lucide.createIcons(); }
         btn.classList.add('text-red-500');
         btn.dataset.speaking = "true";
         
@@ -787,98 +853,26 @@
     };
 
     function setupExportHandler() {
-        // Dynamically inject html2pdf dependency to avoid structural HTML mutations
-        if (!window.html2pdf) {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-            document.head.appendChild(script);
-        }
-
         exportBtn.addEventListener('click', () => {
             if (chatHistory.length === 0) {
                 alert("No chat history to export yet!");
                 return;
             }
 
-            const exportType = prompt("Type 'pdf' to export as PDF document, or 'md' for Markdown text:", "pdf");
-            if (!exportType) return;
+            let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
+            chatHistory.forEach(msg => {
+                const author = msg.role === 'user' ? 'User' : 'Joes AI';
+                mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
+            });
 
-            const selection = exportType.toLowerCase().trim();
-
-            if (selection === 'md') {
-                let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
-                chatHistory.forEach(msg => {
-                    const author = msg.role === 'user' ? 'User' : 'Joes AI';
-                    mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
-                });
-
-                const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const anchor = document.createElement('a');
-                anchor.href = url;
-                anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
-                document.body.appendChild(anchor);
-                anchor.click();
-                document.body.removeChild(anchor);
-            } else if (selection === 'pdf') {
-                if (!window.html2pdf) {
-                    alert("PDF export module is still initializing. Please click again in a brief second!");
-                    return;
-                }
-
-                // Construct a beautifully clear off-screen isolated document container for the snapshot
-                const targetPrintContainer = document.createElement('div');
-                targetPrintContainer.style.padding = '25px';
-                targetPrintContainer.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
-                targetPrintContainer.style.color = '#1e293b';
-                targetPrintContainer.style.backgroundColor = '#ffffff';
-
-                let rawHtmlTemplate = `
-                    <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h1 style="color: #4f46e5; margin: 0; font-size: 22px; font-weight: 700;">Joes AI Log</h1>
-                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Workspace Chat Session Export</p>
-                        </div>
-                        <div style="font-size: 11px; color: #94a3b8; text-align: right;">
-                            <strong>Date:</strong> ${new Date().toLocaleDateString()}
-                        </div>
-                    </div>
-                `;
-
-                chatHistory.forEach(msg => {
-                    const isUser = msg.role === 'user';
-                    const authorName = isUser ? 'User' : 'Joes AI';
-                    const primaryThemeColor = isUser ? '#4f46e5' : '#7c3aed';
-                    const lightBgColor = isUser ? '#f8fafc' : '#f5f3ff';
-
-                    let localizedContent = msg.content
-                        .replace(/\n/g, '<br>')
-                        .replace(/\*\*(.*?)\*\//g, '<strong>$1</strong>')
-                        .replace(/`([^`]+)`/g, '<code style="background: #e2e8f0; color: #db2777; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 11px;">$1</code>');
-
-                    rawHtmlTemplate += `
-                        <div style="margin-bottom: 16px; padding: 14px; background-color: ${lightBgColor}; border-radius: 10px; border-left: 4px solid ${primaryThemeColor};">
-                            <strong style="color: ${primaryThemeColor}; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 4px; tracking-wider: 0.05em;">${authorName}</strong>
-                            <div style="font-size: 12px; line-height: 1.55; color: #334155; word-wrap: break-word;">${localizedContent}</div>
-                        </div>
-                    `;
-                });
-
-                targetPrintContainer.innerHTML = rawHtmlTemplate;
-
-                const pdfOptions = {
-                    margin: [15, 15, 15, 15],
-                    filename: `JoesAI_ChatExport_${Date.now()}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                };
-
-                html2pdf().from(targetPrintContainer).set(pdfOptions).save();
-            } else {
-                alert("Invalid choice. Please type 'pdf' or 'md'.");
-            }
+            const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
         });
     }
 
@@ -919,7 +913,8 @@
           recognition.lang = 'en-US';
 
           recognition.onstart = () => {
-              micBtn.innerHTML = '🔴';
+              micBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5 text-red-500 animate-pulse"></i>';
+              if (window.lucide) { lucide.createIcons(); }
               micBtn.classList.add('animate-pulse', 'bg-red-500/10');
               textInputWrap.classList.add('animate-pulse');
           };
@@ -932,13 +927,15 @@
           };
 
           recognition.onerror = () => {
-              micBtn.innerHTML = '🎤';
+              micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+              if (window.lucide) { lucide.createIcons(); }
               micBtn.classList.remove('animate-pulse', 'bg-red-500/10');
               textInputWrap.classList.remove('animate-pulse');
           };
 
           recognition.onend = () => {
-              micBtn.innerHTML = '🎤';
+              micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+              if (window.lucide) { lucide.createIcons(); }
               micBtn.classList.remove('animate-pulse', 'bg-red-500/10');
               textInputWrap.classList.remove('animate-pulse');
           };
@@ -1069,10 +1066,10 @@
             const item = document.createElement('div');
             item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-indigo-50 text-indigo-600 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`;
             item.innerHTML = `
-                <span class="truncate flex-1 pr-2">💬 ${sess.title}</span>
+                <span class="truncate flex-1 pr-2 flex items-center gap-1.5"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 opacity-70"></i> ${sess.title}</span>
                 <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="text-slate-400 hover:text-amber-400 p-0.5 rename-btn" title="Rename thread">✏️</button>
-                    <button class="text-slate-400 hover:text-red-500 p-0.5 delete-btn" title="Delete thread">✕</button>
+                    <button class="text-slate-400 hover:text-amber-500 p-0.5 rename-btn" title="Rename thread"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
+                    <button class="text-slate-400 hover:text-red-500 p-0.5 delete-btn" title="Delete thread"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
                 </div>
             `;
             
@@ -1090,6 +1087,7 @@
             });
             sessionList.appendChild(item);
         });
+        if (window.lucide) { lucide.createIcons(); }
     }
 
     async function saveCurrentChatToCloud(title) {
@@ -1170,18 +1168,13 @@
         if (disabled) {
             messageInput.classList.add('opacity-50');
             sendBtn.dataset.active = 'true';
-            sendIcon.innerHTML = `
-                <svg class="h-5 w-5 text-red-500 fill-current" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="16" height="16" rx="2" />
-                </svg>
-            `;
+            sendIcon.innerHTML = `<i data-lucide="square" class="w-5 h-5 text-red-500 fill-current"></i>`;
         } else {
             messageInput.classList.remove('opacity-50');
             sendBtn.dataset.active = 'false';
-            sendIcon.innerHTML = `
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-            `;
+            sendIcon.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i>`;
         }
+        if (window.lucide) { lucide.createIcons(); }
     }
 
     async function handleSend() {
@@ -1339,7 +1332,7 @@
           } else {
               attachmentHtml = `
                   <div class="flex items-center space-x-3 p-3 my-2 bg-black/20 border border-white/5 rounded-xl max-w-sm text-xs">
-                      <span class="text-xl">📄</span>
+                      <i data-lucide="file-text" class="w-5 h-5 text-indigo-400 shrink-0"></i>
                       <div class="truncate flex-1">
                           <p class="font-medium truncate text-white/90">${attachmentData.name}</p>
                           <p class="text-white/40 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
@@ -1351,12 +1344,14 @@
 
       const encodedString = encodeURIComponent(content || '');
       const speakerBadge = role === 'assistant' 
-        ? `<div class="flex justify-end pt-1"><button class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}">🔊 Read</button></div>` 
+        ? `<div class="flex justify-end pt-1"><button class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide tts-trigger flex items-center gap-1" data-content="${encodedString}"><i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read</button></div>` 
         : '';
 
       wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
       chatMessages.appendChild(wrapper);
       chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      if (window.lucide) { lucide.createIcons(); }
 
       if (window.mermaid) {
           setTimeout(() => {
@@ -1420,6 +1415,7 @@
             .replace(/>/g, "&gt;");
 
         escaped = escaped
+            .replace(/|/gim, '')
             .replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-indigo-600 mt-4 mb-2 tracking-wide uppercase">$1</h3>')
             .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-800 mt-5 mb-2.5">$1</h2>')
             .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-slate-900 mt-6 mb-3">$1</h1>');
