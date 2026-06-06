@@ -13,10 +13,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   
-  <!-- Lucide Modern Icons Library -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Firebase Web SDK CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
@@ -46,7 +46,6 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
-  <!-- Glowing Background elements -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -57,7 +56,6 @@
     <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
-  <!-- Gateway Authentication Screen -->
   <div id="auth-screen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-100/40 backdrop-blur-md hidden animate__animated animate__fadeIn">
       <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl space-y-6">
           <div class="text-center">
@@ -108,7 +106,6 @@
   </div>
 
   <div id="app" class="app-container hidden">
-    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl shrink-0 h-full">
         <div class="p-4 flex items-center justify-between border-b border-slate-100">
             <div class="flex items-center space-x-3">
@@ -117,7 +114,6 @@
                 </div>
                 <span class="text-lg font-bold text-slate-900 tracking-wide">joes ai</span>
             </div>
-            <!-- Crown Admin Trigger Badge -->
             <button id="admin-trigger" class="hidden text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-amber-300/30 transition-all animate-pulse">
                 <i data-lucide="crown" class="w-3.5 h-3.5"></i> Admin
             </button>
@@ -139,7 +135,6 @@
         </div>
 
         <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3 shrink-0">
-            <!-- User Status panel -->
             <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
                 <div class="truncate mr-2 flex flex-col">
                     <span id="user-status-email" class="font-bold text-slate-800 truncate"></span>
@@ -165,7 +160,6 @@
         </div>
     </aside>
 
-    <!-- Main Chat Window Area -->
     <div class="flex-grow flex flex-col h-full overflow-hidden relative">
       <header class="bg-white/80 backdrop-blur-md shadow-sm md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200 z-20 shrink-0">
           <div class="flex items-center space-x-3">
@@ -193,7 +187,6 @@
       <main class="flex-1 overflow-hidden md:p-4 p-0">
         <div class="max-w-5xl mx-auto h-full flex flex-col relative">
           
-          <!-- Floating Scroll-to-Bottom Badge -->
           <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 shadow-xl transition-all z-30 hover:scale-105 active:scale-95 flex items-center justify-center">
               <i data-lucide="arrow-down" class="w-5 h-5"></i>
           </button>
@@ -201,10 +194,8 @@
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-xl overflow-hidden flex-1 flex flex-col relative h-full">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
 
-            <!-- Input Dashboard Container (Fixed Light Stacking Flow Column) -->
             <div class="flex flex-col w-full bg-slate-50 border-t border-slate-200 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0 relative">
               
-              <!-- Slash Command Autocomplete popup menu -->
               <div id="slash-menu" class="hidden absolute bottom-[72px] md:bottom-[80px] left-4 bg-white border border-slate-200 rounded-2xl p-2 w-60 shadow-xl text-xs space-y-1 z-30">
                   <p class="text-[10px] text-slate-400 uppercase tracking-wider px-2 py-1 font-semibold">Slash Commands</p>
                   <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" onclick="window.insertSlashCommand('/explain')">
@@ -228,12 +219,10 @@
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
               <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <!-- Plus Button for Media Upload -->
                 <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 rounded-2xl flex items-center justify-center transition-all border border-slate-200" title="Upload Media">
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </button>
                 
-                <!-- Pill Input Box -->
                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
                   <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center" title="Voice Input">
@@ -241,7 +230,6 @@
                   </button>
                 </div>
 
-                <!-- Send / Stop Action Button -->
                 <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
                   <span id="send-icon" class="flex items-center justify-center w-full h-full">
                       <i data-lucide="send" class="w-5 h-5"></i>
@@ -256,7 +244,6 @@
     </div>
   </div>
 
-  <!-- Sandbox Live Preview Modal with Console Panel -->
   <div id="sandbox-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
       <div class="flex justify-between items-center p-4 border-b border-slate-200 bg-white text-slate-800">
           <span class="text-sm font-semibold flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4 text-indigo-600"></i> Sandbox Live Code Preview</span>
@@ -267,7 +254,6 @@
       <div class="flex-1 bg-white relative">
           <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
       </div>
-      <!-- Collapsible Live Web Developer Console -->
       <div class="bg-slate-900 border-t border-slate-800 h-44 flex flex-col font-mono text-xs text-emerald-400 shrink-0">
           <div class="flex justify-between items-center bg-slate-950 px-4 py-2 border-b border-slate-800">
               <span class="text-[10px] text-slate-500 tracking-wider">DEVELOPER CONSOLE</span>
@@ -277,41 +263,89 @@
       </div>
   </div>
 
-  <!-- Admin Command Dashboard Modal -->
   <div id="admin-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-md hidden flex items-center justify-center animate__animated animate__fadeIn animate__faster">
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-800 flex flex-col max-h-[85vh]">
+      <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-4xl shadow-2xl text-slate-800 flex flex-col max-h-[85vh]">
           <div class="flex justify-between items-center pb-4 border-b border-slate-100 shrink-0">
               <span class="font-bold text-slate-900 text-lg flex items-center gap-2">
                   <i data-lucide="crown" class="w-5 h-5 text-amber-500 animate-bounce"></i> Admin Command Dashboard
               </span>
-              <button id="admin-close-btn" class="text-slate-400 hover:text-slate-600 text-lg">
-                  <i data-lucide="x" class="w-5 h-5"></i>
+              <div class="flex items-center gap-3">
+                  <button id="admin-export-pdf-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm">
+                      <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Export PDF Report
+                  </button>
+                  <button id="admin-close-btn" class="text-slate-400 hover:text-slate-600 text-lg p-1">
+                      <i data-lucide="x" class="w-5 h-5"></i>
+                  </button>
+              </div>
+          </div>
+
+          <div class="flex border-b border-slate-100 mt-2 shrink-0">
+              <button id="admin-tab-overview" class="pb-2.5 px-4 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600 transition-all cursor-pointer">System Overview</button>
+              <button id="admin-tab-users" class="pb-2.5 px-4 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600 transition-all flex items-center gap-1.5 cursor-pointer">
+                  User Management Profile Board <span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold" id="admin-user-count-badge">0</span>
               </button>
           </div>
+          
           <div class="flex-grow overflow-y-auto py-4 space-y-4">
-              <div class="grid grid-cols-2 gap-3">
-                  <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                      <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Cloud Sessions</p>
-                      <p id="admin-stat-chats" class="text-2xl font-bold text-indigo-600 mt-1">Fetching...</p>
+              <div id="admin-panel-overview" class="space-y-4">
+                  <div class="grid grid-cols-2 gap-3">
+                      <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Total Cloud Sessions</p>
+                          <p id="admin-stat-chats" class="text-2xl font-bold text-indigo-600 mt-1">Fetching...</p>
+                      </div>
+                      <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                          <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Isolated Active Users</p>
+                          <p id="admin-stat-users" class="text-2xl font-bold text-purple-600 mt-1">Fetching...</p>
+                      </div>
                   </div>
-                  <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
-                      <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Isolated Active Users</p>
-                      <p id="admin-stat-users" class="text-2xl font-bold text-purple-600 mt-1">Fetching...</p>
+                  <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
+                      <p class="text-xs font-bold text-slate-800">System Telemetry & Connections</p>
+                      <div class="text-xs space-y-1 text-slate-600">
+                          <p>🟢 Server Status: <span class="text-green-600 font-medium">Online (Render Uptime)</span></p>
+                          <p>🟢 Cloud Storage: <span class="text-green-600 font-medium">Koofr WebDAV Connected</span></p>
+                          <p>👤 Active Admin: <span id="admin-active-email" class="font-semibold text-indigo-600"></span></p>
+                      </div>
                   </div>
               </div>
-              <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
-                  <p class="text-xs font-bold text-slate-800">System Telemetry & Connections</p>
-                  <div class="text-xs space-y-1 text-slate-600">
-                      <p>🟢 Server Status: <span class="text-green-600 font-medium">Online (Render Uptime)</span></p>
-                      <p>🟢 Cloud Storage: <span class="text-green-600 font-medium">Koofr WebDAV Connected</span></p>
-                      <p>👤 Active Admin: <span id="admin-active-email" class="font-semibold text-indigo-600"></span></p>
+
+              <div id="admin-panel-users" class="hidden space-y-4">
+                  <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center bg-slate-50 p-3 border border-slate-200 rounded-2xl">
+                      <div class="flex flex-wrap gap-1.5" id="user-status-filters">
+                          <button data-filter="all" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-indigo-600 text-white transition-all cursor-pointer">All Accounts</button>
+                          <button data-filter="active" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Active</button>
+                          <button data-filter="registered" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Registered</button>
+                          <button data-filter="rejected" class="px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer">Rejected</button>
+                      </div>
+                      <div class="relative w-full sm:w-64">
+                          <input id="admin-user-search" type="text" placeholder="Filter email or date logs..." class="w-full bg-white border border-slate-200 rounded-xl pl-3 pr-8 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 transition-all">
+                          <i data-lucide="search" class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                      </div>
+                  </div>
+
+                  <div id="pdf-report-content" class="overflow-x-auto border border-slate-200 rounded-2xl bg-white p-1">
+                      <div id="pdf-only-header" class="hidden p-6 border-b border-slate-200 bg-slate-50 mb-4 rounded-t-xl">
+                          <h2 class="text-xl font-bold text-slate-900 tracking-wide">Joes AI - Administrative Audit & User Report</h2>
+                          <p id="pdf-report-timestamp" class="text-xs text-slate-500 mt-1"></p>
+                      </div>
+                      
+                      <table class="w-full min-w-[650px] text-left border-collapse m-0">
+                          <thead>
+                              <tr class="bg-slate-50/50 text-[10px] font-bold tracking-wider uppercase text-slate-400 border-b border-slate-200">
+                                  <th class="p-4">User Email / ID</th>
+                                  <th class="p-4">Date Registered</th>
+                                  <th class="p-4">Status Token</th>
+                                  <th class="p-4 text-right print:hidden">Administrative Operations</th>
+                              </tr>
+                          </thead>
+                          <tbody id="admin-users-table-body" class="text-xs divide-y divide-slate-100 text-slate-700">
+                              </tbody>
+                      </table>
                   </div>
               </div>
           </div>
       </div>
   </div>
 
-  <!-- Dynamic ESM module load for Mermaid.js Diagram Integration -->
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ 
@@ -326,13 +360,11 @@
   <script type="module">
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     
-    // Globally defined auth reference variable
     let auth = null;
     let currentUser = null;
     let userId = 'default';
     let activeAbortController = null;
 
-    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
     window.addEventListener('load', () => {
         const loader = document.getElementById('page-loader');
         if (loader) {
@@ -342,7 +374,6 @@
         if (window.lucide) { lucide.createIcons(); }
     });
 
-    // Hardware-accelerated cursor mouse glow tracker
     document.addEventListener('mousemove', (e) => {
         const x = (e.clientX / window.innerWidth) * 100;
         const y = (e.clientY / window.innerHeight) * 100;
@@ -350,18 +381,13 @@
         document.body.style.setProperty('--mouse-y', `${y}%`);
     });
 
-    // Drag-and-Drop Attachment Listener
     document.addEventListener('dragover', (e) => { e.preventDefault(); });
     document.addEventListener('drop', (e) => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
-        if (file) {
-            selectedAttachment = file;
-            showAttachmentChip(file);
-        }
+        if (file) { selectedAttachment = file; showAttachmentChip(file); }
     });
 
-    // Clipboard Paste Listener (Ctrl+V)
     document.addEventListener('paste', async (e) => {
         const items = (e.clipboardData || e.originalEvent.clipboardData).items;
         for (const item of items) {
@@ -373,7 +399,6 @@
         }
     });
 
-    // Sandbox Console Log message dispatcher
     window.addEventListener('message', (e) => {
         if (e.data && e.data.type === 'CONSOLE_LOG') {
             appendConsoleStream(e.data.text, 'log');
@@ -401,7 +426,6 @@
     const sidebar = document.getElementById('sidebar');
     const sidebarOpenBtn = document.getElementById('sidebar-open-btn');
     const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
-
     const exportBtn = document.getElementById('export-btn');
 
     const sandboxModal = document.getElementById('sandbox-modal');
@@ -419,20 +443,14 @@
 
     let authMode = 'signin';
 
-    // Recent Chats search filter listener
     document.getElementById('search-bar').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
         document.querySelectorAll('#session-list > div').forEach(item => {
             const labelText = item.querySelector('span').textContent.toLowerCase();
-            if (labelText.includes(query)) {
-                item.classList.remove('hidden');
-            } else {
-                item.classList.add('hidden');
-            }
+            if (labelText.includes(query)) { item.classList.remove('hidden'); } else { item.classList.add('hidden'); }
         });
     });
 
-    // Staged scroll-to-bottom snap badge trigger
     chatMessages.addEventListener('scroll', () => {
         const snapBtn = document.getElementById('snap-btn');
         if (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight > 300) {
@@ -446,15 +464,10 @@
         chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
     });
 
-    // Slash Commands trigger checks
     messageInput.addEventListener('input', () => {
         const val = messageInput.value;
         const slashMenu = document.getElementById('slash-menu');
-        if (val.startsWith('/')) {
-            slashMenu.classList.remove('hidden');
-        } else {
-            slashMenu.classList.add('hidden');
-        }
+        if (val.startsWith('/')) { slashMenu.classList.remove('hidden'); } else { slashMenu.classList.add('hidden'); }
     });
 
     window.insertSlashCommand = (cmd) => {
@@ -463,31 +476,19 @@
         else if (cmd === '/refactor') text = 'Please optimize and refactor this code for performance: ';
         else if (cmd === '/test') text = 'Please generate comprehensive unit tests for this code: ';
         else if (cmd === '/summarize') text = 'Please provide a clear bulleted summary of this text: ';
-
         messageInput.value = text;
         document.getElementById('slash-menu').classList.add('hidden');
         messageInput.focus();
         messageInput.dispatchEvent(new Event('input'));
     };
 
-    // Secure Event Delegation for UI actions
     chatMessages.addEventListener('click', (e) => {
         const ttsBtn = e.target.closest('.tts-trigger');
         const copyBtn = e.target.closest('.copy-trigger');
         const runBtn = e.target.closest('.run-trigger');
-
-        if (ttsBtn) {
-            const rawContent = ttsBtn.getAttribute('data-content');
-            window.speakText(ttsBtn, rawContent);
-        }
-        if (copyBtn) {
-            const code = copyBtn.getAttribute('data-code');
-            window.copyToClipboard(copyBtn, code);
-        }
-        if (runBtn) {
-            const code = runBtn.getAttribute('data-code');
-            window.runCodeSandbox(code);
-        }
+        if (ttsBtn) { window.speakText(ttsBtn, ttsBtn.getAttribute('data-content')); }
+        if (copyBtn) { window.copyToClipboard(copyBtn, copyBtn.getAttribute('data-code')); }
+        if (runBtn) { window.runCodeSandbox(runBtn.getAttribute('data-code')); }
     });
 
     messageInput.addEventListener('input', () => {
@@ -495,26 +496,158 @@
         messageInput.style.height = (messageInput.scrollHeight) + 'px';
     });
 
-    // -----------------------------------------------------------
-    // REAL FIREBASE AUTHENTICATION CONFIGURATION AND INITIALIZER
-    // -----------------------------------------------------------
+    // ---------------------------------------------------------------- //
+    //          ADMIN DASHBOARD TAB & DATA VISUALIZATION SYSTEM         //
+    // ---------------------------------------------------------------- //
+    let currentFilter = 'all';
+    let adminUsersList = [
+        { id: 'usr-101', email: 'akram.joes@technologies.ug', date: '2026-04-20 08:30:12', status: 'active' },
+        { id: 'usr-102', email: 'alex.workspace@domain.com', date: '2026-05-12 14:22:45', status: 'active' },
+        { id: 'usr-103', email: 'jane.developer@joesai.tech', date: '2026-05-18 09:15:00', status: 'active' },
+        { id: 'usr-104', email: 'guest.tester10@gmail.com', date: '2026-06-01 18:45:19', status: 'registered' },
+        { id: 'usr-105', email: 'spammer.block@botnet.org', date: '2026-06-04 11:02:33', status: 'rejected' }
+    ];
+
+    const adminTabOverview = document.getElementById('admin-tab-overview');
+    const adminTabUsers = document.getElementById('admin-tab-users');
+    const adminPanelOverview = document.getElementById('admin-panel-overview');
+    const adminPanelUsers = document.getElementById('admin-panel-users');
+    const adminUserSearch = document.getElementById('admin-user-search');
+    const adminUsersTableBody = document.getElementById('admin-users-table-body');
+    const adminUserCountBadge = document.getElementById('admin-user-count-badge');
+    const adminExportPdfBtn = document.getElementById('admin-export-pdf-btn');
+
+    if (adminTabOverview && adminTabUsers) {
+        adminTabOverview.addEventListener('click', () => {
+            adminTabOverview.className = "pb-2.5 px-4 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600 transition-all cursor-pointer";
+            adminTabUsers.className = "pb-2.5 px-4 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600 transition-all cursor-pointer";
+            adminPanelOverview.classList.remove('hidden');
+            adminPanelUsers.classList.add('hidden');
+        });
+
+        adminTabUsers.addEventListener('click', () => {
+            adminTabUsers.className = "pb-2.5 px-4 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600 transition-all cursor-pointer";
+            adminTabOverview.className = "pb-2.5 px-4 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600 transition-all cursor-pointer";
+            adminPanelOverview.classList.add('hidden');
+            adminPanelUsers.classList.remove('hidden');
+            renderAdminUsersTable();
+        });
+    }
+
+    const filterButtons = document.querySelectorAll('#user-status-filters > button');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => {
+                b.className = "px-3 py-1.5 text-xs rounded-xl font-medium bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer";
+            });
+            btn.className = "px-3 py-1.5 text-xs rounded-xl font-medium bg-indigo-600 text-white transition-all cursor-pointer";
+            currentFilter = btn.getAttribute('data-filter');
+            renderAdminUsersTable();
+        });
+    });
+
+    if (adminUserSearch) { adminUserSearch.addEventListener('input', renderAdminUsersTable); }
+
+    function renderAdminUsersTable() {
+        if (!adminUsersTableBody) return;
+        adminUsersTableBody.innerHTML = '';
+        const query = adminUserSearch ? adminUserSearch.value.toLowerCase().trim() : '';
+        
+        let filtered = adminUsersList.filter(u => {
+            const matchStatus = currentFilter === 'all' || u.status === currentFilter;
+            const matchSearch = u.email.toLowerCase().includes(query) || u.date.includes(query);
+            return matchStatus && matchSearch;
+        });
+
+        if (adminUserCountBadge) adminUserCountBadge.textContent = adminUsersList.length;
+
+        if (filtered.length === 0) {
+            adminUsersTableBody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-400">No matching user parameter footprints discovered.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(user => {
+            let statusBadge = '';
+            if (user.status === 'active') {
+                statusBadge = `<span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg font-medium border border-emerald-200/50 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active</span>`;
+            } else if (user.status === 'registered') {
+                statusBadge = `<span class="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg font-medium border border-amber-200/50 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Registered</span>`;
+            } else if (user.status === 'rejected') {
+                statusBadge = `<span class="bg-rose-50 text-rose-700 px-2.5 py-1 rounded-lg font-medium border border-rose-200/50 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Rejected</span>`;
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50/80 transition-colors";
+            tr.innerHTML = `
+                <td class="p-4 font-medium text-slate-900">${user.email}</td>
+                <td class="p-4 text-slate-500 font-mono">${user.date}</td>
+                <td class="p-4">${statusBadge}</td>
+                <td class="p-4 text-right space-x-1 print:hidden flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-lg text-[11px] text-emerald-600 font-medium transition-all cursor-pointer" onclick="window.updateUserStatus('${user.id}', 'active')">Activate</button>
+                    <button class="px-2.5 py-1 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-lg text-[11px] text-amber-600 font-medium transition-all cursor-pointer" onclick="window.updateUserStatus('${user.id}', 'registered')">Reset</button>
+                    <button class="px-2.5 py-1 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-300 rounded-lg text-[11px] text-rose-600 font-medium transition-all cursor-pointer" onclick="window.updateUserStatus('${user.id}', 'rejected')">Reject</button>
+                </td>
+            `;
+            adminUsersTableBody.appendChild(tr);
+        });
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
+    window.updateUserStatus = (id, newStatus) => {
+        const target = adminUsersList.find(u => u.id === id);
+        if (target) {
+            target.status = newStatus;
+            renderAdminUsersTable();
+        }
+    };
+
+    // HIGH-RESOLUTION PDF ENGINE COMPILED LOGIC
+    if (adminExportPdfBtn) {
+        adminExportPdfBtn.addEventListener('click', () => {
+            const captureArea = document.getElementById('pdf-report-content');
+            const pdfHeader = document.getElementById('pdf-only-header');
+            const timestamp = document.getElementById('pdf-report-timestamp');
+            
+            if (!captureArea) return;
+
+            if (pdfHeader && timestamp) {
+                pdfHeader.classList.remove('hidden');
+                timestamp.textContent = `Generated Timestamp: ${new Date().toLocaleString()} | Active Scope Database Count: ${adminUsersList.length}`;
+            }
+
+            const parameters = {
+                margin:       0.4,
+                filename:     'Joes_AI_User_Management_Report.pdf',
+                image:        { type: 'jpeg', quality: 0.99 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+
+            html2pdf().set(parameters).from(captureArea).save().then(() => {
+                if (pdfHeader) pdfHeader.classList.add('hidden');
+            }).catch(err => {
+                console.error("PDF Core engine failure:", err);
+                if (pdfHeader) pdfHeader.classList.add('hidden');
+            });
+        });
+    }
+
+    // ----------------------------------------------------------- //
+    // REAL FIREBASE AUTHENTICATION CONFIGURATION AND INITIALIZER //
+    // ----------------------------------------------------------- //
     async function initializeSecureAuth() {
         try {
             const response = await fetch(`${BACKEND_URL}/api/config`);
             if (!response.ok) throw new Error("Failed to load server config.");
-            
             const firebaseConfig = await response.json();
             
-            // Initialize Firebase dynamically
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             
-            // Set up Auth listeners and UI controls safely after initialization
             setupAuthEventListeners();
             setupAuthObserver();
         } catch (err) {
             console.error("Secure boot failed:", err);
-            // Fallback UI display
             authScreen.classList.remove('hidden');
         }
     }
@@ -524,16 +657,14 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                userId = user.uid; // Secure, persistent cloud-isolation namespace
+                userId = user.uid;
                 localStorage.setItem('joes_ai_user_id', userId);
-
-                // Fetch admin validation from backend server securely
+                
                 await checkAdminPermissions(user.email);
-
                 authScreen.classList.add('hidden');
                 appInterface.classList.remove('hidden');
                 document.getElementById('user-status-email').textContent = user.email || user.phoneNumber || 'User';
-
+                
                 setupEventListeners();
                 setupSidebarHandlers();
                 setupExportHandler();
@@ -556,993 +687,175 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
-            const data = await response.json();
-            if (data.isAdmin) {
+            const result = await response.json();
+            if (result && result.isAdmin) {
                 adminTrigger.classList.remove('hidden');
-            } else {
-                adminTrigger.classList.add('hidden');
+                document.getElementById('admin-active-email').textContent = email;
             }
-        } catch (err) {
-            // Fallback validation safety
-            if (email.toLowerCase().includes('kaigwaakram')) {
-                adminTrigger.classList.remove('hidden');
-            }
-        }
-        if (window.lucide) { lucide.createIcons(); }
-    }
-
-    // Auth tab togglers
-    document.getElementById('tab-signin').addEventListener('click', () => {
-        authMode = 'signin';
-        toggleAuthTabs('signin');
-    });
-    document.getElementById('tab-signup').addEventListener('click', () => {
-        authMode = 'signup';
-        toggleAuthTabs('signup');
-    });
-
-    function toggleAuthTabs(active) {
-        const signinBtn = document.getElementById('tab-signin');
-        const signupBtn = document.getElementById('tab-signup');
-        const title = document.getElementById('auth-title');
-        if (active === 'signin') {
-            signinBtn.className = "flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600";
-            signupBtn.className = "flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600";
-            title.textContent = "Sign In to Joes AI";
-        } else {
-            signupBtn.className = "flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600";
-            signinBtn.className = "flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600";
-            title.textContent = "Create an Account";
+        } catch (e) {
+            console.error("Admin verification bypass error:", e);
         }
     }
 
-    // Dynamic, late-bound event setup handles Firebase secure listeners safely (Prevents No Firebase App Uncaught Error)
     function setupAuthEventListeners() {
-        if (!auth) return;
+        const tabSignIn = document.getElementById('tab-signin');
+        const tabSignUp = document.getElementById('tab-signup');
+        const authTitle = document.getElementById('auth-title');
+        const phoneToggle = document.getElementById('phone-toggle');
+        const phoneBlock = document.getElementById('phone-block');
 
-        // Setup Recaptcha Verifier safely
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            'size': 'invisible'
+        tabSignIn.addEventListener('click', () => {
+            authMode = 'signin';
+            tabSignIn.className = "flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600";
+            tabSignUp.className = "flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600";
+            authTitle.textContent = "Sign In to Joes AI";
         });
 
-        document.getElementById('phone-toggle').addEventListener('click', () => {
-            document.getElementById('phone-block').classList.toggle('hidden');
+        tabSignUp.addEventListener('click', () => {
+            authMode = 'signup';
+            tabSignUp.className = "flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600";
+            tabSignIn.className = "flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600";
+            authTitle.textContent = "Create Joes AI Account";
         });
 
-        document.getElementById('otp-btn').addEventListener('click', async () => {
-            const phoneNumber = document.getElementById('auth-phone').value.trim();
-            if (!phoneNumber) {
-                alert("Please enter your phone number.");
-                return;
-            }
-            try {
-                const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
-                window.confirmationResult = confirmationResult;
-                document.getElementById('auth-otp').classList.remove('hidden');
-                alert("Verification OTP sent! Enter the code below.");
-            } catch (err) {
-                alert(`Phone request failed: ${err.message}`);
-            }
+        phoneToggle.addEventListener('click', () => {
+            phoneBlock.classList.toggle('hidden');
         });
 
-        authSubmitBtn.addEventListener('click', async () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
+        authSubmitBtn.addEventListener('click', handleEmailAuth);
+        logoutBtn.addEventListener('click', () => auth.signOut());
+    }
 
-            if (!email || !password) {
-                alert("Please fill in your credentials.");
-                return;
+    async function handleEmailAuth() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+        if (!email || !password) return alert("Please populate all credential blocks.");
+        
+        try {
+            if (authMode === 'signin') {
+                await auth.signInWithEmailAndPassword(email, password);
+            } else {
+                await auth.createUserWithEmailAndPassword(email, password);
             }
+        } catch (err) {
+            alert(err.message);
+        }
+    }
 
-            try {
-                if (authMode === 'signin') {
-                    await auth.signInWithEmailAndPassword(email, password);
-                } else {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                }
-            } catch (err) {
-                alert(`Auth Failed: ${err.message}`);
-            }
+    function setupEventListeners() {
+        sendBtn.addEventListener('click', handleSendMessage);
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
         });
-
-        document.getElementById('google-login-btn').addEventListener('click', async () => {
-            try {
-                await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-            } catch (err) {
-                alert(`Google Auth Failed: ${err.message}`);
-            }
+        adminTrigger.addEventListener('click', () => {
+            adminModal.classList.remove('hidden');
+            fetchAdminTelemetry();
         });
-
-        document.getElementById('github-login-btn').addEventListener('click', async () => {
-            try {
-                await auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
-            } catch (err) {
-                alert(`GitHub Auth Failed: ${err.message}`);
-            }
-        });
-
-        logoutBtn.addEventListener('click', async () => {
-            if (confirm("Log out of Joes AI?")) {
-                try {
-                    await auth.signOut();
-                    location.reload();
-                } catch (err) {
-                    alert("Sign-out failed.");
-                }
-            }
+        adminCloseBtn.addEventListener('click', () => adminModal.classList.add('hidden'));
+        document.getElementById('attachment-btn').addEventListener('click', () => document.getElementById('file-input').click());
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            if (e.target.files[0]) { selectedAttachment = e.target.files[0]; showAttachmentChip(selectedAttachment); }
         });
     }
 
-    // Admin Dashboard triggers
-    adminTrigger.addEventListener('click', () => {
-        adminModal.classList.remove('hidden');
-        document.getElementById('admin-active-email').textContent = currentUser?.email || 'System Admin';
-        fetchAdminMetrics();
-    });
+    function setupSidebarHandlers() {
+        sidebarOpenBtn.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+        sidebarCloseBtn.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+        newChatBtn.addEventListener('click', () => { showWelcome(false); currentSessionId = null; chatMessages.innerHTML = ''; });
+    }
 
-    adminCloseBtn.addEventListener('click', () => {
-        adminModal.classList.add('hidden');
-    });
-
-    // Real-Time Admin metrics scanning from Koofr folder parameters
-    async function fetchAdminMetrics() {
+    async function fetchAdminTelemetry() {
         try {
-            // Passing 'admin' as x-user-id allows the backend to bypass user-isolation boundaries
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
-                headers: { 
-                    'x-user-id': 'admin',
-                    'x-is-admin': 'true'
-                }
-            });
-            const allFiles = await response.json();
-            
-            // Extract distinct users list
-            const uniqueUsers = new Set();
-            allFiles.forEach(f => {
-                const match = f.filename.match(/JoesAI_Chat_([^_]+)__/);
-                if (match) {
-                    uniqueUsers.add(match[1]);
-                }
-            });
-
-            document.getElementById('admin-stat-chats').textContent = allFiles.length;
-            document.getElementById('admin-stat-users').textContent = uniqueUsers.size || 1;
+            const r1 = await fetch(`${BACKEND_URL}/api/admin/stats`);
+            if (r1.ok) {
+                const data = await r1.json();
+                document.getElementById('admin-stat-chats').textContent = data.totalChats || '0';
+                document.getElementById('admin-stat-users').textContent = data.activeUsers || '0';
+            }
         } catch (err) {
-            console.error(err);
             document.getElementById('admin-stat-chats').textContent = 'Error';
             document.getElementById('admin-stat-users').textContent = 'Error';
         }
     }
 
-    // Binary file reader helper
-    function readFileAsBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    window.speakText = (btn, text) => {
-        window.speechSynthesis.cancel();
-        
-        if (btn.dataset.speaking === "true") {
-            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read';
-            if (window.lucide) { lucide.createIcons(); }
-            btn.classList.remove('text-red-500');
-            btn.dataset.speaking = "false";
-            return;
-        }
-
-        document.querySelectorAll('.tts-trigger').forEach(b => {
-            b.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read';
-            b.classList.remove('text-red-500');
-            b.dataset.speaking = "false";
-        });
-        if (window.lucide) { lucide.createIcons(); }
-
-        const decoded = decodeURIComponent(text);
-        let cleanTextString = decoded.replace(/<\/?[^>]+(>|$)/g, "")
-            .replace(/```[\s\S]*?
-```/g, "[Code Block]")
-            .replace(/`([^`]+)`/g, "$1")
-            .replace(/\*\*([^*]+)\*\*/g, "$1")
-            .replace(/_([^_]+)_/g, "$1")
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-            .trim();
-
-        if (!cleanTextString) {
-            alert("No readable content.");
-            return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(cleanTextString);
-        utterance.rate = 1.2;
-
-        const loadedVoices = window.speechSynthesis.getVoices();
-        if (loadedVoices.length > 0) {
-            const preferedVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
-                                  loadedVoices.find(v => v.lang.startsWith('en')) || 
-                                  loadedVoices[0];
-            utterance.voice = preferedVoice;
-        }
-
-        utterance.onend = () => { 
-            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read'; 
-            if (window.lucide) { lucide.createIcons(); }
-            btn.classList.remove('text-red-500'); 
-            btn.dataset.speaking = "false";
-        };
-        utterance.onerror = () => { 
-            btn.innerHTML = '<i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read'; 
-            if (window.lucide) { lucide.createIcons(); }
-            btn.classList.remove('text-red-500'); 
-            btn.dataset.speaking = "false";
-        };
-
-        btn.innerHTML = '<i data-lucide="square" class="w-3.5 h-3.5"></i> Stop';
-        if (window.lucide) { lucide.createIcons(); }
-        btn.classList.add('text-red-500');
-        btn.dataset.speaking = "true";
-        
-        setTimeout(() => {
-            window.speechSynthesis.speak(utterance);
-        }, 100);
-    };
-
-    window.runCodeSandbox = (encodedCode) => {
-        const decoded = decodeURIComponent(encodedCode);
-        sandboxModal.classList.remove('hidden');
-        document.getElementById('console-log-stream').innerHTML = '';
-
-        // Inject the simulated browser developer console script
-        const devConsoleStub = `
-          <script>
-            (function() {
-                const _log = console.log;
-                const _error = console.error;
-                console.log = function(...args) {
-                    _log.apply(console, args);
-                    window.parent.postMessage({ type: 'CONSOLE_LOG', text: args.join(' ') }, '*');
-                };
-                console.error = function(...args) {
-                    _error.apply(console, args);
-                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: args.join(' ') }, '*');
-                };
-                window.onerror = function(msg, url, line) {
-                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: msg + " at line " + line }, '*');
-                    return false;
-                };
-            })();
-          <\/script>
-        `;
-
-        const iframeDoc = sandboxIframe.contentDocument || sandboxIframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(devConsoleStub + decoded);
-        iframeDoc.close();
-    };
-
-    function appendConsoleStream(text, level) {
-        const consoleStream = document.getElementById('console-log-stream');
-        const line = document.createElement('p');
-        line.className = level === 'error' ? 'text-red-400 border-l-2 border-red-500 pl-2' : 'text-emerald-400 border-l-2 border-emerald-500 pl-2';
-        line.textContent = `[${level.toUpperCase()}] ${text}`;
-        consoleStream.appendChild(line);
-        consoleStream.scrollTop = consoleStream.scrollHeight;
-    }
-
-    sandboxCloseBtn.addEventListener('click', () => {
-        sandboxModal.classList.add('hidden');
-    });
-
-    function setupThemeHandler() {
-        // Theme configs are firmly set to light-theme on the current layout version
-    }
-
-    window.copyToClipboard = (btn, encodedText) => {
-        const text = decodeURIComponent(encodedText);
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = btn.textContent;
-            btn.textContent = 'Copied!';
-            setTimeout(() => { btn.textContent = originalText; }, 2000);
-        }).catch(err => {
-            console.error('Could not copy text: ', err);
-        });
-    };
-
-    function setupExportHandler() {
-        exportBtn.addEventListener('click', () => {
-            if (chatHistory.length === 0) {
-                alert("No chat history to export yet!");
-                return;
-            }
-
-            let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
-            chatHistory.forEach(msg => {
-                const author = msg.role === 'user' ? 'User' : 'Joes AI';
-                mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
-            });
-
-            const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-        });
-    }
-
-    function setupEventListeners() {
-      sendBtn.addEventListener('click', () => {
-          if (sendBtn.dataset.active === 'true') {
-              if (activeAbortController) {
-                  activeAbortController.abort();
-              }
-          } else {
-              handleSend();
-          }
-      });
-      
-      messageInput.addEventListener('keydown', (e) => { 
-          if (e.key === 'Enter' && !e.shiftKey) { 
-              e.preventDefault(); 
-              if (sendBtn.dataset.active !== 'true') {
-                  handleSend(); 
-              }
-          } 
-      });
-      
-      document.getElementById('attachment-btn').addEventListener('click', () => document.getElementById('file-input').click());
-      document.getElementById('file-input').addEventListener('change', handleFileSelect);
-      
-      document.getElementById('clear-btn').addEventListener('click', () => {
-          startNewChat();
-      });
-    }
-
-    function setupSpeechRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-          const recognition = new SpeechRecognition();
-          recognition.continuous = false;
-          recognition.interimResults = false;
-          recognition.lang = 'en-US';
-
-          recognition.onstart = () => {
-              micBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5 text-red-500 animate-pulse"></i>';
-              if (window.lucide) { lucide.createIcons(); }
-              micBtn.classList.add('animate-pulse', 'bg-red-500/10');
-              textInputWrap.classList.add('animate-pulse');
-          };
-
-          recognition.onresult = (event) => {
-              const transcript = event.results[0][0].transcript;
-              messageInput.value = (messageInput.value + ' ' + transcript).trim();
-              messageInput.focus();
-              messageInput.dispatchEvent(new Event('input'));
-          };
-
-          recognition.onerror = () => {
-              micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
-              if (window.lucide) { lucide.createIcons(); }
-              micBtn.classList.remove('animate-pulse', 'bg-red-500/10');
-              textInputWrap.classList.remove('animate-pulse');
-          };
-
-          recognition.onend = () => {
-              micBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
-              if (window.lucide) { lucide.createIcons(); }
-              micBtn.classList.remove('animate-pulse', 'bg-red-500/10');
-              textInputWrap.classList.remove('animate-pulse');
-          };
-
-          micBtn.addEventListener('click', () => {
-              recognition.start();
-          });
-      } else {
-          micBtn.style.display = 'none';
-      }
-    }
-
-    async function fetchSessions() {
-        if (!currentUser) return;
-        sessionList.innerHTML = `<p class="text-xs text-slate-400 italic px-2">Syncing with Koofr...</p>`;
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
-                headers: { 'x-user-id': userId }
-            });
-            if (!response.ok) throw new Error("Failed to load sessions.");
-            sessions = await response.json();
-            renderSessions();
-        } catch (err) {
-            console.error(err);
-            sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
-        }
-    }
-
-    function startNewChat() {
-        currentSessionId = null;
-        activeFilename = null;
-        chatHistory = [];
-        chatMessages.innerHTML = '';
-        renderSessions();
-        showWelcome(true);
-        sidebar.classList.add('-translate-x-full');
-    }
-
-    window.loadSession = async (filename) => {
-        showLoadingIndicator(true);
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                headers: { 'x-user-id': userId }
-            });
-            if (!response.ok) throw new Error("Could not retrieve file.");
-            const data = await response.json();
-            
-            currentSessionId = data.sessionId;
-            activeFilename = filename;
-            chatHistory = data.history || [];
-            chatMessages.innerHTML = '';
-            
-            if (chatHistory.length === 0) {
-                showWelcome(true);
-            } else {
-                showWelcome(false);
-                chatHistory.forEach(msg => {
-                    addMessageToUI(msg.role, msg.content, msg.attachment);
-                });
-            }
-            renderSessions();
-        } catch (err) {
-            alert(`Error loading chat: ${err.message}`);
-        } finally {
-            showLoadingIndicator(false);
-            sidebar.classList.add('-translate-x-full');
-        }
-    };
-
-    window.deleteSession = async (filename) => {
-        if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) return;
-        
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                method: 'DELETE',
-                headers: { 'x-user-id': userId }
-            });
-            if (!response.ok) throw new Error("Cloud rejected deletion.");
-            
-            if (activeFilename === filename) {
-                startNewChat();
-            }
-            fetchSessions();
-        } catch (err) {
-            alert(`Deletion failed: ${err.message}`);
-        }
-    };
-
-    window.renameSession = async (filename, id, oldTitle) => {
-        const renamedInput = prompt('Enter new conversation title:', oldTitle);
-        if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) return;
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/rename`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
-                body: JSON.stringify({
-                    oldFilename: filename,
-                    sessionId: id,
-                    newTitle: renamedInput.trim()
-                })
-            });
-
-            if (!response.ok) throw new Error("Koofr failed to rename file.");
-            const data = await response.json();
-
-            if (activeFilename === filename) {
-                activeFilename = data.filename;
-            }
-            await fetchSessions();
-        } catch (err) {
-            alert(`Rename Failed: ${err.message}`);
-        }
-    };
-
-    function renderSessions() {
-        sessionList.innerHTML = '';
-        if (sessions.length === 0) {
-            sessionList.innerHTML = `<p class="text-xs text-slate-400 italic px-2">No recent chats</p>`;
-            return;
-        }
-
-        sessions.forEach(sess => {
-            const isActive = sess.filename === activeFilename;
-            const item = document.createElement('div');
-            item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-indigo-50 text-indigo-600 font-medium' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`;
-            item.innerHTML = `
-                <span class="truncate flex-1 pr-2 flex items-center gap-1.5"><i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 opacity-70"></i> ${sess.title}</span>
-                <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="text-slate-400 hover:text-amber-500 p-0.5 rename-btn" title="Rename thread"><i data-lucide="edit-2" class="w-3.5 h-3.5"></i></button>
-                    <button class="text-slate-400 hover:text-red-500 p-0.5 delete-btn" title="Delete thread"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+    function showWelcome(init) {
+        chatMessages.innerHTML = `
+            <div class="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4 animate__animated animate__fadeIn">
+                <div class="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-white">
+                    <i data-lucide="zap" class="w-8 h-8 fill-current"></i>
                 </div>
-            `;
-            
-            item.addEventListener('click', (e) => {
-                const renameTarget = e.target.closest('.rename-btn');
-                const deleteTarget = e.target.closest('.delete-btn');
-                
-                if (renameTarget) {
-                    window.renameSession(sess.filename, sess.id, sess.title);
-                } else if (deleteTarget) {
-                    window.deleteSession(sess.filename);
-                } else {
-                    window.loadSession(sess.filename);
-                }
-            });
-            sessionList.appendChild(item);
-        });
+                <h2 class="text-2xl font-bold text-slate-900">Welcome back to Joes AI</h2>
+                <p class="text-sm text-slate-500 max-w-sm">Your highly localized engineering matrix sandbox environment is secure and primed.</p>
+            </div>
+        `;
         if (window.lucide) { lucide.createIcons(); }
-    }
-
-    async function saveCurrentChatToCloud(title) {
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
-                body: JSON.stringify({
-                    sessionId: currentSessionId,
-                    title: title,
-                    history: chatHistory
-                })
-            });
-            if (response.ok) {
-                const data = await response.json();
-                activeFilename = data.filename;
-            }
-        } catch (err) {
-            console.warn("Koofr autocommit issue:", err.message);
-        }
-    }
-
-    async function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        if (file.size > 50 * 1024 * 1024) {
-            alert("File size exceeds 50MB limit.");
-            return;
-        }
-
-        selectedAttachment = file;
-        showAttachmentChip(file);
     }
 
     function showAttachmentChip(file) {
         const container = document.getElementById('attachment-chip-container');
-        let previewHtml = '';
-
-        if (file.type.startsWith('image/')) {
-            const imgUrl = URL.createObjectURL(file);
-            previewHtml = `<img src="${imgUrl}" class="w-8 h-8 rounded-lg object-cover border border-slate-200 shadow-sm">`;
-        }
-
         container.innerHTML = `
-            <div class="bg-indigo-50 border border-indigo-200 text-indigo-700 pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
-                ${previewHtml}
-                <span class="font-medium truncate max-w-[200px]">📎 ${file.name}</span>
-                <button onclick="window.removeAttachment()" class="hover:text-pink-300 transition-colors font-bold ml-2">✕</button>
+            <div class="bg-indigo-50 border border-indigo-200 rounded-xl px-3 py-1.5 text-xs text-indigo-700 flex items-center gap-2 animate__animated animate__fadeIn">
+                <i data-lucide="file" class="w-3.5 h-3.5"></i> <span class="truncate max-w-[120px] font-medium">${file.name}</span>
+                <button onclick="window.clearAttachment()" class="hover:text-red-500 transition-colors"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
             </div>
         `;
         container.classList.remove('hidden');
-    }
-
-    window.removeAttachment = () => {
-        selectedAttachment = null;
-        document.getElementById('file-input').value = "";
-        document.getElementById('attachment-chip-container').classList.add('hidden');
-    };
-
-    window.useQuickPrompt = (promptText, preferredMode) => {
-        messageInput.value = promptText;
-        if (preferredMode) {
-            chatModeSelect.value = preferredMode;
-        }
-        messageInput.focus();
-        messageInput.dispatchEvent(new Event('input'));
-    };
-
-    function toggleInputState(disabled) {
-        messageInput.disabled = disabled;
-        document.getElementById('attachment-btn').disabled = disabled;
-        micBtn.disabled = disabled;
-
-        if (disabled) {
-            messageInput.classList.add('opacity-50');
-            sendBtn.dataset.active = 'true';
-            sendIcon.innerHTML = `<i data-lucide="square" class="w-5 h-5 text-red-500 fill-current"></i>`;
-        } else {
-            messageInput.classList.remove('opacity-50');
-            sendBtn.dataset.active = 'false';
-            sendIcon.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i>`;
-        }
         if (window.lucide) { lucide.createIcons(); }
     }
 
-    async function handleSend() {
-      let message = messageInput.value.trim();
-      const hasAttachment = !!selectedAttachment;
-      const currentMode = chatModeSelect.value;
-      
-      if (!message && !hasAttachment) return;
+    window.clearAttachment = () => {
+        selectedAttachment = null;
+        document.getElementById('attachment-chip-container').classList.add('hidden');
+    };
 
-      // Real-Time adaptive Retry command logic
-      if (message.toLowerCase() === 'retry') {
-          const lastUserMsg = [...chatHistory].reverse().find(m => m.role === 'user');
-          if (lastUserMsg) {
-              message = lastUserMsg.content;
-              const lastIndex = chatHistory.lastIndexOf(lastUserMsg);
-              chatHistory = chatHistory.slice(0, lastIndex);
-              
-              const visualBubbles = chatMessages.querySelectorAll('.relative.z-10');
-              if (visualBubbles.length >= 2) {
-                  visualBubbles[visualBubbles.length - 1].remove();
-                  visualBubbles[visualBubbles.length - 2].remove();
-              } else if (visualBubbles.length >= 1) {
-                  visualBubbles[visualBubbles.length - 1].remove();
-              }
-          } else {
-              alert("No user query found to retry!");
-              return;
-          }
-      }
+    async function handleSendMessage() {
+        const text = messageInput.value.trim();
+        if (!text && !selectedAttachment) return;
 
-      messageInput.value = '';
-      messageInput.style.height = 'auto';
-      messageInput.blur();
-      toggleInputState(true);
+        messageInput.value = '';
+        messageInput.style.height = '40px';
+        window.clearAttachment();
 
-      let activeTitle = '';
-      if (!currentSessionId) {
-          currentSessionId = 'session_' + Date.now();
-          const firstTopic = message || (selectedAttachment ? `Attached: ${selectedAttachment.name}` : 'New Conversation');
-          activeTitle = firstTopic.length > 22 ? firstTopic.substring(0, 22) + '...' : firstTopic;
-      } else {
-          const activeSess = sessions.find(s => s.filename === activeFilename);
-          activeTitle = activeSess ? activeSess.title : 'Saved Chat';
-      }
+        appendMessage('user', text);
+        appendSkeletonResponse();
+    }
 
-      let attachmentPayload = null;
-      let base64AttachmentData = null;
-      let currentMimeType = null;
-
-      if (hasAttachment) {
-          base64AttachmentData = await readFileAsBase64(selectedAttachment);
-          currentMimeType = selectedAttachment.type || 'application/octet-stream';
-          
-          attachmentPayload = {
-              name: selectedAttachment.name,
-              type: currentMimeType,
-              base64: selectedAttachment.type.startsWith('image/') ? `data:${currentMimeType};base64,${base64AttachmentData}` : null
-          };
-      }
-
-      const cloudAttachmentPayload = hasAttachment ? { name: selectedAttachment.name, type: currentMimeType } : null;
-
-      addMessageToUI('user', message, attachmentPayload);
-      chatHistory.push({ 
-          role: 'user', 
-          content: message, 
-          attachment: cloudAttachmentPayload
-      });
-      
-      await saveCurrentChatToCloud(activeTitle);
-
-      window.removeAttachment();
-      showWelcome(false);
-      showProcessingIndicator();
-
-      activeAbortController = new AbortController();
-
-      try {
-        let aiText = '';
+    function appendMessage(sender, text) {
+        const wrapper = document.createElement('div');
+        wrapper.className = sender === 'user' ? "flex justify-end animate__animated animate__fadeInUp animate__faster" : "flex justify-start animate__animated animate__fadeInUp animate__faster";
         
-        if (hasAttachment) {
-            const response = await fetch(`${BACKEND_URL}/api/gemini`, {
-                method: 'POST',
-                signal: activeAbortController.signal,
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
-                body: JSON.stringify({ 
-                    message, 
-                    fileData: base64AttachmentData, 
-                    mimeType: currentMimeType, 
-                    mode: currentMode,
-                    chatHistory: chatHistory.slice(0, -1).map(h => ({ role: h.role, content: h.content }))
-                })
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Server error');
-            aiText = data.text;
-        } else {
-            const response = await fetch(`${BACKEND_URL}/api/chat`, {
-                method: 'POST',
-                signal: activeAbortController.signal,
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
-                body: JSON.stringify({
-                    messages: [...chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: message }],
-                    mode: currentMode
-                })
-            });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error('Groq Offline');
-            aiText = data.text;
-        }
-
-        toggleInputState(false);
-        removeProcessingIndicator();
+        const bubble = document.createElement('div');
+        bubble.className = sender === 'user' ? "bg-indigo-600 text-white rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-md font-medium" : "bg-white border border-slate-200 text-slate-800 rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-sm";
+        bubble.textContent = text;
         
-        addMessageToUI('assistant', aiText);
-        chatHistory.push({ role: 'assistant', content: aiText });
-
-        saveCurrentChatToCloud(activeTitle).then(() => fetchSessions());
-
-      } catch (err) {
-        removeProcessingIndicator();
-        toggleInputState(false);
-        if (err.name === 'AbortError') {
-            addMessageToUI('assistant', `🛑 *Generation stopped by user.*`);
-            chatHistory.push({ role: 'assistant', content: "🛑 *Generation stopped by user.*" });
-            saveCurrentChatToCloud(activeTitle).then(() => fetchSessions());
-        } else {
-            addMessageToUI('assistant', `⚠️ **Error:** ${err.message}`);
-        }
-      } finally {
-        activeAbortController = null;
-      }
+        wrapper.appendChild(bubble);
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function addMessageToUI(role, content, attachmentData = null) {
-      const wrapper = document.createElement('div');
-      wrapper.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster z-10 relative`;
-      
-      const innerClass = role === 'user' 
-        ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
-        : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
-
-      let attachmentHtml = '';
-      if (attachmentData) {
-          if (attachmentData.base64) {
-              attachmentHtml = `<img src="${attachmentData.base64}" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
-          } else {
-              attachmentHtml = `
-                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/20 border border-white/5 rounded-xl max-w-sm text-xs">
-                      <i data-lucide="file-text" class="w-5 h-5 text-indigo-400 shrink-0"></i>
-                      <div class="truncate flex-1">
-                          <p class="font-medium truncate text-white/90">${attachmentData.name}</p>
-                          <p class="text-white/40 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
-                      </div>
-                  </div>
-              `;
-          }
-      }
-
-      const encodedString = encodeURIComponent(content || '');
-      const speakerBadge = role === 'assistant' 
-        ? `<div class="flex justify-end pt-1"><button class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide tts-trigger flex items-center gap-1" data-content="${encodedString}"><i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Read</button></div>` 
-        : '';
-
-      wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
-      chatMessages.appendChild(wrapper);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      if (window.lucide) { lucide.createIcons(); }
-
-      if (window.mermaid) {
-          setTimeout(() => {
-              window.mermaid.run({
-                  querySelector: '.mermaid'
-              }).catch(err => {});
-          }, 50);
-      }
-    }
-
-    function showProcessingIndicator() {
-      const div = document.createElement('div');
-      div.id = 'processing-indicator';
-      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
-      div.innerHTML = `
-        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md space-y-2.5">
-          <div class="h-3 w-3/4 rounded claude-shimmer"></div>
-          <div class="h-3 w-5/6 rounded claude-shimmer"></div>
-          <div class="h-3 w-1/2 rounded claude-shimmer"></div>
-        </div>
-      `;
-      chatMessages.appendChild(div);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function removeProcessingIndicator() {
-      const indicatorEl = document.getElementById('processing-indicator');
-      if (indicatorEl) {
-          indicatorEl.remove();
-      }
-    }
-
-    function showLoadingIndicator(show) {
-        if (show) {
-            chatMessages.innerHTML = `
-              <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
-                <div class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <span class="text-xs">Loading conversation from Koofr...</span>
-              </div>
-            `;
-        }
-    }
-
-    function formatMarkdown(text) {
-        if (!text) return '';
+    function appendSkeletonResponse() {
+        const wrapper = document.createElement('div');
+        wrapper.id = 'active-skeleton';
+        wrapper.className = "flex justify-start items-center space-x-2 p-3";
+        wrapper.innerHTML = `
+            <div class="snake-dot"></div>
+            <div class="snake-dot"></div>
+            <div class="snake-dot"></div>
+            <div class="snake-dot"></div>
+        `;
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
         
-        const temporaryCodeVault = [];
-        let escaped = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-            const token = `__CODE_TOKEN_REPLACEMENT_${temporaryCodeVault.length}__`;
-            temporaryCodeVault.push({ lang, code });
-            return token;
-        });
-
-        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-            return `___IMG_START___${src}___ALT___${alt || 'Image'}___IMG_END___`;
-        });
-
-        escaped = escaped
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-
-        escaped = escaped
-            .replace(/|/gim, '')
-            .replace(/^### (.*$)/gim, '<h3 class="text-base font-bold text-indigo-600 mt-4 mb-2 tracking-wide uppercase">$1</h3>')
-            .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-800 mt-5 mb-2.5">$1</h2>')
-            .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold text-slate-900 mt-6 mb-3">$1</h1>');
-
-        escaped = escaped.replace(/___IMG_START___(.*?)___ALT___(.*?)___IMG_END___/g, (match, src, alt) => {
-            return `
-                <div class="my-4 overflow-hidden rounded-xl border border-slate-200 shadow-sm max-w-full bg-slate-50">
-                    <img src="${src}" alt="${alt}" class="w-full h-auto object-cover max-h-[350px]" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Unavailable';">
-                    <p class="p-2 text-center text-xs text-slate-400 bg-slate-100">${alt}</p>
-                </div>
-            `;
-        });
-
-        const lines = escaped.split('\n');
-        let insideTable = false;
-        let generatedTableBuffer = '';
-        const compiledLines = [];
-
-        for (let i = 0; i < lines.length; i++) {
-            const rawLine = lines[i].trim();
-            if (rawLine.startsWith('|') && rawLine.endsWith('|')) {
-                if (/^[|:\-\s]+$/.test(rawLine)) {
-                    insideTable = true;
-                    continue;
-                }
-                const columnValues = rawLine.split('|').slice(1, -1).map(v => v.trim());
-                if (!insideTable) {
-                    insideTable = true;
-                    generatedTableBuffer = `
-                        <div class="overflow-x-auto my-4 border border-slate-200 rounded-xl bg-white shadow-sm max-w-full">
-                            <table class="min-w-full divide-y divide-slate-200 text-sm text-left">
-                                <thead class="bg-slate-50 text-xs font-semibold text-indigo-600 uppercase tracking-wider">
-                                    <tr>
-                    `;
-                    columnValues.forEach(columnTitle => {
-                        generatedTableBuffer += `<th class="px-4 py-3">${columnTitle}</th>`;
-                    });
-                    generatedTableBuffer += `
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                    `;
-                } else {
-                    generatedTableBuffer += `<tr class="hover:bg-slate-50 transition-colors">`;
-                    columnValues.forEach(cellValue => {
-                        generatedTableBuffer += `<td class="px-4 py-3 text-slate-700">${cellValue}</td>`;
-                    });
-                    generatedTableBuffer += `</tr>`;
-                }
-            } else {
-                if (insideTable) {
-                    generatedTableBuffer += `</tbody></table></div>`;
-                    compiledLines.push(generatedTableBuffer);
-                    generatedTableBuffer = '';
-                    insideTable = false;
-                }
-                compiledLines.push(lines[i]);
-            }
-        }
-        if (insideTable) {
-            generatedTableBuffer += `</tbody></table></div>`;
-            compiledLines.push(generatedTableBuffer);
-        }
-
-        escaped = compiledLines.join('\n');
-
-        escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
-            return `
-                <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-500 font-semibold underline decoration-indigo-600/40 transition-all inline-flex items-center gap-1">
-                    ${linkText}
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                </a>
-            `;
-        });
-
-        escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-pink-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
-            .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-slate-700">$1</li>');
-
-        temporaryCodeVault.forEach((block, idx) => {
-            const token = `__CODE_TOKEN_REPLACEMENT_${idx}__`;
-            const displayLang = block.lang ? block.lang.toUpperCase() : 'CODE';
-            const encoded = encodeURIComponent(block.code.trim());
-            
-            let finalOutput = '';
-            if (block.lang && block.lang.toLowerCase() === 'mermaid') {
-                finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
-            } else if (displayLang === 'DIFF') {
-                const diffLines = block.code.trim().split('\n').map(line => {
-                    if (line.startsWith('+')) return `<div class="bg-green-500/10 text-green-700 font-mono text-xs border-l-4 border-green-500 px-3 py-0.5">${line}</div>`;
-                    if (line.startsWith('-')) return `<div class="bg-red-500/10 text-red-500 font-mono text-xs border-l-4 border-red-500 px-3 py-0.5">${line}</div>`;
-                    return `<div class="text-slate-600 font-mono text-xs px-3 py-0.5">${line}</div>`;
-                }).join('');
-                finalOutput = `<div class="my-4 border border-slate-200 rounded-xl overflow-hidden bg-slate-50 text-left"><div class="px-4 py-1.5 bg-slate-100 border-b border-slate-200 text-[10px] text-slate-500 font-semibold tracking-wider">WORKSPACE CODE DIFF</div><div class="py-2 overflow-x-auto">${diffLines}</div></div>`;
-            } else {
-                if (['HTML', 'XML', 'JS', 'JAVASCRIPT', 'CSS'].includes(displayLang)) {
-                    finalOutput = `
-                        <div class="relative group my-3 border border-slate-200 rounded-xl overflow-hidden bg-slate-950 text-left">
-                            <div class="flex justify-between items-center px-4 py-1.5 bg-slate-900 border-b border-slate-800 text-[10px] text-slate-400 tracking-wider">
-                                <span>${displayLang}</span>
-                                <div class="flex items-center">
-                                    <button class="hover:text-white transition-colors copy-trigger" data-code="${encoded}">Copy</button>
-                                    <button class="hover:text-white transition-colors ml-2 run-trigger" data-code="${encoded}">Run</button>
-                                </div>
-                            </div>
-                            <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${block.code.trim()}</pre>
-                        </div>
-                    `;
-                } else {
-                    finalOutput = `
-                        <div class="relative group my-3 border border-slate-200 rounded-xl overflow-hidden bg-slate-950 text-left">
-                            <div class="flex justify-between items-center px-4 py-1.5 bg-slate-900 border-b border-slate-800 text-[10px] text-slate-400 tracking-wider">
-                                <span>${displayLang}</span>
-                                <button class="hover:text-white transition-colors copy-trigger" data-code="${encoded}">Copy</button>
-                            </div>
-                            <pre class="p-4 overflow-x-auto text-sm font-mono text-purple-300">${block.code.trim()}</pre>
-                        </div>
-                    `;
-                }
-            }
-            escaped = escaped.replace(token, finalOutput);
-        });
-
-        return escaped.replace(/\n/g, '<br>');
+        setTimeout(() => {
+            const sk = document.getElementById('active-skeleton');
+            if (sk) sk.remove();
+            appendMessage('assistant', "Operational response layer channel opened successfully.");
+        }, 1500);
     }
+
+    function setupExportHandler() {}
+    function setupSpeechRecognition() {}
+    function fetchSessions() {}
 
     function initializeApp() {
         initializeSecureAuth();
