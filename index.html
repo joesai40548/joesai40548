@@ -88,21 +88,8 @@
           <div class="space-y-3">
               <div class="flex items-center my-4"><div class="flex-grow border-t border-slate-100"></div><span class="px-3 text-xs text-slate-400 font-medium">Or continue with</span><div class="flex-grow border-t border-slate-100"></div></div>
               <div class="grid grid-cols-2 gap-3">
-                  <button id="google-login-btn" class="py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700 shadow-sm transition-all">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                      </svg>
-                      Google
-                  </button>
-                  <button id="github-login-btn" class="py-2.5 bg-[#24292e] hover:bg-[#1c1f23] border border-[#24292e] rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-white shadow-sm transition-all">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-                      </svg>
-                      GitHub
-                  </button>
+                  <button id="google-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">🌐 Google</button>
+                  <button id="github-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">💻 GitHub</button>
               </div>
           </div>
       </div>
@@ -168,7 +155,7 @@
           </div>
           
           <div class="flex items-center space-x-1">
-              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="Export to Markdown">📥</button>
+              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="Export Chat Options">📥</button>
               <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="New Conversation Screen">🗑️</button>
           </div>
       </header>
@@ -286,7 +273,6 @@
     let currentUser = null;
     let userId = 'default';
     let activeAbortController = null;
-    let loadingInterval = null; // Used for AI processing animations
 
     // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
     window.addEventListener('load', () => {
@@ -450,33 +436,6 @@
         messageInput.style.height = (messageInput.scrollHeight) + 'px';
     });
 
-    // Sidebar Toggle Missing Function Added
-    function setupSidebarHandlers() {
-        if (sidebarOpenBtn && sidebar) {
-            sidebarOpenBtn.addEventListener('click', () => {
-                sidebar.classList.remove('-translate-x-full');
-            });
-        }
-        if (sidebarCloseBtn && sidebar) {
-            sidebarCloseBtn.addEventListener('click', () => {
-                sidebar.classList.add('-translate-x-full');
-            });
-        }
-    }
-
-    // Welcome Screen Missing Function Added
-    function showWelcome(show) {
-        if (show) {
-            chatMessages.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full text-slate-400 space-y-4 pt-10 animate__animated animate__fadeIn">
-                    <div class="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-3xl text-white">⚡</div>
-                    <h2 class="text-xl font-bold text-slate-800">Welcome to Joes AI</h2>
-                    <p class="text-sm text-center max-w-sm px-4">Start a new conversation or ask me anything to get started.</p>
-                </div>
-            `;
-        }
-    }
-
     // -----------------------------------------------------------
     // REAL FIREBASE AUTHENTICATION CONFIGURATION AND INITIALIZER
     // -----------------------------------------------------------
@@ -577,7 +536,7 @@
         }
     }
 
-    // Dynamic, late-bound event setup handles Firebase secure listeners safely
+    // Dynamic, late-bound event setup handles Firebase secure listeners safely (Prevents No Firebase App Uncaught Error)
     function setupAuthEventListeners() {
         if (!auth) return;
 
@@ -626,30 +585,19 @@
             }
         });
 
-        // Fixed Popup Blocking with Fallback Redirects
         document.getElementById('google-login-btn').addEventListener('click', async () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                await auth.signInWithPopup(provider);
+                await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
             } catch (err) {
-                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-                    await auth.signInWithRedirect(provider);
-                } else {
-                    alert(`Google Auth Failed: ${err.message}`);
-                }
+                alert(`Google Auth Failed: ${err.message}`);
             }
         });
 
         document.getElementById('github-login-btn').addEventListener('click', async () => {
-            const provider = new firebase.auth.GithubAuthProvider();
             try {
-                await auth.signInWithPopup(provider);
+                await auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
             } catch (err) {
-                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-                    await auth.signInWithRedirect(provider);
-                } else {
-                    alert(`GitHub Auth Failed: ${err.message}`);
-                }
+                alert(`GitHub Auth Failed: ${err.message}`);
             }
         });
 
@@ -839,26 +787,98 @@
     };
 
     function setupExportHandler() {
+        // Dynamically inject html2pdf dependency to avoid structural HTML mutations
+        if (!window.html2pdf) {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.head.appendChild(script);
+        }
+
         exportBtn.addEventListener('click', () => {
             if (chatHistory.length === 0) {
                 alert("No chat history to export yet!");
                 return;
             }
 
-            let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
-            chatHistory.forEach(msg => {
-                const author = msg.role === 'user' ? 'User' : 'Joes AI';
-                mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
-            });
+            const exportType = prompt("Type 'pdf' to export as PDF document, or 'md' for Markdown text:", "pdf");
+            if (!exportType) return;
 
-            const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
+            const selection = exportType.toLowerCase().trim();
+
+            if (selection === 'md') {
+                let mdString = `# Joes AI Conversation History\n*Date: ${new Date().toLocaleDateString()}*\n\n---\n\n`;
+                chatHistory.forEach(msg => {
+                    const author = msg.role === 'user' ? 'User' : 'Joes AI';
+                    mdString += `### **${author}**:\n${msg.content}\n\n---\n\n`;
+                });
+
+                const blob = new Blob([mdString], { type: 'text/markdown;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.setAttribute('download', `JoesAI_ChatExport_${Date.now()}.md`);
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+            } else if (selection === 'pdf') {
+                if (!window.html2pdf) {
+                    alert("PDF export module is still initializing. Please click again in a brief second!");
+                    return;
+                }
+
+                // Construct a beautifully clear off-screen isolated document container for the snapshot
+                const targetPrintContainer = document.createElement('div');
+                targetPrintContainer.style.padding = '25px';
+                targetPrintContainer.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
+                targetPrintContainer.style.color = '#1e293b';
+                targetPrintContainer.style.backgroundColor = '#ffffff';
+
+                let rawHtmlTemplate = `
+                    <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="color: #4f46e5; margin: 0; font-size: 22px; font-weight: 700;">Joes AI Log</h1>
+                            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Workspace Chat Session Export</p>
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8; text-align: right;">
+                            <strong>Date:</strong> ${new Date().toLocaleDateString()}
+                        </div>
+                    </div>
+                `;
+
+                chatHistory.forEach(msg => {
+                    const isUser = msg.role === 'user';
+                    const authorName = isUser ? 'User' : 'Joes AI';
+                    const primaryThemeColor = isUser ? '#4f46e5' : '#7c3aed';
+                    const lightBgColor = isUser ? '#f8fafc' : '#f5f3ff';
+
+                    let localizedContent = msg.content
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\//g, '<strong>$1</strong>')
+                        .replace(/`([^`]+)`/g, '<code style="background: #e2e8f0; color: #db2777; padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 11px;">$1</code>');
+
+                    rawHtmlTemplate += `
+                        <div style="margin-bottom: 16px; padding: 14px; background-color: ${lightBgColor}; border-radius: 10px; border-left: 4px solid ${primaryThemeColor};">
+                            <strong style="color: ${primaryThemeColor}; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 4px; tracking-wider: 0.05em;">${authorName}</strong>
+                            <div style="font-size: 12px; line-height: 1.55; color: #334155; word-wrap: break-word;">${localizedContent}</div>
+                        </div>
+                    `;
+                });
+
+                targetPrintContainer.innerHTML = rawHtmlTemplate;
+
+                const pdfOptions = {
+                    margin: [15, 15, 15, 15],
+                    filename: `JoesAI_ChatExport_${Date.now()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+
+                html2pdf().from(targetPrintContainer).set(pdfOptions).save();
+            } else {
+                alert("Invalid choice. Please type 'pdf' or 'md'.");
+            }
         });
     }
 
@@ -1310,7 +1330,7 @@
       
       const innerClass = role === 'user' 
         ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl rounded-tr-none border border-purple-500/30 shadow-lg' 
-        : 'chat-gradient text-slate-800 rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
+        : 'chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 shadow-lg';
 
       let attachmentHtml = '';
       if (attachmentData) {
@@ -1318,11 +1338,11 @@
               attachmentHtml = `<img src="${attachmentData.base64}" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
           } else {
               attachmentHtml = `
-                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/5 border border-black/5 rounded-xl max-w-sm text-xs">
+                  <div class="flex items-center space-x-3 p-3 my-2 bg-black/20 border border-white/5 rounded-xl max-w-sm text-xs">
                       <span class="text-xl">📄</span>
                       <div class="truncate flex-1">
-                          <p class="font-medium truncate text-slate-800">${attachmentData.name}</p>
-                          <p class="text-slate-500 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
+                          <p class="font-medium truncate text-white/90">${attachmentData.name}</p>
+                          <p class="text-white/40 text-[10px] uppercase tracking-wide">${attachmentData.type.split('/')[1] || 'File'}</p>
                       </div>
                   </div>
               `;
@@ -1331,7 +1351,7 @@
 
       const encodedString = encodeURIComponent(content || '');
       const speakerBadge = role === 'assistant' 
-        ? `<div class="flex justify-end pt-1"><button class="text-slate-400 hover:text-indigo-500 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}">🔊 Read</button></div>` 
+        ? `<div class="flex justify-end pt-1"><button class="text-white/40 hover:text-purple-300 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}">🔊 Read</button></div>` 
         : '';
 
       wrapper.innerHTML = `<div class="max-w-[85%] px-5 py-3.5 shadow-xl ${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
@@ -1347,43 +1367,22 @@
       }
     }
 
-    // Completely Rebuilt Animated Processing UI Hooked into Snake Animation
     function showProcessingIndicator() {
       const div = document.createElement('div');
       div.id = 'processing-indicator';
-      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4 z-10 relative';
-      
+      div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
       div.innerHTML = `
-        <div class="chat-gradient rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md">
-            <div id="ai-status-text" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider mb-2">Processing...</div>
-            <div class="flex items-center space-x-1.5 h-4">
-                <div class="snake-dot" style="animation-delay: 0s"></div>
-                <div class="snake-dot" style="animation-delay: 0.15s"></div>
-                <div class="snake-dot" style="animation-delay: 0.3s"></div>
-                <div class="snake-dot" style="animation-delay: 0.45s"></div>
-            </div>
+        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md space-y-2.5">
+          <div class="h-3 w-3/4 rounded claude-shimmer"></div>
+          <div class="h-3 w-5/6 rounded claude-shimmer"></div>
+          <div class="h-3 w-1/2 rounded claude-shimmer"></div>
         </div>
       `;
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      const states = ["Processing...", "Thinking...", "Finalizing...", "Wrapping up..."];
-      let stateIndex = 0;
-      const statusTextElement = document.getElementById('ai-status-text');
-      
-      if(loadingInterval) clearInterval(loadingInterval);
-      loadingInterval = setInterval(() => {
-          if (stateIndex < states.length - 1) {
-              stateIndex++;
-              if (statusTextElement) statusTextElement.innerText = states[stateIndex];
-          } else {
-              clearInterval(loadingInterval);
-          }
-      }, 1200);
     }
 
     function removeProcessingIndicator() {
-      if(loadingInterval) clearInterval(loadingInterval);
       const indicatorEl = document.getElementById('processing-indicator');
       if (indicatorEl) {
           indicatorEl.remove();
@@ -1393,8 +1392,8 @@
     function showLoadingIndicator(show) {
         if (show) {
             chatMessages.innerHTML = `
-              <div class="flex flex-col items-center justify-center h-full py-20 text-slate-400 space-y-3">
-                <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
+                <div class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                 <span class="text-xs">Loading conversation from Koofr...</span>
               </div>
             `;
@@ -1509,7 +1508,7 @@
             
             let finalOutput = '';
             if (block.lang && block.lang.toLowerCase() === 'mermaid') {
-                finalOutput = `<div class="mermaid my-4 p-4 bg-black/5 border border-black/10 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
+                finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
             } else if (displayLang === 'DIFF') {
                 const diffLines = block.code.trim().split('\n').map(line => {
                     if (line.startsWith('+')) return `<div class="bg-green-500/10 text-green-700 font-mono text-xs border-l-4 border-green-500 px-3 py-0.5">${line}</div>`;
