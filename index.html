@@ -24,6 +24,7 @@
     .chat-gradient { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(15, 23, 42, 0.08); color: #334155 !important; }
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.1); border-radius: 10px; }
+    body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); }
     @keyframes snakeWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
     .snake-dot { animation: snakeWave 1.2s ease-in-out infinite; width: 6px; height: 6px; background-color: #4f46e5; border-radius: 50%; display: inline-block; }
     .snake-dot:nth-child(2) { animation-delay: 0.15s; }
@@ -42,7 +43,7 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
-  <!-- Glowing SaaS Background layers -->
+  <!-- Dynamic Color Shifting Ambient Glow Background Orbs -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -147,7 +148,6 @@
         </div>
     </aside>
 
-    <!-- Main Chat Window Area -->
     <div class="flex-grow flex flex-col h-full overflow-hidden relative">
       <header class="bg-white/80 backdrop-blur-md shadow-sm md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200 z-20 shrink-0">
           <div class="flex items-center space-x-3">
@@ -284,28 +284,12 @@
   <script type="module">
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
 
-    // -----------------------------------------------------------
-    // 100% REAL FIREBASE AUTHENTICATION CONFIGURATION
-    // -----------------------------------------------------------
-    // Paste your exact credentials from your Firebase Dashboard here:
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // Initialize Firebase Compatibility SDK securely
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    
+    let auth = null;
     let currentUser = null;
     let userId = 'default';
     let activeAbortController = null;
 
-    // Safety Window Loader dismiss handler
+    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
     window.addEventListener('load', () => {
         const loader = document.getElementById('page-loader');
         if (loader) {
@@ -468,33 +452,56 @@
     });
 
     // -----------------------------------------------------------
-    // REAL FIREBASE AUTHENTICATION LIFECYCLE MANAGERS
+    // REAL FIREBASE AUTHENTICATION CONFIGURATION AND INITIALIZER
     // -----------------------------------------------------------
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
-            userId = user.uid; // Secure, persistent cloud-isolation namespace
-            localStorage.setItem('joes_ai_user_id', userId);
-
-            // Fetch admin validation from backend server securely
-            await checkAdminPermissions(user.email);
-
-            authScreen.classList.add('hidden');
-            appInterface.classList.remove('hidden');
-            document.getElementById('user-status-email').textContent = user.email || user.phoneNumber || 'User';
-
-            setupEventListeners();
-            setupSidebarHandlers();
-            setupExportHandler();
-            setupSpeechRecognition();
-            showWelcome(true);
-            fetchSessions();
-        } else {
-            currentUser = null;
+    async function initializeSecureAuth() {
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/config`);
+            if (!response.ok) throw new Error("Failed to load server config.");
+            
+            const firebaseConfig = await response.json();
+            
+            // Initialize Firebase dynamically
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            
+            // Bind Auth Observer
+            setupAuthObserver();
+        } catch (err) {
+            console.error("Secure boot failed:", err);
+            // Fallback UI indication
             authScreen.classList.remove('hidden');
-            appInterface.classList.add('hidden');
         }
-    });
+    }
+
+    function setupAuthObserver() {
+        if (!auth) return;
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                userId = user.uid; // Secure, persistent cloud-isolation namespace
+                localStorage.setItem('joes_ai_user_id', userId);
+
+                // Fetch admin validation from backend server securely
+                await checkAdminPermissions(user.email);
+
+                authScreen.classList.add('hidden');
+                appInterface.classList.remove('hidden');
+                document.getElementById('user-status-email').textContent = user.email || user.phoneNumber || 'User';
+
+                setupEventListeners();
+                setupSidebarHandlers();
+                setupExportHandler();
+                setupSpeechRecognition();
+                showWelcome(true);
+                fetchSessions();
+            } else {
+                currentUser = null;
+                authScreen.classList.remove('hidden');
+                appInterface.classList.add('hidden');
+            }
+        });
+    }
 
     async function checkAdminPermissions(email) {
         if (!email) return;
@@ -511,7 +518,7 @@
                 adminTrigger.classList.add('hidden');
             }
         } catch (err) {
-            // Offline/Fallback validation safety
+            // Fallback validation safety
             if (email.toLowerCase().includes('kaigwaakram')) {
                 adminTrigger.classList.remove('hidden');
             }
@@ -545,6 +552,7 @@
 
     // 100% Real Email/Password Signup & Signin triggers
     window.handleAuthAction = async () => {
+        if (!auth) return;
         const email = document.getElementById('auth-email').value.trim();
         const password = document.getElementById('auth-password').value;
 
@@ -566,6 +574,7 @@
 
     // Google Sign-In with real Popup OAuth
     window.handleSocialLogin = async (provider) => {
+        if (!auth) return;
         try {
             let authProvider;
             if (provider === 'google') {
@@ -585,6 +594,7 @@
     });
 
     document.getElementById('otp-btn').addEventListener('click', async () => {
+        if (!auth) return;
         const phoneNumber = document.getElementById('auth-phone').value.trim();
         if (!phoneNumber) {
             alert("Please enter your phone number.");
@@ -602,6 +612,7 @@
 
     // Logout
     logoutBtn.addEventListener('click', async () => {
+        if (!auth) return;
         if (confirm("Log out of Joes AI?")) {
             try {
                 await auth.signOut();
@@ -650,28 +661,6 @@
             console.error(err);
             document.getElementById('admin-stat-chats').textContent = 'Error';
             document.getElementById('admin-stat-users').textContent = 'Error';
-        }
-    }
-
-    function showWelcome(show) {
-        const welcomeMsg = document.getElementById('welcome-msg');
-        if(show) {
-            chatMessages.innerHTML = `
-              <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-slate-400 space-y-4">
-                <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse text-indigo-600">⚡</div>
-                <h1 class="text-3xl font-bold text-slate-800 tracking-wide">Welcome to Joes AI</h1>
-                <p class="max-w-md text-sm text-slate-500">Developed & Powered by <strong class="text-indigo-600 font-semibold">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
-                
-                <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
-                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-700 shadow-sm transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-700 shadow-sm transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
-                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-700 shadow-sm transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
-                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-700 shadow-sm transition-all flex items-center gap-1.5">✨ Who Created You?</button>
-                </div>
-              </div>
-            `;
-        } else if (welcomeMsg) {
-            welcomeMsg.remove();
         }
     }
 
@@ -1321,7 +1310,7 @@
       div.id = 'processing-indicator';
       div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
       div.innerHTML = `
-        <div class="chat-gradient rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md space-y-2.5">
+        <div class="chat-gradient text-white rounded-2xl rounded-tl-none border border-white/5 px-5 py-4 shadow-md w-full max-w-md space-y-2.5">
           <div class="h-3 w-3/4 rounded claude-shimmer"></div>
           <div class="h-3 w-5/6 rounded claude-shimmer"></div>
           <div class="h-3 w-1/2 rounded claude-shimmer"></div>
@@ -1495,17 +1484,8 @@
     }
 
     function initializeApp() {
-        // Enforce user auth login on boot-up
-        checkAuth();
-        if (currentUser) {
-            setupEventListeners();
-            setupSidebarHandlers();
-            setupThemeHandler();
-            setupExportHandler();
-            setupSpeechRecognition();
-            showWelcome(true);
-            fetchSessions();
-        }
+        // Enforce secure dynamic load on startup
+        initializeSecureAuth();
     }
 
     initializeApp();
