@@ -13,7 +13,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
-  <!-- Firebase Web SDK Compatibility CDNs -->
+  <!-- Firebase Web SDK CDNs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
@@ -43,14 +43,14 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-800 relative">
-  <!-- Dynamic Color Shifting Ambient Glow Background Orbs -->
+  <!-- Glowing Background elements -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
   </div>
 
-  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex flex-col items-center justify-center transition-opacity duration-500">
+  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
     <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
@@ -162,7 +162,7 @@
           
           <div class="flex items-center space-x-1">
               <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="Export to Markdown">📥</button>
-              <button id="clear-btn" class="text-slate-600 hover:text-red-500 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="New Conversation Screen">🗑️</button>
+              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl" title="New Conversation Screen">🗑️</button>
           </div>
       </header>
 
@@ -289,7 +289,7 @@
     let userId = 'default';
     let activeAbortController = null;
 
-    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
+    // Safety Window Loader dismiss handler
     window.addEventListener('load', () => {
         const loader = document.getElementById('page-loader');
         if (loader) {
@@ -465,11 +465,12 @@
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             
-            // Bind Auth Observer
+            // Set up Auth listeners and UI controls
+            setupAuthEventListeners();
             setupAuthObserver();
         } catch (err) {
             console.error("Secure boot failed:", err);
-            // Fallback UI indication
+            // Fallback UI display
             authScreen.classList.remove('hidden');
         }
     }
@@ -550,78 +551,82 @@
         }
     }
 
-    // 100% Real Email/Password Signup & Signin triggers
-    window.handleAuthAction = async () => {
+    // Dynamic, late-bound event setup handles Firebase secure listeners smoothly
+    function setupAuthEventListeners() {
         if (!auth) return;
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value;
 
-        if (!email || !password) {
-            alert("Please fill in your credentials.");
-            return;
-        }
+        // Setup Recaptcha Verifier safely
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible'
+        });
 
-        try {
-            if (authMode === 'signin') {
-                await auth.signInWithEmailAndPassword(email, password);
-            } else {
-                await auth.createUserWithEmailAndPassword(email, password);
+        document.getElementById('phone-toggle').addEventListener('click', () => {
+            document.getElementById('phone-block').classList.toggle('hidden');
+        });
+
+        document.getElementById('otp-btn').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('auth-phone').value.trim();
+            if (!phoneNumber) {
+                alert("Please enter your phone number.");
+                return;
             }
-        } catch (err) {
-            alert(`Auth Failed: ${err.message}`);
-        }
-    };
-
-    // Google Sign-In with real Popup OAuth
-    window.handleSocialLogin = async (provider) => {
-        if (!auth) return;
-        try {
-            let authProvider;
-            if (provider === 'google') {
-                authProvider = new firebase.auth.GoogleAuthProvider();
-            } else if (provider === 'github') {
-                authProvider = new firebase.auth.GithubAuthProvider();
-            }
-            await auth.signInWithPopup(authProvider);
-        } catch (err) {
-            alert(`Social Auth Failed: ${err.message}`);
-        }
-    };
-
-    // Phone OTP authentications setup
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible'
-    });
-
-    document.getElementById('otp-btn').addEventListener('click', async () => {
-        if (!auth) return;
-        const phoneNumber = document.getElementById('auth-phone').value.trim();
-        if (!phoneNumber) {
-            alert("Please enter your phone number.");
-            return;
-        }
-        try {
-            const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
-            window.confirmationResult = confirmationResult;
-            document.getElementById('auth-otp').classList.remove('hidden');
-            alert("Verification OTP sent! Enter the code below.");
-        } catch (err) {
-            alert(`Phone request failed: ${err.message}`);
-        }
-    });
-
-    // Logout
-    logoutBtn.addEventListener('click', async () => {
-        if (!auth) return;
-        if (confirm("Log out of Joes AI?")) {
             try {
-                await auth.signOut();
-                location.reload();
+                const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
+                window.confirmationResult = confirmationResult;
+                document.getElementById('auth-otp').classList.remove('hidden');
+                alert("Verification OTP sent! Enter the code below.");
             } catch (err) {
-                alert("Sign-out failed.");
+                alert(`Phone request failed: ${err.message}`);
             }
-        }
-    });
+        });
+
+        authSubmitBtn.addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) {
+                alert("Please fill in your credentials.");
+                return;
+            }
+
+            try {
+                if (authMode === 'signin') {
+                    await auth.signInWithEmailAndPassword(email, password);
+                } else {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                }
+            } catch (err) {
+                alert(`Auth Failed: ${err.message}`);
+            }
+        });
+
+        document.getElementById('google-login-btn').addEventListener('click', async () => {
+            try {
+                await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+            } catch (err) {
+                alert(`Google Auth Failed: ${err.message}`);
+            }
+        });
+
+        document.getElementById('github-login-btn').addEventListener('click', async () => {
+            try {
+                await auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
+            } catch (err) {
+                alert(`GitHub Auth Failed: ${err.message}`);
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            if (confirm("Log out of Joes AI?")) {
+                try {
+                    await auth.signOut();
+                    location.reload();
+                } catch (err) {
+                    alert("Sign-out failed.");
+                }
+            }
+        });
+    }
 
     // Admin Dashboard triggers
     adminTrigger.addEventListener('click', () => {
@@ -674,117 +679,7 @@
       });
     }
 
-    window.speakText = (btn, text) => {
-        window.speechSynthesis.cancel();
-        
-        if (btn.dataset.speaking === "true") {
-            btn.textContent = '🔊 Read';
-            btn.classList.remove('text-red-500');
-            btn.dataset.speaking = "false";
-            return;
-        }
-
-        document.querySelectorAll('.tts-trigger').forEach(b => {
-            b.textContent = '🔊 Read';
-            b.classList.remove('text-red-500');
-            b.dataset.speaking = "false";
-        });
-
-        const decoded = decodeURIComponent(text);
-        let cleanTextString = decoded.replace(/<\/?[^>]+(>|$)/g, "")
-            .replace(/```[\s\S]*?```/g, "[Code Block]")
-            .replace(/`([^`]+)`/g, "$1")
-            .replace(/\*\*([^*]+)\*\*/g, "$1")
-            .replace(/_([^_]+)_/g, "$1")
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-            .trim();
-
-        if (!cleanTextString) {
-            alert("No readable content.");
-            return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(cleanTextString);
-        utterance.rate = 1.2;
-
-        const loadedVoices = window.speechSynthesis.getVoices();
-        if (loadedVoices.length > 0) {
-            const preferedVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
-                                  loadedVoices.find(v => v.lang.startsWith('en')) || 
-                                  loadedVoices[0];
-            utterance.voice = preferedVoice;
-        }
-
-        utterance.onend = () => { 
-            btn.textContent = '🔊 Read'; 
-            btn.classList.remove('text-red-500'); 
-            btn.dataset.speaking = "false";
-        };
-        utterance.onerror = () => { 
-            btn.textContent = '🔊 Read'; 
-            btn.classList.remove('text-red-500'); 
-            btn.dataset.speaking = "false";
-        };
-
-        btn.textContent = '🛑 Stop';
-        btn.classList.add('text-red-500');
-        btn.dataset.speaking = "true";
-        
-        setTimeout(() => {
-            window.speechSynthesis.speak(utterance);
-        }, 100);
-    };
-
-    window.runCodeSandbox = (encodedCode) => {
-        const decoded = decodeURIComponent(encodedCode);
-        sandboxModal.classList.remove('hidden');
-        document.getElementById('console-log-stream').innerHTML = '';
-
-        // Inject the simulated browser developer console script
-        const devConsoleStub = `
-          <script>
-            (function() {
-                const _log = console.log;
-                const _error = console.error;
-                console.log = function(...args) {
-                    _log.apply(console, args);
-                    window.parent.postMessage({ type: 'CONSOLE_LOG', text: args.join(' ') }, '*');
-                };
-                console.error = function(...args) {
-                    _error.apply(console, args);
-                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: args.join(' ') }, '*');
-                };
-                window.onerror = function(msg, url, line) {
-                    window.parent.postMessage({ type: 'CONSOLE_ERROR', text: msg + " at line " + line }, '*');
-                    return false;
-                };
-            })();
-          <\/script>
-        `;
-
-        const iframeDoc = sandboxIframe.contentDocument || sandboxIframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(devConsoleStub + decoded);
-        iframeDoc.close();
-    };
-
-    function appendConsoleStream(text, level) {
-        const consoleStream = document.getElementById('console-log-stream');
-        const line = document.createElement('p');
-        line.className = level === 'error' ? 'text-red-400 border-l-2 border-red-500 pl-2' : 'text-emerald-400 border-l-2 border-emerald-500 pl-2';
-        line.textContent = `[${level.toUpperCase()}] ${text}`;
-        consoleStream.appendChild(line);
-        consoleStream.scrollTop = consoleStream.scrollHeight;
-    }
-
-    sandboxCloseBtn.addEventListener('click', () => {
-        sandboxModal.classList.add('hidden');
-    });
-
-    function setupThemeHandler() {
-        // Theme configs are firmly set to light-theme on the current layout version
-    }
-
+    // Dynamic copy handler
     window.copyToClipboard = (btn, encodedText) => {
         const text = decodeURIComponent(encodedText);
         navigator.clipboard.writeText(text).then(() => {
@@ -1321,14 +1216,17 @@
     }
 
     function removeProcessingIndicator() {
-      document.getElementById('processing-indicator')?.remove();
+      const indicatorEl = document.getElementById('processing-indicator');
+      if (indicatorEl) {
+          indicatorEl.remove();
+      }
     }
 
     function showLoadingIndicator(show) {
         if (show) {
             chatMessages.innerHTML = `
               <div class="flex flex-col items-center justify-center h-full py-20 text-white/50 space-y-3">
-                <div class="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                 <span class="text-xs">Loading conversation from Koofr...</span>
               </div>
             `;
