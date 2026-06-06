@@ -1,3 +1,5 @@
+--- START OF FILE Paste June 07, 2026 - 1:26AM ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -808,8 +810,10 @@
         document.getElementById('attachment-chip-container').classList.add('hidden');
     };
 
+    // --- REPLACED: Real Fetch Backend Communication Logic ---
     async function handleSendMessage() {
         const text = messageInput.value.trim();
+        const mode = chatModeSelect.value;
         if (!text && !selectedAttachment) return;
 
         messageInput.value = '';
@@ -817,7 +821,39 @@
         window.clearAttachment();
 
         appendMessage('user', text);
-        appendSkeletonResponse();
+        const skeleton = appendSkeletonResponse();
+
+        try {
+            const idToken = currentUser ? await currentUser.getIdToken() : '';
+            const response = await fetch(`${BACKEND_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+                body: JSON.stringify({ 
+                    message: text,
+                    userId: userId,
+                    sessionId: currentSessionId,
+                    mode: mode
+                })
+            });
+
+            if (!response.ok) throw new Error('Backend unresponsive');
+
+            const data = await response.json();
+            if (skeleton) skeleton.remove();
+            
+            if (data.sessionId) currentSessionId = data.sessionId;
+            appendMessage('assistant', data.response || data.text || "I'm sorry, I couldn't process that.");
+            
+            if (window.Prism) Prism.highlightAll();
+
+        } catch (err) {
+            if (skeleton) skeleton.remove();
+            appendMessage('assistant', "⚠️ System error: Unable to reach the AI server. Please check your connection or wait for the backend to wake up.");
+            console.error("AI Node Failure:", err);
+        }
     }
 
     function appendMessage(sender, text) {
@@ -825,7 +861,7 @@
         wrapper.className = sender === 'user' ? "flex justify-end animate__animated animate__fadeInUp animate__faster" : "flex justify-start animate__animated animate__fadeInUp animate__faster";
         
         const bubble = document.createElement('div');
-        bubble.className = sender === 'user' ? "bg-indigo-600 text-white rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-md font-medium" : "bg-white border border-slate-200 text-slate-800 rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-sm";
+        bubble.className = sender === 'user' ? "bg-indigo-600 text-white rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-md font-medium whitespace-pre-wrap" : "bg-white border border-slate-200 text-slate-800 rounded-2xl px-4 py-3 text-sm max-w-[85%] shadow-sm whitespace-pre-wrap";
         bubble.textContent = text;
         
         wrapper.appendChild(bubble);
@@ -835,7 +871,7 @@
 
     function appendSkeletonResponse() {
         const wrapper = document.createElement('div');
-        wrapper.id = 'active-skeleton';
+        wrapper.id = 'active-skeleton-' + Date.now();
         wrapper.className = "flex justify-start items-center space-x-2 p-3";
         wrapper.innerHTML = `
             <div class="snake-dot"></div>
@@ -845,12 +881,7 @@
         `;
         chatMessages.appendChild(wrapper);
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        setTimeout(() => {
-            const sk = document.getElementById('active-skeleton');
-            if (sk) sk.remove();
-            appendMessage('assistant', "Operational response layer channel opened successfully.");
-        }, 1500);
+        return wrapper;
     }
 
     function setupExportHandler() {}
