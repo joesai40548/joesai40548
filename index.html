@@ -29,6 +29,7 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
   <script>
     function isValidUrl(str) {
       try {
@@ -255,8 +256,8 @@
                 <i data-lucide="arrow-down" class="w-5 h-5"></i>
             </button>
 
-            <div id="typing-indicator" class="hidden self-start bg-slate-100 text-slate-500 px-4 py-3 rounded-2xl text-xs mb-2 border border-slate-200">
-                <span class="inline-flex items-center gap-2">
+            <div id="typing-indicator" class="hidden self-start bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-2xl text-xs mb-2 shadow-sm">
+                <span class="inline-flex items-center gap-1.5">
                     <span class="snake-dot"></span>
                     <span class="snake-dot"></span>
                     <span class="snake-dot"></span>
@@ -277,10 +278,10 @@
                     Your intelligent coding workspace • Powered by AKRAM JOES TECHNOLOGIES<br>
                     <span class="text-xs text-slate-400">Chat • Code • Learn • Study • Agentic Reasoning</span>
                 </p>
-                <div class="flex gap-3 logo-animate" style="animation-delay: 0.7s">
-                    <button onclick="document.getElementById('message-input').focus()" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition-all">Start Chatting</button>
-                    <button onclick="document.getElementById('new-chat-btn').click()" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm hover:bg-slate-50 transition-all">New Session</button>
-                </div>
+                 <div class="flex gap-3 logo-animate" style="animation-delay: 0.7s">
+                     <button id="start-chat-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition-all">Start Chatting</button>
+                     <button onclick="document.getElementById('new-chat-btn').click()" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm hover:bg-slate-50 transition-all">New Session</button>
+                 </div>
             </div>
 
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
@@ -314,8 +315,8 @@
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </button>
                 
-                <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or use / commands..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px] cursor-text">
+                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or use / commands..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed cursor-text caret-indigo-500" autocomplete="off"></textarea>
                   <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center" title="Voice Input">
                       <i data-lucide="mic" class="w-5 h-5"></i>
                   </button>
@@ -357,6 +358,9 @@
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     let userId = 'default';
     let currentSessionId = null;
+    
+    // Authorization Mode Track Configuration (false = Sign In, true = Sign Up)
+    let isSignUpMode = false;
 
     // Remove Spinning Circle Loader on Complete Parse Execution Window
     async function initApp() {
@@ -389,7 +393,8 @@
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     userId = user.uid;
-                    document.getElementById('user-status-email').innerText = user.email || 'Verified Account';
+                    const verificationStatus = user.emailVerified ? '' : ' (Unverified)';
+                    document.getElementById('user-status-email').innerText = (user.email || 'Verified Account') + verificationStatus;
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('app').classList.remove('hidden');
                     checkAdminStatus(user.email);
@@ -527,27 +532,57 @@
         firebase.auth().signOut();
     });
 
-    // Auth Submit Handler
+    // Dedicated Authentication Handlers
+    async function handleSignUp(email, password) {
+        try {
+            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            await user.sendEmailVerification();
+            alert(`A verification email has been sent to ${email}. Please check your inbox (and spam folder) to activate your account!`);
+        } catch (error) {
+            console.error("Sign-up or email verification trigger failed:", error.message);
+            alert(error.message);
+        }
+    }
+
+    async function handleSignIn(email, password) {
+        try {
+            await firebase.auth().signInWithEmailAndPassword(email, password);
+        } catch (error) {
+            console.error("Sign-in execution failed:", error.message);
+            alert(error.message);
+        }
+    }
+
+    // Auth Submit Action Trigger Route Manager
     document.getElementById('auth-submit-btn').addEventListener('click', () => {
-        const email = document.getElementById('auth-email').value;
+        const email = document.getElementById('auth-email').value.trim();
         const password = document.getElementById('auth-password').value;
-        if (isSignIn) {
-            firebase.auth().signInWithEmailAndPassword(email, password).catch(alert);
+        
+        if (!email || !password) {
+            alert("Please fill in all layout field values.");
+            return;
+        }
+
+        if (isSignUpMode) {
+            handleSignUp(email, password);
         } else {
-            firebase.auth().createUserWithEmailAndPassword(email, password).catch(alert);
+            handleSignIn(email, password);
         }
     });
 
-    // Tab Switching
+    // Dynamic Tab Swapper Navigation Actions
     document.getElementById('tab-signin').addEventListener('click', () => {
+        isSignUpMode = false;
         document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
         document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
         document.getElementById('auth-title').innerText = 'Sign In to Joes AI';
     });
     document.getElementById('tab-signup').addEventListener('click', () => {
+        isSignUpMode = true;
         document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
         document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
-        document.getElementById('auth-title').innerText = 'Create Account';
+        document.getElementById('auth-title').innerText = 'Sign Up for Joes AI';
     });
 
     // Phone Toggle & OTP Handler
@@ -782,6 +817,7 @@
                     })
                 });
                 data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Gemini request failed');
             } else {
                 const res = await fetch(`${BACKEND_URL}/api/chat`, {
                     method: 'POST',
@@ -789,14 +825,19 @@
                     body: JSON.stringify({ messages: chatHistory, mode })
                 });
                 data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Chat request failed');
             }
             if (data.text) {
                 chatHistory.push({ role: 'assistant', content: data.text });
                 renderMessage('assistant', data.text);
+            } else if (data.error) {
+                renderMessage('assistant', `⚠️ **Error:** ${data.error}`);
+            } else {
+                renderMessage('assistant', 'No response received from AI.');
             }
             saveChat();
         } catch (err) {
-            renderMessage('assistant', 'Error connecting to AI service.');
+            renderMessage('assistant', `⚠️ **Connection Error:** ${err.message || 'Failed to reach AI service.'}`);
         } finally {
             showTypingIndicator(false);
         }
@@ -906,7 +947,8 @@
                             body: JSON.stringify({ functions: [{ name: funcName, body: '' }], language: 'javascript' })
                         });
                         const testData = await testRes.json();
-                        renderMessage('assistant', '```javascript\n' + testData.tests + '\n```');
+                        renderMessage('assistant', '```javascript\n' + testData.tests + '\n
+```');
                     } catch (e) {
                         renderMessage('assistant', 'Could not generate tests.');
                     }
@@ -918,7 +960,7 @@
                 const sumRes = await fetch(`${BACKEND_URL}/api/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: `Summarize: ${summarize}` }], mode: 'chat' })
+                    body: JSON.stringify({ messages: [{ role: 'user', content: `Summary: ${summarize}` }], mode: 'chat' })
                 });
                 const sumData = await sumRes.json();
                 renderMessage('assistant', `**Summary:**\n${sumData.text || 'Could not generate summary.'}`);
@@ -928,16 +970,6 @@
                 renderMessage('assistant', 'Unknown command. Try /explain, /refactor, /test, or /summarize');
         }
     }
-
-    // Send Button & Enter Key
-    document.getElementById('send-btn').addEventListener('click', sendMessage);
-    document.getElementById('message-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            document.getElementById('slash-menu').classList.add('hidden');
-            sendMessage();
-        }
-    });
 
     // Chat Mode Change
     document.getElementById('chat-mode-select').addEventListener('change', (e) => {
@@ -1100,4 +1132,161 @@
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
-       
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('message-input').focus();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sandbox-modal').classList.add('hidden');
+            document.getElementById('slash-menu').classList.add('hidden');
+        }
+    });
+
+    // Load Sessions
+    async function loadSessions() {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chats`, {
+                headers: { 'x-user-id': userId }
+            });
+            const sessions = await res.json();
+            const listEl = document.getElementById('session-list');
+            listEl.innerHTML = sessions.map(s => 
+                `<div class="flex items-center gap-1 p-2 text-xs bg-slate-50 rounded-lg group">
+                    <button class="flex-1 text-left truncate session-click" data-filename="${s.filename}">${s.title}</button>
+                    <button class="rename-session text-slate-400 hover:text-indigo-600 hidden" data-filename="${s.filename}" title="Rename">✎</button>
+                    <button class="delete-session text-slate-400 hover:text-red-500 hidden" data-filename="${s.filename}" title="Delete">✕</button>
+                </div>`
+            ).join('');
+            
+            listEl.querySelectorAll('.session-click').forEach((btn, i) => {
+                btn.addEventListener('click', async () => {
+                    const filename = btn.getAttribute('data-filename');
+                    const res = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                        headers: { 'x-user-id': userId }
+                    });
+                    const data = await res.json();
+                    chatHistory = data.history || [];
+                    document.getElementById('chat-messages').innerHTML = '';
+                    chatHistory.forEach(m => renderMessage(m.role, m.content));
+                    currentSessionId = data.sessionId;
+                });
+                
+                btn.addEventListener('mouseenter', () => {
+                    btn.parentElement.querySelector('.rename-session').classList.remove('hidden');
+                    btn.parentElement.querySelector('.delete-session').classList.remove('hidden');
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.parentElement.querySelector('.rename-session').classList.add('hidden');
+                    btn.parentElement.querySelector('.delete-session').classList.add('hidden');
+                });
+            });
+            
+            listEl.querySelectorAll('.rename-session').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const filename = btn.getAttribute('data-filename');
+                    const newTitle = prompt('Enter new title:');
+                    if (!newTitle) return;
+                    await fetch(`${BACKEND_URL}/api/chats/rename`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ oldFilename: filename, sessionId: currentSessionId, newTitle })
+                    });
+                    loadSessions();
+                });
+            });
+            
+            listEl.querySelectorAll('.delete-session').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm('Delete this chat?')) return;
+                    const filename = btn.getAttribute('data-filename');
+                    await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                        method: 'DELETE',
+                        headers: { 'x-user-id': userId }
+                    });
+                    loadSessions();
+                    if (chatHistory.length > 0 && currentSessionId) {
+                        document.getElementById('chat-messages').innerHTML = '';
+                        chatHistory = [];
+                        currentSessionId = Date.now().toString(36);
+                    }
+                });
+            });
+        } catch (err) {
+            console.error('Failed to load sessions:', err);
+        }
+    }
+
+    // New Chat
+    function isSystemLocked() { return document.getElementById('lock-screen') && !document.getElementById('lock-screen').classList.contains('hidden'); }
+
+    document.getElementById('new-chat-btn').addEventListener('click', () => {
+        chatHistory = [];
+        document.getElementById('chat-messages').innerHTML = '';
+        currentSessionId = Date.now().toString(36);
+    });
+
+    // Save Chat with debounce lock
+    function saveChat() {
+        if (!currentSessionId) currentSessionId = Date.now().toString(36);
+        if (saveLock) return;
+        saveLock = true;
+        fetch(`${BACKEND_URL}/api/chats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({
+                sessionId: currentSessionId,
+                title: `Chat ${new Date().toLocaleString()}`,
+                history: chatHistory
+            })
+        }).then(() => {
+            storeMemory();
+            setTimeout(loadSessions, 128);
+        }).catch(() => {}).finally(() => { saveLock = false; });
+    }
+
+    // Long-term Memory
+    function storeMemory() {
+        const summary = chatHistory.map(m => m.content).join(' ').substring(0, 500);
+        fetch(`${BACKEND_URL}/api/memory/store`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ sessionId: currentSessionId, content: summary })
+        });
+    }
+
+    // Tool Invocation
+    async function invokeTool(tool, args) {
+        const res = await fetch(`${BACKEND_URL}/api/tools/invoke`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ tool, args })
+        });
+        return res.json();
+    }
+
+// File Upload - Multi-modal (all file types accepted with background analysis)
+    function analyzeFileBackground(file) {
+        return new Promise((resolve) => {
+            if (!file || !file.type) return resolve({ type: 'unknown', mime: 'application/octet-stream', valid: false });
+            const validImage = file.type.startsWith('image/');
+            const validVideo = file.type.startsWith('video/');
+            const validAudio = file.type.startsWith('audio/');
+            const validDoc = ['application/pdf','text/plain','text/markdown','application/json','text/html','application/xml','text/csv','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type);
+            resolve({ type: validImage ? 'image' : validVideo ? 'video' : validAudio ? 'audio' : validDoc ? 'document' : 'other', mime: file.type, valid: validImage||validVideo||validAudio||validDoc });
+        });
+    }
+
+    // Run core engine stack initiation sequence
+    initApp();
+    addDeployButton();
+    setupThemeSwitcher();
+  </script>
+</body>
+</html>
