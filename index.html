@@ -6,313 +6,416 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
   <!-- ==========================================
-       1. SEARCH ENGINE OPTIMIZATION (SEO)
+       1. SEO & SEARCH CRAWLER CONFIG
   =========================================== -->
-  <title>Joes AI - Intelligent AI Assistant and Coding Workspace</title>
-  <meta name="description" content="Joes AI is a next-generation workspace for Chat, Coding, and Study. Powered by Akram Joes Technologies, it features agentic streaming and an artifact sandbox.">
-  <meta name="keywords" content="Joes AI, Akram Joes Technologies, AI Coding, Study AI, Multimodal AI, Uganda AI, Kaigwa Akram">
-  <meta name="author" content="Akram Joes Technologies">
-  <meta name="robots" content="index, follow">
-  
-  <!-- Social Media & Crawling (OpenGraph) -->
-  <meta property="og:title" content="Joes AI - Omniscient Workspace">
-  <meta property="og:description" content="Collaborative Agentic Intelligence for Developers and Students.">
-  <meta property="og:image" content="https://joes-ai.vercel.app/og-preview.png">
+  <title>Joes AI - Omniscient Agentic Workspace</title>
+  <meta name="description" content="Meet Joes AI by Akram Joes Technologies. A high-intelligence workspace for Coding, Medicine, and Research.">
+  <meta property="og:title" content="Joes AI - Intelligent Assistant">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://joesai.work.gd/assets/og-preview.png">
   
-  <!-- Structured Data (JSON-LD) for Search Bots -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Joes AI",
-      "operatingSystem": "All",
-      "applicationCategory": "Productivity",
-      "author": {
-        "@type": "Organization",
-        "name": "Akram Joes Technologies"
-      },
-      "creator": {
-        "@type": "Person",
-        "name": "Kaigwa Akram"
-      }
+      "author": { "@type": "Organization", "name": "Akram Joes Technologies" }
     }
   </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.446.0/dist/umd/lucide.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   
   <style>
-    :root { --p: #6366f1; --a: #a855f7; --bg: #030303; }
-    * { font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.3s ease; }
-    
-    body { background: var(--bg); overflow: hidden; height: 100vh; color: #e2e8f0; }
+    :root { --primary: #6366f1; --accent: #a855f7; --bg-dark: #07070b; }
+    * { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
+    body { background: var(--bg-dark); height: 100vh; width: 100vw; overflow: hidden; color: #e2e8f0; }
 
-    /* UI STYLES */
-    .glass { background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.06); }
-    .light .glass { background: rgba(255,255,255,0.8); color: #1e293b; border: 1px solid rgba(0,0,0,0.05); }
-    .light body { background: #f8fafc; color: #1e293b; }
+    /* AUTH & UI GLASS */
+    .glass { background: rgba(12, 12, 24, 0.75); backdrop-filter: blur(25px) saturate(180%); border: 1px solid rgba(255,255,255,0.08); }
+    .light .glass { background: rgba(255, 255, 255, 0.85); color: #0f172a; border: 1px solid rgba(0,0,0,0.1); }
+    .light body { background: #f1f5f9; color: #0f172a; }
 
-    /* SIDEBAR COLLAPSE */
-    #sidebar { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 320px; }
-    #sidebar.hidden-view { width: 0; transform: translateX(-100%); }
-
-    /* CHARACTER STREAMING ANIMATION */
-    .typing::after { content: '|'; color: var(--p); animation: blink 0.8s infinite; }
+    /* STREAMING ENGINE STYLES */
+    .typing::after { content: '▋'; color: var(--primary); animation: blink 0.8s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* ARTIFACTS VIEW */
-    #artifact-panel { width: 0; transition: 0.5s ease; border-left: 1px solid rgba(255,255,255,0.05); }
-    #artifact-panel.open { width: 50%; }
-    @media (max-width: 1024px) { #artifact-panel.open { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 100; } }
+    /* LAYOUT: SIDEBAR & ARTIFACTS */
+    #sidebar { width: 320px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    #sidebar.collapsed { width: 0; transform: translateX(-100%); }
+    #artifact-panel { width: 0; border-left: 1px solid rgba(255,255,255,0.05); }
+    #artifact-panel.open { width: 50vw; }
 
-    /* Voice Wave Indicator */
-    .wave { height: 15px; width: 3px; background: var(--p); border-radius: 20px; display: inline-block; animation: wave-anim 1s ease-in-out infinite; }
-    @keyframes wave-anim { 0%, 100% { height: 5px; } 50% { height: 25px; } }
+    /* VOICE WAVE */
+    .voice-bar { width: 4px; height: 10px; background: var(--primary); border-radius: 50px; animation: pulse-audio 1s infinite; }
+    @keyframes pulse-audio { 0%, 100% { height: 5px; } 50% { height: 25px; } }
 
-    /* Markdown Renders */
-    .md-table { width: 100%; overflow-x: auto; margin: 15px 0; border-radius: 12px; }
-    .md-table table { border: 1px solid rgba(255,255,255,0.05); width: 100%; font-size: 14px; }
-    .md-table th { padding: 12px; background: rgba(99,102,241,0.1); border-bottom: 2px solid rgba(255,255,255,0.1); text-align: left; }
-    .md-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    /* GRADIENT LOGO */
+    .inspired-gradient { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: logo-flow 6s infinite; }
+    @keyframes logo-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    /* TABLE FORMATTING */
+    table { width: 100%; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+    th { background: rgba(99,102,241,0.15); padding: 12px; text-align: left; }
+    td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   </style>
 </head>
-<body>
+<body class="transition-colors">
 
-  <div id="app-wrapper" class="flex h-screen w-full relative">
+  <!-- 1. FIREBASE AUTH OVERLAY -->
+  <div id="auth-screen" class="fixed inset-0 z-[200] bg-[#07070b] flex items-center justify-center p-4">
+      <div class="glass w-full max-w-md p-8 rounded-[3rem] text-center shadow-2xl animate__animated animate__fadeInUp">
+          <div class="w-16 h-16 mx-auto inspired-gradient rounded-3xl flex items-center justify-center text-white text-3xl font-black mb-4 shadow-xl shadow-indigo-500/20">J</div>
+          <h2 class="text-2xl font-bold mb-2">Identify Yourself</h2>
+          <p class="text-xs text-slate-500 mb-8 font-medium">Log into Akram Joes Technologies Intelligence System</p>
+
+          <div class="space-y-4" id="auth-main-ui">
+              <!-- Auth Options -->
+              <div id="email-section" class="space-y-3">
+                  <input type="email" id="user-email" placeholder="Email" class="w-full glass p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 ring-indigo-500">
+                  <input type="password" id="user-pass" placeholder="Password" class="w-full glass p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 ring-indigo-500">
+                  <button onclick="emailAuth('login')" class="w-full py-4 bg-white text-black font-black rounded-2xl text-sm hover:scale-[0.98]">ENTER SYSTEM</button>
+                  <button onclick="emailAuth('register')" class="text-[10px] font-bold text-slate-400">CREATE ACCOUNT</button>
+              </div>
+
+              <div class="flex items-center gap-3 py-2"><hr class="flex-1 opacity-10"> <span class="text-[9px] font-bold opacity-30">OR CONTINUE WITH</span> <hr class="flex-1 opacity-10"></div>
+              
+              <div class="grid grid-cols-2 gap-3">
+                  <button onclick="providerAuth('google')" class="glass p-3 rounded-2xl text-xs font-bold hover:bg-white/5 flex items-center justify-center gap-2"><img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" class="w-5"> Google</button>
+                  <button onclick="providerAuth('github')" class="glass p-3 rounded-2xl text-xs font-bold hover:bg-white/5 flex items-center justify-center gap-2"><img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="w-4 invert"> GitHub</button>
+              </div>
+              
+              <div class="pt-4 border-t border-white/5">
+                <button onclick="togglePhoneView()" class="text-xs font-bold text-indigo-400">Sign in with Phone SMS</button>
+              </div>
+          </div>
+
+          <div id="phone-ui" class="hidden space-y-3 animate__animated animate__fadeIn">
+              <input type="tel" id="user-phone" placeholder="+256..." class="w-full glass p-4 rounded-2xl text-sm">
+              <div id="recaptcha-container" class="mt-4"></div>
+              <button id="send-otp-btn" onclick="sendSMS()" class="w-full py-4 bg-indigo-600 rounded-2xl text-xs font-bold">SEND CODE</button>
+              <input type="text" id="sms-code" placeholder="Enter Code" class="hidden w-full glass p-4 rounded-2xl text-sm mt-2">
+              <button id="verify-otp-btn" onclick="verifySMS()" class="hidden w-full py-4 bg-white text-black rounded-2xl text-xs font-bold mt-2">VERIFY</button>
+              <button onclick="togglePhoneView()" class="text-[10px] text-slate-500">Back to Email</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="main-app" class="flex h-screen w-full relative hidden opacity-0 transition-opacity duration-1000">
     
-    <!-- 1. SIDEBAR: PERSISTENCE & HISTORY -->
+    <!-- 2. THE SIDENAV (COGNITIVE RECALL) -->
     <aside id="sidebar" class="glass h-full shrink-0 flex flex-col z-50">
         <div class="p-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center font-black text-white text-xl">J</div>
-                <h1 class="text-xl font-bold tracking-tight">JOES AI</h1>
+                <div class="w-10 h-10 inspired-gradient rounded-2xl flex items-center justify-center font-bold text-white shadow-xl shadow-indigo-500/10">J</div>
+                <h1 class="text-xl font-extrabold tracking-tighter">JOES AI</h1>
             </div>
-            <button onclick="toggleSidebar()" class="lg:flex p-2 hover:bg-white/5 rounded-xl"><i data-lucide="panel-left"></i></button>
+            <button onclick="toggleSidebar()" class="lg:flex p-2 text-slate-400 hover:text-white"><i data-lucide="panel-left-close"></i></button>
         </div>
 
-        <div class="p-4"><button onclick="startNew()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold text-white shadow-xl shadow-indigo-500/20">New Thread</button></div>
+        <div class="p-4"><button onclick="newThread()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold shadow-xl shadow-indigo-500/20 active:scale-95">Start Workspace</button></div>
 
-        <nav class="flex-1 overflow-y-auto px-4 space-y-2">
-            <label class="text-[10px] uppercase font-black text-slate-500 tracking-widest px-2">Recents</label>
-            <div id="session-history-list" class="space-y-1"></div>
-        </nav>
+        <div class="flex-1 overflow-y-auto px-4 space-y-2">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2 py-4">Memory Sessions</p>
+            <div id="chat-history-list" class="space-y-1"></div>
+        </div>
 
-        <div class="p-4 mt-auto border-t border-white/5 bg-black/20">
-            <div class="flex items-center gap-3 p-2 cursor-pointer group">
-                <div class="w-8 h-8 rounded-full bg-slate-700"></div>
-                <span class="text-xs font-semibold group-hover:text-indigo-400">Akram Joes Tech</span>
+        <div class="p-4 mt-auto border-t border-white/5">
+            <div class="flex items-center gap-3 glass p-3 rounded-2xl cursor-pointer">
+                <div class="w-9 h-9 rounded-full bg-slate-800" id="user-avatar"></div>
+                <div class="truncate">
+                    <p id="user-display-name" class="text-sm font-bold truncate">Inspired User</p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Level: Member</p>
+                </div>
+                <button onclick="signOutUser()" class="ml-auto text-red-500 hover:scale-110"><i data-lucide="log-out"></i></button>
             </div>
         </div>
     </aside>
 
-    <!-- 2. MAIN HUB -->
+    <!-- 3. HUB WORKSPACE -->
     <main class="flex-1 flex flex-col overflow-hidden relative">
-        
-        <header class="h-16 flex items-center justify-between px-6 z-30">
+        <header class="h-16 flex items-center justify-between px-6 z-40 bg-transparent">
             <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2"><i data-lucide="menu"></i></button>
-                <div id="mode-indicator" class="glass px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-indigo-400 flex items-center gap-2">
-                   <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div> Normal Intelligence
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-indigo-400"><i data-lucide="menu"></i></button>
+                <div id="badge" class="px-4 py-1.5 glass rounded-full text-[10px] font-black text-indigo-400 flex items-center gap-2 tracking-widest">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div> CHAT MODE ACTIVE
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="p-2.5 text-slate-400"><i data-lucide="sun"></i></button>
-                <button id="btn-export" class="p-2.5 text-slate-400"><i data-lucide="file-down"></i></button>
+            <div class="flex gap-4">
+                <button onclick="toggleModeUI('chat')" class="p-2 text-indigo-400 hover:scale-110"><i data-lucide="message-circle"></i></button>
+                <button onclick="toggleModeUI('study')" class="p-2 text-emerald-400 hover:scale-110"><i data-lucide="graduation-cap"></i></button>
+                <button onclick="toggleModeUI('code')" class="p-2 text-amber-400 hover:scale-110"><i data-lucide="code-2"></i></button>
+                <button onclick="toggleAppTheme()" class="p-2 text-slate-500 hover:text-yellow-400"><i data-lucide="sun"></i></button>
             </div>
         </header>
 
-        <div id="chat-scroller" class="flex-1 overflow-y-auto px-4 md:px-12 space-y-10 py-6 scroll-smooth">
-            <!-- DYNAMIC HERO SELECTOR -->
-            <section id="welcome-view" class="h-full flex flex-col items-center justify-center space-y-10 animate__animated animate__fadeIn">
-                <div class="text-center space-y-4">
-                    <h2 class="text-5xl font-black tracking-tight">How can I assist?</h2>
-                    <p class="text-slate-500 font-medium max-w-lg mx-auto text-sm">JOES AI by Akram Joes Technologies. Designed for elite multimodal file processing and clinical-level reasoning.</p>
+        <div id="scroll-zone" class="flex-1 overflow-y-auto px-6 md:px-24 space-y-12 py-10 scroll-smooth">
+            
+            <!-- COGNITIVE HOME (Initial Branding) -->
+            <section id="hero" class="h-full flex flex-col items-center justify-center space-y-10">
+                <div class="text-center space-y-6">
+                    <div class="w-24 h-24 mx-auto inspired-gradient rounded-[2.5rem] flex items-center justify-center text-white text-5xl font-black shadow-2xl animate__animated animate__pulse animate__infinite animate__slower">J</div>
+                    <h2 class="text-5xl font-black tracking-tighter">Choose Your Domain.</h2>
+                    <p class="text-slate-500 text-lg max-w-lg font-medium mx-auto opacity-70 italic">Intelligence optimized by Akram Joes Technologies for Code, Clinical Safety, and Academic Synthesis.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-                    <div onclick="selectMode('chat')" class="glass p-8 rounded-[2.5rem] cursor-pointer hover:-translate-y-2 transition-all border-b-4 border-transparent hover:border-indigo-500">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+                    <div onclick="selectDomain('chat')" class="glass p-8 rounded-[2.5rem] border-transparent hover:border-indigo-500 hover:-translate-y-2 cursor-pointer">
                         <i data-lucide="sparkles" class="text-indigo-400 mb-4"></i>
-                        <h4 class="font-bold text-xl">General Intelligence</h4>
-                        <p class="text-xs text-slate-500 mt-2">Chat, write, and ideate using Llama-3.3 Speed Engines.</p>
+                        <h4 class="font-bold text-xl">Llama Logic</h4>
+                        <p class="text-xs text-slate-500 mt-2">Chat Engine: Rapid daily reasoning & creative tasks.</p>
                     </div>
-                    <div onclick="selectMode('study')" class="glass p-8 rounded-[2.5rem] cursor-pointer hover:-translate-y-2 transition-all border-b-4 border-transparent hover:border-emerald-500">
-                        <i data-lucide="library" class="text-emerald-400 mb-4"></i>
-                        <h4 class="font-bold text-xl">Advanced Tutor</h4>
-                        <p class="text-xs text-slate-500 mt-2">Deep learning mode with medical & pharmacy verification pass.</p>
+                    <div onclick="selectDomain('study')" class="glass p-8 rounded-[2.5rem] border-transparent hover:border-emerald-500 hover:-translate-y-2 cursor-pointer">
+                        <i data-lucide="book-open" class="text-emerald-400 mb-4"></i>
+                        <h4 class="font-bold text-xl">2.5 Pro Tutor</h4>
+                        <p class="text-xs text-slate-500 mt-2">Academic Core: Socratic teaching and Pharma-safe guides.</p>
                     </div>
-                    <div onclick="selectMode('code')" class="glass p-8 rounded-[2.5rem] cursor-pointer hover:-translate-y-2 transition-all border-b-4 border-transparent hover:border-amber-500">
-                        <i data-lucide="cpu" class="text-amber-400 mb-4"></i>
-                        <h4 class="font-bold text-xl">Source Copilot</h4>
-                        <p class="text-xs text-slate-500 mt-2">Analyze repos, fix bugs, and live-preview artifacts.</p>
+                    <div onclick="selectDomain('code')" class="glass p-8 rounded-[2.5rem] border-transparent hover:border-amber-500 hover:-translate-y-2 cursor-pointer">
+                        <i data-lucide="terminal" class="text-amber-400 mb-4"></i>
+                        <h4 class="font-bold text-xl">Code Architect</h4>
+                        <p class="text-xs text-slate-500 mt-2">Dev Specialist: Source analysis and live artifacts.</p>
                     </div>
                 </div>
             </section>
+
         </div>
 
-        <!-- 3. MULTIMODAL INPUT DOCK -->
-        <div id="floating-attachment" class="hidden absolute bottom-28 left-1/2 -translate-x-1/2 glass px-4 py-2 rounded-2xl animate__animated animate__slideInUp">
-             <div class="flex items-center gap-3 text-xs font-bold text-indigo-400">
-                 <i data-lucide="paperclip" class="w-3.5 h-3.5"></i> <span id="file-tag">image_2026.png</span>
-                 <button onclick="clearFiles()" class="text-red-400 p-1">✕</button>
-             </div>
+        <div id="preview-tag" class="hidden fixed bottom-32 left-1/2 -translate-x-1/2 glass px-4 py-2 rounded-2xl flex items-center gap-2 animate__animated animate__slideInUp">
+             <i data-lucide="paperclip" class="w-3.5 h-3.5 text-indigo-400"></i>
+             <span id="preview-name" class="text-xs font-bold truncate max-w-[200px]">document.pdf</span>
+             <button onclick="clearFiles()" class="text-red-500 ml-2">✕</button>
         </div>
 
+        <!-- 4. INTELLIGENT INPUT SYSTEM -->
         <footer class="p-6 w-full max-w-6xl mx-auto mb-2">
-            <div class="glass p-3 flex items-end gap-2 rounded-[2rem] shadow-2xl relative overflow-hidden group">
-                <!-- AUDIO INDICATOR -->
-                <div id="mic-pulse" class="hidden absolute top-0 left-0 w-full h-full bg-indigo-500/10 flex items-center justify-center pointer-events-none">
-                     <div class="flex gap-1"><div class="wave"></div><div class="wave" style="animation-delay: 0.2s"></div><div class="wave" style="animation-delay: 0.4s"></div></div>
-                </div>
-
-                <button onclick="pickFile()" class="p-4 hover:bg-white/5 rounded-full text-slate-400 hover:text-white"><i data-lucide="link"></i></button>
-                <textarea id="main-input" rows="1" placeholder="Describe or upload to Joes AI..." class="flex-1 bg-transparent p-4 focus:outline-none resize-none leading-relaxed text-sm h-[56px] max-h-[250px]"></textarea>
-                <button onclick="toggleVoice()" class="p-4 hover:bg-indigo-500/10 rounded-full text-slate-400 hover:text-indigo-500"><i data-lucide="mic"></i></button>
-                <button onclick="triggerSend()" class="p-4 bg-indigo-600 rounded-[1.2rem] text-white hover:scale-105 active:scale-95"><i data-lucide="send-horizontal"></i></button>
+            <div id="mic-viz" class="hidden absolute top-0 left-0 w-full h-full bg-indigo-500/10 pointer-events-none flex items-center justify-center">
+                 <div class="flex gap-1"><div class="voice-bar"></div><div class="voice-bar" style="animation-delay:0.2s"></div><div class="voice-bar" style="animation-delay:0.4s"></div></div>
             </div>
-            <p class="text-center text-[9px] text-slate-500 mt-3 font-bold uppercase tracking-[4px]">Designed for the Inspired Engineer - v7.0</p>
+
+            <div class="glass p-3 flex items-end gap-2 rounded-[2.5rem] shadow-2xl relative border-white/10">
+                <button onclick="attachFile()" class="p-4 text-slate-400 hover:text-white rounded-full"><i data-lucide="plus"></i></button>
+                <textarea id="io-field" rows="1" placeholder="Consult with Joes AI..." class="flex-1 bg-transparent p-4 outline-none text-sm leading-relaxed max-h-[300px]"></textarea>
+                <button id="btn-audio" onclick="toggleSTT()" class="p-4 text-slate-500 hover:text-indigo-400"><i data-lucide="mic"></i></button>
+                <button id="btn-submit" onclick="launchQuery()" class="p-4 bg-indigo-600 rounded-[1.2rem] text-white hover:bg-indigo-500 active:scale-90 transition-transform"><i data-lucide="arrow-up-right"></i></button>
+            </div>
+            <p class="text-center text-[10px] text-slate-500 font-bold tracking-[8px] uppercase mt-4">Powered by Akram Joes Technologies</p>
         </footer>
     </main>
 
-    <!-- 4. ARTIFACT SANDBOX PANEL -->
-    <aside id="artifact-panel" class="glass h-full flex flex-col relative overflow-hidden shrink-0">
+    <!-- 5. ARTIFACT SANDBOX VIEW -->
+    <aside id="artifact-panel" class="h-full glass shrink-0 relative overflow-hidden flex flex-col animate__animated">
         <header class="p-4 border-b border-white/5 flex items-center justify-between">
-            <h5 class="text-xs font-bold tracking-wider uppercase text-indigo-400 flex items-center gap-2"><i data-lucide="orbit" class="w-3.5 h-3.5"></i> Sandbox Live Preview</h5>
-            <button onclick="closeArtifact()" class="p-1 hover:bg-white/5"><i data-lucide="minimize"></i></button>
+            <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2"><i data-lucide="laptop" class="w-3.5 h-3.5"></i> Artifact Console</span>
+            <button onclick="closeArtifactPanel()" class="p-1 hover:bg-white/10"><i data-lucide="x"></i></button>
         </header>
-        <iframe id="live-frame" class="flex-1 w-full bg-white border-none"></iframe>
+        <iframe id="artifact-display" class="flex-1 w-full border-none bg-white"></iframe>
     </aside>
 
   </div>
 
-  <!-- CORE SYSTEM LOGIC -->
+  <input type="file" id="fs-entry" class="hidden" multiple>
+
   <script type="module">
-    const URL_SERVER = "https://joes-ai-server.onrender.com";
-    let CURRENT_MODE = "chat";
-    let MEMORY = [];
-    let FILE_BLOB = null;
+    // SYSTEM ENVIRONMENT
+    const CONFIG_URL = 'https://joes-ai-server.onrender.com';
+    let FIREBASE_APP, AUTH, PERSISTED_MEMORY = [];
+    let CURRENT_FILE = null;
+    let DOMAIN_MODE = "chat";
 
-    // VOICE LOGIC
+    // AUDIO CONTEXT
     const recognition = (window.SpeechRecognition || window.webkitSpeechRecognition) ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
-    if(recognition) { recognition.continuous = false; recognition.onresult = (e) => { document.getElementById('main-input').value = e.results[0][0].transcript; triggerSend(); } }
 
-    window.toggleVoice = () => { if(recognition) recognition.start(); };
-    window.speak = (text) => { window.speechSynthesis.cancel(); const ut = new SpeechSynthesisUtterance(text); ut.voice = window.speechSynthesis.getVoices().find(v => v.lang.startsWith('en')); window.speechSynthesis.speak(ut); };
+    // BOOTSTRAP INITIALIZER
+    async function bootSystem() {
+        try {
+            const res = await fetch(`${CONFIG_URL}/api/config`);
+            const conf = await res.json();
+            
+            FIREBASE_APP = firebase.initializeApp(conf);
+            AUTH = firebase.auth();
 
-    // SSE MASTER LOGIC
-    async function triggerSend() {
-        const inp = document.getElementById('main-input');
-        const text = inp.value.trim();
-        if(!text && !FILE_BLOB) return;
+            AUTH.onAuthStateChanged(user => {
+                if(user) {
+                    initAppUI(user);
+                } else {
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }
+            });
 
-        // Reset Welcome View if first message
-        const welcomeView = document.getElementById('welcome-view');
-        if(welcomeView) welcomeView.remove();
+            lucide.createIcons();
+        } catch(e) { console.error("Identity Engine Load Failure"); }
+    }
 
-        // UI Push User
-        pushMessageUI('user', text);
-        inp.value = '';
+    // AUTH ACTIONS
+    window.emailAuth = (m) => {
+        const e = document.getElementById('user-email').value;
+        const p = document.getElementById('user-pass').value;
+        if(m === 'register') {
+            AUTH.createUserWithEmailAndPassword(e,p).catch(err => alert(err.message));
+        } else {
+            AUTH.signInWithEmailAndPassword(e,p).catch(err => alert(err.message));
+        }
+    };
 
-        // Add Empty AI Hub for character streaming
-        const aidId = 'ai_' + Date.now();
-        const container = pushMessageUI('ai', '', aidId);
-        container.classList.add('typing');
+    window.providerAuth = (p) => {
+        const provider = p === 'google' ? new firebase.auth.GoogleAuthProvider() : new firebase.auth.GithubAuthProvider();
+        AUTH.signInWithPopup(provider).catch(e => alert(e.message));
+    };
 
-        const res = await fetch(`${URL_SERVER}/api/chat/stream`, {
+    window.togglePhoneView = () => {
+        document.getElementById('auth-main-ui').classList.toggle('hidden');
+        document.getElementById('phone-ui').classList.toggle('hidden');
+        if(!window.capVer) window.capVer = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+    };
+
+    window.sendSMS = () => {
+        const ph = document.getElementById('user-phone').value;
+        AUTH.signInWithPhoneNumber(ph, window.capVer).then(conf => {
+            window.smSCon = conf;
+            document.getElementById('sms-code').classList.remove('hidden');
+            document.getElementById('verify-otp-btn').classList.remove('hidden');
+            document.getElementById('send-otp-btn').innerText = "RESEND CODE";
+        });
+    };
+
+    window.verifySMS = () => {
+        const co = document.getElementById('sms-code').value;
+        window.smSCon.confirm(co).catch(e => alert(e.message));
+    };
+
+    window.signOutUser = () => AUTH.signOut().then(() => location.reload());
+
+    // UI DYNAMICS
+    function initAppUI(user) {
+        document.getElementById('auth-screen').remove();
+        const main = document.getElementById('main-app');
+        main.classList.remove('hidden');
+        setTimeout(() => main.classList.replace('opacity-0', 'opacity-100'), 50);
+        
+        document.getElementById('user-display-name').innerText = user.displayName || user.email || user.phoneNumber;
+        if(user.photoURL) document.getElementById('user-avatar').style.backgroundImage = `url(${user.photoURL})`;
+        document.getElementById('user-avatar').style.backgroundSize = "cover";
+    }
+
+    // MAIN COGNITIVE STREAM
+    async function launchQuery() {
+        const field = document.getElementById('io-field');
+        const text = field.value.trim();
+        if(!text && !CURRENT_FILE) return;
+
+        // UI Prep
+        const hero = document.getElementById('hero');
+        if(hero) hero.remove();
+
+        renderMsg('user', text);
+        field.value = ""; field.style.height = 'auto';
+
+        const sID = 'st_' + Date.now();
+        const aiHub = renderMsg('ai', '', sID);
+        aiHub.classList.add('typing');
+
+        // Streaming Handler
+        const response = await fetch(`${CONFIG_URL}/api/chat/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, chatHistory: MEMORY, mode: CURRENT_MODE, fileData: FILE_BLOB?.base64, mimeType: FILE_BLOB?.type })
+            body: JSON.stringify({ 
+                message: text, mode: DOMAIN_MODE, chatHistory: PERSISTED_MEMORY,
+                fileData: CURRENT_FILE?.base64, mimeType: CURRENT_FILE?.type, fileName: CURRENT_FILE?.name 
+            })
         });
 
-        const reader = res.body.getReader();
+        const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let streamingContent = "";
+        let cumulative = "";
 
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split('\n');
-            for(const line of lines) {
+            const decodedLines = decoder.decode(value).split('\n');
+            for(let line of decodedLines) {
                 if (line.startsWith('data: ')) {
                     try {
                         const json = JSON.parse(line.replace('data: ', ''));
-                        const char = json.candidates[0].content.parts[0].text;
-                        streamingContent += char;
-                        renderFinalText(aidId, streamingContent);
+                        const delta = json.candidates[0].content.parts[0].text;
+                        cumulative += delta;
+                        parseCharacterDelivery(sID, cumulative);
                     } catch(e) {}
                 }
             }
-            scrollToEnd();
+            scrollTarget();
         }
         
-        container.classList.remove('typing');
-        MEMORY.push({ role: 'user', content: text }, { role: 'model', content: streamingContent });
+        aiHub.classList.remove('typing');
+        PERSISTED_MEMORY.push({ role: 'user', content: text }, { role: 'model', content: cumulative });
+        clearFiles();
     }
 
-    // ARTIFACTS PARSER & RENDERER
-    function renderFinalText(id, raw) {
-        const hub = document.getElementById(id).querySelector('.md-body');
+    function parseCharacterDelivery(id, raw) {
+        const area = document.getElementById(id).querySelector('.md-layer');
         
-        // Match for the Joes AI custom code artifact tag
-        const match = raw.match(/<joes_artifact type="html">([\s\S]*?)<\/joes_artifact>/);
-        if (match) {
-             openArtifact(match[1]);
-             raw = raw.replace(match[0], "*Development artifacts found. Live preview loaded in Workspace Sidebar.*");
+        // CHECK FOR ARTIFACTS TAG
+        const art = raw.match(/<joes_artifact type="html">([\s\S]*?)<\/joes_artifact>/);
+        if (art) {
+             popArtifact(art[1]);
+             raw = raw.replace(art[0], "🎨 *Code detected. Sandbox previewing workspace active.*");
         }
 
-        // Extremely fast formatting (Real character generation performance)
-        hub.innerHTML = raw
+        // AGGRESSIVE RENDERING
+        area.innerHTML = raw
             .replace(/\n/g, '<br>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-indigo-400">$1</strong>')
-            .replace(/```([\s\S]*?)```/g, '<div class="glass p-3 my-2 font-mono text-[11px] overflow-auto">$1</div>')
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-indigo-500 font-bold underline">$1</a>');
+            .replace(/\*\*(.*?)\*\*/g, '<b class="text-indigo-400">$1</b>')
+            .replace(/```([\s\S]*?)```/g, '<div class="glass p-4 rounded-xl font-mono text-[11px] my-3 border border-indigo-500/20">$1</div>')
+            .replace(/\|(.*)\|/g, (m) => `<div class="md-layer">${m}</div>`); 
     }
 
-    // UI & HELPERS
-    window.selectMode = (m) => { CURRENT_MODE = m; document.getElementById('mode-indicator').innerText = m.toUpperCase() + ' Intelligence Engine Enabled'; };
-    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('hidden-view');
-    window.toggleTheme = () => document.documentElement.classList.toggle('light');
-    window.openArtifact = (code) => { document.getElementById('artifact-panel').classList.add('open'); const doc = document.getElementById('live-frame').contentDocument; doc.open(); doc.write(code); doc.close(); };
-    window.pickFile = () => { const f = document.createElement('input'); f.type = 'file'; f.onchange = async (e) => { 
+    // MULTIMODAL LOGIC
+    window.attachFile = () => document.getElementById('fs-entry').click();
+    document.getElementById('fs-entry').onchange = (e) => {
         const file = e.target.files[0];
-        const r = new FileReader(); r.onload = () => { 
-            FILE_BLOB = { base64: r.result.split(',')[1], type: file.type }; 
-            document.getElementById('floating-attachment').classList.remove('hidden'); 
-            document.getElementById('file-tag').innerText = file.name;
-        }; 
-        r.readAsDataURL(file); 
-    }; f.click(); };
+        const r = new FileReader(); r.onload = () => {
+            CURRENT_FILE = { name: file.name, type: file.type, base64: r.result.split(',')[1] };
+            document.getElementById('preview-tag').classList.remove('hidden');
+            document.getElementById('preview-name').innerText = file.name;
+        }; r.readAsDataURL(file);
+    };
 
-    function pushMessageUI(role, content, id) {
-        const arena = document.getElementById('chat-scroller');
+    window.clearFiles = () => { CURRENT_FILE = null; document.getElementById('preview-tag').classList.add('hidden'); };
+    window.selectDomain = (d) => { DOMAIN_MODE = d; document.getElementById('badge').innerText = `${d.toUpperCase()} LOGIC ENGAGED`; };
+    window.toggleModeUI = (m) => selectDomain(m);
+    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('collapsed');
+    window.popArtifact = (code) => { 
+        document.getElementById('artifact-panel').classList.add('open'); 
+        const doc = document.getElementById('artifact-display').contentDocument; 
+        doc.open(); doc.write(code); doc.close(); 
+    };
+
+    function renderMsg(role, content) {
+        const id = role === 'user' ? Date.now() : 'st_'+Date.now();
         const div = document.createElement('div');
-        div.id = id || Date.now();
+        div.id = id;
         div.className = `flex gap-4 animate__animated animate__fadeInUp ${role === 'user' ? 'justify-end' : ''}`;
         div.innerHTML = `
-            <div class="flex-shrink-0 w-8 h-8 rounded-full ${role === 'user' ? 'bg-indigo-600 order-2' : 'bg-slate-700'} flex items-center justify-center font-bold text-[10px] text-white">
-                ${role === 'user' ? 'YOU' : 'J'}
+            <div class="shrink-0 w-9 h-9 rounded-full ${role === 'user' ? 'bg-indigo-600 order-2 shadow-lg shadow-indigo-600/30' : 'bg-slate-800 border border-white/10'} flex items-center justify-center font-black text-[10px]">
+                ${role === 'user' ? 'ME' : 'JA'}
             </div>
-            <div class="${role === 'user' ? 'glass border-indigo-500/20 px-5 py-3' : 'md-body w-full max-w-4xl text-sm leading-7'} rounded-[1.5rem] tracking-tight">
+            <div class="${role === 'user' ? 'glass border-indigo-500/30 px-6 py-4 rounded-[2rem]' : 'md-layer w-full max-w-4xl text-md leading-8 opacity-90 tracking-wide'}">
                 ${content}
             </div>
         `;
-        arena.appendChild(div);
-        scrollToEnd();
+        document.getElementById('scroll-zone').appendChild(div);
+        scrollTarget();
         return div;
     }
 
-    function scrollToEnd() { const sc = document.getElementById('chat-scroller'); sc.scrollTop = sc.scrollHeight; }
-    
-    // SEO Bot: Check if first meet - then trigger history
-    document.addEventListener('DOMContentLoaded', () => { 
-        lucide.createIcons(); 
-        const params = new URLSearchParams(window.location.search);
-        if(params.has('q')) { document.getElementById('main-input').value = params.get('q'); triggerSend(); }
-    });
+    function scrollTarget() { const sc = document.getElementById('scroll-zone'); sc.scrollTop = sc.scrollHeight; }
+
+    bootSystem();
   </script>
 </body>
 </html>
