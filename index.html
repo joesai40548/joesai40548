@@ -2,1291 +2,188 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/split/1.3.5/split.min.js"></script>
-  
-  <!-- Safe Console Patch to suppress Tailwind's client-side development warning -->
-  <script>
-    (function() {
-      const originalWarn = console.warn;
-      console.warn = function(...args) {
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-          return; // Mute the production warning cleanly
-        }
-        originalWarn.apply(console, args);
-      };
-    })();
-  </script>
+  <title>Joes AI | Smart Workspace</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <!-- Production-optimized fallback CDN for Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
-  <script>
-    function isValidUrl(str) {
-      try {
-        const url = new URL(str);
-        return ['http:', 'https:'].includes(url.protocol);
-      } catch {
-        return false;
-      }
-    }
-  </script>
-
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
-    .gradient-bg { background: #f8fafc; }
-    .chat-gradient { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(15, 23, 42, 0.08); color: #334155 !important; }
-    #chat-messages::-webkit-scrollbar { width: 6px; }
-    #chat-messages::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.1); border-radius: 10px; }
-    body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); }
-    @keyframes snakeWave {
-      0%, 100% { transform: translateY(0) scale(1, 1); border-radius: 50%; }
-      25% { transform: translateY(-8px) scale(1.3, 0.7); border-radius: 40%; }
-      50% { transform: translateY(-12px) scale(0.7, 1.4); border-radius: 30%; }
-      75% { transform: translateY(-6px) scale(1.2, 0.8); border-radius: 45%; }
-    }
-    .snake-dot { animation: snakeWave 1.6s ease-in-out infinite; width: 8px; height: 8px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 50%; display: inline-block; }
-    .snake-dot:nth-child(2) { animation-delay: 0.2s; background: linear-gradient(135deg, #7c3aed, #ec4899); }
-    .snake-dot:nth-child(3) { animation-delay: 0.4s; background: linear-gradient(135deg, #ec4899, #f59e0b); }
-    .snake-dot:nth-child(4) { animation-delay: 0.6s; background: linear-gradient(135deg, #f59e0b, #4f46e5); }
-    .snake-dot:nth-child(5) { animation-delay: 0.8s; background: linear-gradient(135deg, #4f46e5, #3b82f6); }
-
-    @keyframes logoSlide {
-      0% { transform: translateX(-120%); opacity: 0; }
-      30% { opacity: 1; }
-      70% { transform: translateX(10%); opacity: 1; }
-      100% { transform: translateX(0); opacity: 1; }
-    }
-    .logo-animate { animation: logoSlide 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-    body { background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.06) 0%, #f1f5f9 60%); }
-    @keyframes borderGlow { 0%, 100% { border-color: #4f46e5; box-shadow: 0 0 12px rgba(99, 102, 241, 0.15); } 33% { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.15); } 66% { border-color: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.15); } }
-    .glowing-input { animation: borderGlow 6s ease-in-out infinite; }
-    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-    th { background-color: rgba(15, 23, 42, 0.04); color: #4f46e5 !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(15, 23, 42, 0.08); text-align: left; }
-    td { padding: 12px 16px; border-bottom: 1px solid rgba(15, 23, 42, 0.06); text-align: left; }
-    tr:hover { background-color: rgba(15, 23, 42, 0.02); }
-    @keyframes skeletonSweeper { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    .claude-shimmer { background: linear-gradient(90deg, rgba(15,23,42,0.03) 25%, rgba(15,23,42,0.08) 50%, rgba(15,23,42,0.03) 75%); background-size: 200% 100%; animation: skeletonSweeper 1.6s infinite linear; }
-    .app-container { height: 100dvh; max-height: 100dvh; width: 100vw; display: flex; overflow: hidden; position: relative; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-    .chat-message a { color: #4f46e5; text-decoration: underline; font-weight: 600; background: rgba(99, 102, 241, 0.08); padding: 1px 4px; border-radius: 3px; }
-    .chat-message a:hover { background: rgba(99, 102, 241, 0.18); }
-    .chat-message table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
-    .chat-message th { background: rgba(99, 102, 241, 0.1); color: #4f46e5; font-weight: 600; padding: 8px 12px; border: 1px solid rgba(99, 102, 241, 0.2); text-align: left; }
-    .chat-message td { padding: 8px 12px; border: 1px solid rgba(15, 23, 42, 0.08); }
+    #chat-messages::-webkit-scrollbar { width: 5px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .recording-ring { animation: pulse 1.5s infinite; background: #fee2e2; border: 2px solid #ef4444; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
   </style>
 </head>
-<body class="gradient-bg min-h-screen text-slate-800 relative">
+<body class="bg-slate-50 font-sans h-screen flex overflow-hidden">
 
-  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-  </div>
-
-  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex flex-col items-center justify-center transition-opacity duration-500 cursor-pointer" title="Click to skip">
-    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-    <div class="flex gap-2">
-      <span class="snake-dot"></span>
-      <span class="snake-dot"></span>
-      <span class="snake-dot"></span>
-      <span class="snake-dot"></span>
-      <span class="snake-dot"></span>
-    </div>
-    <p class="text-xs text-slate-400 mt-3">Click anywhere to enter</p>
-  </div>
-
-  <div id="admin-dashboard" class="fixed inset-0 z-[95] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center">
-    <div class="bg-white rounded-3xl p-6 max-w-lg w-full mx-4 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-slate-900">Admin Dashboard</h2>
-        <button id="close-admin" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <div id="admin-content" class="space-y-3 text-sm text-slate-700"></div>
-    </div>
-  </div>
-
-  <div id="auth-screen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-100/40 backdrop-blur-md hidden animate__animated animate__fadeIn">
-      <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl space-y-6">
-          <div class="text-center">
-              <div class="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md text-white mx-auto mb-3">
-                  <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+  <!-- Sidebar -->
+  <aside id="sidebar" class="w-80 bg-white border-r flex flex-col z-20">
+      <div class="p-6">
+          <div class="flex items-center gap-3 mb-8">
+              <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <i data-lucide="zap"></i>
               </div>
-              <h1 id="auth-title" class="text-2xl font-bold text-slate-900">Sign In to Joes AI</h1>
-              <p class="text-xs text-slate-400 mt-1">Unlock your private, production-ready workspace</p>
+              <h1 class="font-bold text-xl tracking-tight">Joes AI</h1>
           </div>
-          
-          <div class="flex border-b border-slate-100">
-              <button id="tab-signin" class="flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600">Sign In</button>
-              <button id="tab-signup" class="flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600">Sign Up</button>
-          </div>
-
-          <div class="space-y-4">
-              <div>
-                  <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Email Address</label>
-                  <input id="auth-email" type="email" placeholder="you@domain.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all mt-1.5 text-slate-800">
-              </div>
-              <div>
-                  <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Password</label>
-                  <input id="auth-password" type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all mt-1.5 text-slate-800">
-              </div>
-              <button id="phone-toggle" class="text-xs text-indigo-600 font-medium hover:underline">+ Continue with Phone Number</button>
-              
-              <div id="phone-block" class="hidden border-t border-slate-100 pt-3 space-y-3">
-                  <input id="auth-phone" type="tel" placeholder="+256700000000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-800">
-                  <div id="recaptcha-container"></div>
-                  <button id="otp-btn" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition-all">Request OTP Code</button>
-                  <input id="auth-otp" type="text" placeholder="Enter 6-digit Code" class="hidden w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-800">
-              </div>
-          </div>
-          <button id="auth-submit-btn" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl text-sm shadow-md transition-all active:scale-95">Continue</button>
-          
-          <div class="space-y-3">
-              <div class="flex items-center my-4"><div class="flex-grow border-t border-slate-100"></div><span class="px-3 text-xs text-slate-400 font-medium">Or continue with</span><div class="flex-grow border-t border-slate-100"></div></div>
-              <div class="grid grid-cols-2 gap-3">
-                  <button id="google-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">
-                      <i data-lucide="globe" class="w-3.5 h-3.5"></i> Google
-                  </button>
-                  <button id="github-login-btn" class="py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 text-slate-700">
-                      <i data-lucide="github" class="w-3.5 h-3.5"></i> GitHub
-                  </button>
-              </div>
-          </div>
-      </div>
-  </div>
-
-  <div id="app" class="app-container hidden">
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-all duration-300 backdrop-blur-xl shrink-0 h-full" style="width: 18rem;">
-        <div class="p-4 flex items-center justify-between border-b border-slate-100">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-white">
-                    <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
-                </div>
-                <span id="sidebar-title" class="text-lg font-bold text-slate-900 tracking-wide whitespace-nowrap">joes ai</span>
-            </div>
-            <div class="flex items-center gap-1">
-                <button id="sidebar-collapse-btn" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-all" title="Toggle sidebar">
-                    <i data-lucide="panel-left-close" class="w-4 h-4"></i>
-                </button>
-                <button id="sidebar-close-btn" class="md:hidden text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="p-4 space-y-3 shrink-0">
-            <button id="new-chat-btn" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-indigo-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-sm hover:scale-[1.01] transition-all text-sm">
-                <i data-lucide="plus" class="w-4 h-4"></i> New Chat
-            </button>
-            <input id="search-bar" type="text" placeholder="Search chats..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-all">
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-4 py-1 space-y-1">
-            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">Recent Chats</p>
-            <div id="session-list" class="space-y-1"></div>
-        </div>
-
-        <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3 shrink-0">
-            <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl text-xs">
-                <div class="truncate mr-2 flex flex-col">
-                    <span id="user-status-email" class="font-bold text-slate-800 truncate">Guest User</span>
-                    <span class="text-slate-400 text-[9px] uppercase tracking-wide mt-0.5">Verified Profile</span>
-                </div>
-                <button id="logout-btn" class="text-red-500 hover:text-red-600 ml-1 flex items-center justify-center" title="Log Out">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Active Mode</label>
-                <select id="chat-mode-select" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-800 text-sm focus:outline-none focus:border-indigo-500 transition-all">
-                    <option value="chat">💬 Chat Mode</option>
-                    <option value="code">💻 Code Mode</option>
-                    <option value="study">📚 Study Mode</option>
-                    <option value="learn">🧠 Learn Mode</option>
-                    <option value="agentic">🤖 Agentic Mode</option>
-                </select>
-            </div>
-            <div class="text-[9px] text-slate-400 text-center pt-2 border-t border-slate-200">
-                Created by AKRAM JOES TECHNOLOGIES
-            </div>
-        </div>
-    </aside>
-
-    <div class="flex-grow flex flex-col h-full overflow-hidden relative">
-      <header class="bg-white/80 backdrop-blur-md shadow-sm md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200 z-20 shrink-0">
-          <div class="flex items-center space-x-3">
-              <button id="sidebar-open-btn" class="md:hidden text-slate-600 hover:text-indigo-600 p-1 flex items-center justify-center">
-                  <i data-lucide="menu" class="w-6 h-6"></i>
-              </button>
-              <div class="flex items-center space-x-2 md:hidden">
-                <div class="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md text-white">
-                    <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
-                </div>
-                <span class="text-lg font-bold text-slate-900 tracking-wide">joes ai</span>
-              </div>
-          </div>
-          
-          <div class="flex items-center space-x-1">
-              <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Export PDF">
-                  <i data-lucide="download" class="w-4.5 h-4.5"></i>
-              </button>
-              <button id="clear-btn" class="text-slate-600 hover:text-red-400 transition-colors p-1.5 hover:bg-slate-100 rounded-xl flex items-center justify-center" title="Clear Screen">
-                  <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
-              </button>
-          </div>
-      </header>
-
-      <main class="flex-1 overflow-hidden md:p-4 p-0">
-        <div class="max-w-5xl mx-auto h-full flex flex-col relative">
-          
-            <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 shadow-xl transition-all z-30 hover:scale-105 active:scale-95 flex items-center justify-center">
-                <i data-lucide="arrow-down" class="w-5 h-5"></i>
-            </button>
-
-            <div id="typing-indicator" class="hidden self-start bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-2xl text-xs mb-2 shadow-sm">
-                <span class="inline-flex items-center gap-1.5">
-                    <span class="snake-dot"></span>
-                    <span class="snake-dot"></span>
-                    <span class="snake-dot"></span>
-                    <span class="snake-dot"></span>
-                    <span class="snake-dot"></span>
-                </span>
-            </div>
-
-           <div class="chat-gradient md:rounded-3xl rounded-none shadow-xl overflow-hidden flex-1 flex flex-col relative h-full">
-            <div id="home-screen" class="absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8">
-                <div class="logo-animate mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl mx-auto">
-                        <i data-lucide="zap" class="w-10 h-10 text-white fill-current"></i>
-                    </div>
-                </div>
-                <h1 class="text-3xl font-bold text-slate-900 mb-2 logo-animate" style="animation-delay: 0.3s">Joes AI</h1>
-                <p class="text-sm text-slate-500 mb-6 max-w-md logo-animate" style="animation-delay: 0.5s">
-                    Your intelligent coding workspace • Powered by AKRAM JOES TECHNOLOGIES<br>
-                    <span class="text-xs text-slate-400">Chat • Code • Learn • Study • Agentic Reasoning</span>
-                </p>
-                 <div class="flex gap-3 logo-animate" style="animation-delay: 0.7s">
-                     <button id="start-chat-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition-all">Start Chatting</button>
-                     <button onclick="document.getElementById('new-chat-btn').click()" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm hover:bg-slate-50 transition-all">New Session</button>
-                 </div>
-            </div>
-
-            <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
-
-            <div class="flex flex-col w-full bg-slate-50 border-t border-slate-200 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0 relative">
-              
-              <div id="slash-menu" class="hidden absolute bottom-[72px] md:bottom-[80px] left-4 bg-white border border-slate-200 rounded-2xl p-2 w-60 shadow-xl text-xs space-y-1 z-30">
-                  <p class="text-[10px] text-slate-400 uppercase tracking-wider px-2 py-1 font-semibold">Slash Commands</p>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/explain">
-                      <span class="flex items-center gap-1.5"><i data-lucide="lightbulb" class="w-3.5 h-3.5 text-indigo-500"></i> /explain</span>
-                      <span class="text-[10px] text-slate-400">Concepts</span>
-                  </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/refactor">
-                      <span class="flex items-center gap-1.5"><i data-lucide="code-2" class="w-3.5 h-3.5 text-indigo-500"></i> /refactor</span>
-                      <span class="text-[10px] text-slate-400">Optimize</span>
-                  </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/test">
-                      <span class="flex items-center gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5 text-indigo-500"></i> /test</span>
-                      <span class="text-[10px] text-slate-400">Unit Tests</span>
-                  </button>
-                  <button class="w-full text-left p-2 hover:bg-slate-50 rounded-lg flex items-center justify-between text-slate-700 hover:text-slate-900" data-cmd="/summarize">
-                      <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i> /summarize</span>
-                      <span class="text-[10px] text-slate-400">Abstract</span>
-                  </button>
-              </div>
-
-              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
-              
-              <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 rounded-2xl flex items-center justify-center transition-all border border-slate-200" title="Upload Media">
-                    <i data-lucide="paperclip" class="w-5 h-5"></i>
-                </button>
-                
-                 <div id="text-input-wrap" class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px] cursor-text">
-                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or use / commands..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed cursor-text caret-indigo-500" autocomplete="off"></textarea>
-                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center" title="Voice Input">
-                      <i data-lucide="mic" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
-                  <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                      <i data-lucide="send" class="w-5 h-5"></i>
-                  </span>
-                </button>
-              </div>
-              <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
-
-  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-      <div class="flex justify-between items-center p-4 border-b border-slate-200 bg-white text-slate-800">
-          <span class="text-sm font-semibold flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4 text-indigo-600"></i> Sandbox Live Code Preview</span>
-          <button id="sandbox-close-btn" class="text-slate-500 hover:text-red-500 font-semibold transition-colors flex items-center gap-1">
-              <i data-lucide="x" class="w-4 h-4"></i> Close
+          <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition font-medium shadow-md">
+              <i data-lucide="plus" class="w-4 h-4"></i> New Chat
           </button>
       </div>
-      <div class="flex-1 bg-white relative">
-          <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
+      <div id="session-list" class="flex-1 overflow-y-auto px-4 pb-4 space-y-2"></div>
+  </aside>
+
+  <!-- Chat Area -->
+  <main class="flex-1 flex flex-col relative h-full">
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+      
+      <!-- Typing Indicator -->
+      <div id="typing" class="hidden absolute bottom-24 left-10 text-xs text-slate-400 italic">Joes AI is thinking...</div>
+
+      <div class="p-4 bg-white/80 backdrop-blur-md border-t">
+          <div id="attachment-bar" class="flex flex-wrap gap-2 px-4 mb-2"></div>
+          
+          <div class="max-w-4xl mx-auto flex items-end gap-3 bg-white border border-slate-200 shadow-xl rounded-2xl p-2 pr-4 focus-within:border-indigo-500 transition-all">
+              <button id="attachment-btn" class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl">
+                  <i data-lucide="paperclip"></i>
+              </button>
+              <button id="voice-btn" class="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition">
+                <i data-lucide="mic"></i>
+              </button>
+              <textarea id="message-input" rows="1" class="flex-1 bg-transparent border-none py-3 px-1 focus:outline-none resize-none max-h-40" placeholder="Chat with Groq, analyze files with Gemini..."></textarea>
+              <button id="send-btn" class="w-12 h-12 bg-indigo-600 text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition">
+                  <i data-lucide="send"></i>
+              </button>
+          </div>
+          <input type="file" id="file-input" class="hidden" multiple>
       </div>
-  </div>
+  </main>
 
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false, theme: 'default', look: 'handDrawn' });
-    window.mermaid = mermaid;
-  </script>
-
-  <script type="module">
-    const BACKEND_URL = 'https://joes-ai-server.onrender.com';
-    let userId = 'default';
-    let currentSessionId = null;
-    
-    // Authorization Mode Track Configuration (false = Sign In, true = Sign Up)
-    let isSignUpMode = false;
-
-    // Remove Spinning Circle Loader on Complete Parse Execution Window
-    async function initApp() {
-        const loader = document.getElementById('page-loader');
-        const securityModal = document.getElementById('security-warning');
-        const acceptBtn = document.getElementById('accept-security');
-
-        if (acceptBtn) {
-            acceptBtn.addEventListener('click', () => {
-                securityModal.classList.add('hidden');
-            });
-            securityModal.addEventListener('click', (e) => {
-                if (e.target === securityModal) securityModal.classList.add('hidden');
-            });
-            securityModal.classList.remove('hidden');
-        }
-
-        try {
-            // Step 1: Query Dynamic Configuration Setup from Cloud Backend Env Layers
-            const configRes = await fetch(`${BACKEND_URL}/api/config`);
-            if (!configRes.ok) throw new Error("Backend setup configurations unreached.");
-            const firebaseConfig = await configRes.json();
-
-            // Step 2: Initialize Firebase Client
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-
-            // Step 3: Configure Auth State Observability Change Flow
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    userId = user.uid;
-                    const verificationStatus = user.emailVerified ? '' : ' (Unverified)';
-                    document.getElementById('user-status-email').innerText = (user.email || 'Verified Account') + verificationStatus;
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    checkAdminStatus(user.email);
-                    loadSessions();
-                } else {
-                    document.getElementById('app').classList.add('hidden');
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                }
-                
-                // Clear the loader layout once auth determination completes
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => { loader.style.display = 'none'; }, 500);
-                }
-            });
-
-        } catch (err) {
-            console.error("Initialization Failed:", err);
-            // Fallback clear loader layout so developer can troubleshoot console
-            if (loader) loader.style.display = 'none';
-            alert("Backend status offline. Ensure your Render web service is live and active.");
-        }
-
-        if (window.lucide) { lucide.createIcons(); }
-    }
-
-    async function checkAdminStatus(email) {
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/check-admin`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            const adminBtn = document.getElementById('admin-trigger');
-            if (data.isAdmin) {
-                if (adminBtn) adminBtn.classList.remove('hidden');
-                adminBtn?.addEventListener('click', loadAdminDashboard);
-            } else if (adminBtn) {
-                adminBtn.classList.add('hidden');
-            }
-        } catch(e) { console.error("Admin verification step failed."); }
-    }
-
-    async function loadAdminDashboard() {
-        const modal = document.getElementById('admin-dashboard');
-        const content = document.getElementById('admin-content');
-        modal.classList.remove('hidden');
-        content.innerHTML = '<p class="text-slate-500">Loading...</p>';
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/analytics`);
-            const data = await res.json();
-            content.innerHTML = `
-              <div class="grid grid-cols-2 gap-3">
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Total Requests</div><div class="text-xl font-bold text-slate-900">${data.totalRequests ?? 0}</div></div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Errors</div><div class="text-xl font-bold text-red-600">${data.errorCount ?? 0}</div></div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Active Users</div><div class="text-xl font-bold text-emerald-600">${data.activeUsers ?? 0}</div></div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Uptime</div><div class="text-xl font-bold text-indigo-600">${Math.floor((data.uptime || 0) / 60)} min</div></div>
-              </div>
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Current User</div><div class="text-sm font-medium text-slate-900">${document.getElementById('user-status-email').innerText}</div></div>
-              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><div class="text-[10px] text-slate-500 uppercase tracking-wide">Backend</div><div class="text-sm font-medium text-slate-900">${BACKEND_URL}</div></div>
-            `;
-        } catch (err) {
-            content.innerHTML = '<p class="text-red-600">Failed to load dashboard data.</p>';
-        }
-    }
-
-    document.getElementById('close-admin')?.addEventListener('click', () => {
-        document.getElementById('admin-dashboard').classList.add('hidden');
-    });
-    document.getElementById('admin-dashboard')?.addEventListener('click', (e) => {
-        if (e.target.id === 'admin-dashboard') document.getElementById('admin-dashboard').classList.add('hidden');
-    });
-
-    // Dynamic Tracking Mesh UI Lighting Effect
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth) * 100;
-        const y = (e.clientY / window.innerHeight) * 100;
-        document.body.style.setProperty('--mouse-x', `${x}%`);
-        document.body.style.setProperty('--mouse-y', `${y}%`);
-    });
-
-    // Setup Layout Routing Triggers
-    document.getElementById('sidebar-open-btn').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.remove('-translate-x-full');
-    });
-    document.getElementById('sidebar-close-btn').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.add('-translate-x-full');
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.key === 'Enter') {
-            const loader = document.getElementById('page-loader');
-            if (loader && loader.style.display !== 'none') {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; }, 500);
-            }
-        }
-    });
-
-    // Slash Utility Interaction Framework Helper
-    window.insertSlashCommand = function(cmd) {
-        const txtArea = document.getElementById('message-input');
-        txtArea.value = cmd + " " + txtArea.value;
-        document.getElementById('slash-menu').classList.add('hidden');
-        txtArea.focus();
-    };
-
-    document.querySelectorAll('#slash-menu button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const cmd = btn.getAttribute('data-cmd');
-            if(cmd) window.insertSlashCommand(cmd);
-        });
-    });
-
-    document.getElementById('message-input').addEventListener('input', (e) => {
-        const menu = document.getElementById('slash-menu');
-        if (e.target.value === '/') {
-            menu.classList.remove('hidden');
-        } else if (!e.target.value.startsWith('/')) {
-            menu.classList.add('hidden');
-        }
-    });
-
-    // Google/Github Authentication Strategy Bindings
-    document.getElementById('google-login-btn').addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().signInWithPopup(provider).catch(alert);
-    });
-    document.getElementById('github-login-btn').addEventListener('click', () => {
-        const provider = new firebase.auth.GithubAuthProvider();
-        firebase.auth().signInWithPopup(provider).catch(alert);
-    });
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        firebase.auth().signOut();
-    });
-
-    // Dedicated Authentication Handlers
-    async function handleSignUp(email, password) {
-        try {
-            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-            await user.sendEmailVerification();
-            alert(`A verification email has been sent to ${email}. Please check your inbox (and spam folder) to activate your account!`);
-        } catch (error) {
-            console.error("Sign-up or email verification trigger failed:", error.message);
-            alert(error.message);
-        }
-    }
-
-    async function handleSignIn(email, password) {
-        try {
-            await firebase.auth().signInWithEmailAndPassword(email, password);
-        } catch (error) {
-            console.error("Sign-in execution failed:", error.message);
-            alert(error.message);
-        }
-    }
-
-    // Auth Submit Action Trigger Route Manager
-    document.getElementById('auth-submit-btn').addEventListener('click', () => {
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value;
-        
-        if (!email || !password) {
-            alert("Please fill in all layout field values.");
-            return;
-        }
-
-        if (isSignUpMode) {
-            handleSignUp(email, password);
-        } else {
-            handleSignIn(email, password);
-        }
-    });
-
-    // Dynamic Tab Swapper Navigation Actions
-    document.getElementById('tab-signin').addEventListener('click', () => {
-        isSignUpMode = false;
-        document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
-        document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
-        document.getElementById('auth-title').innerText = 'Sign In to Joes AI';
-    });
-    document.getElementById('tab-signup').addEventListener('click', () => {
-        isSignUpMode = true;
-        document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
-        document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
-        document.getElementById('auth-title').innerText = 'Sign Up for Joes AI';
-    });
-
-    // Phone Toggle & OTP Handler
-    document.getElementById('phone-toggle').addEventListener('click', () => {
-        const phoneBlock = document.getElementById('phone-block');
-        const emailPassGroup = document.getElementById('auth-email').closest('div');
-        phoneBlock.classList.toggle('hidden');
-        emailPassGroup.classList.toggle('hidden');
-        if (!emailPassGroup.classList.contains('hidden')) {
-            emailPassGroup.nextElementSibling.classList.remove('hidden');
-        }
-    });
-
-    document.getElementById('otp-btn').addEventListener('click', async () => {
-        const phone = document.getElementById('auth-phone').value;
-        if (phone) {
-            document.getElementById('auth-otp').classList.remove('hidden');
-        }
-    });
-
-    // Attachment Handler - adds chip preview, does NOT upload yet
-    let pendingFiles = [];
-    document.getElementById('attachment-btn').addEventListener('click', () => {
-        document.getElementById('file-input').click();
-    });
-
-    function updateAttachmentChips() {
-        const container = document.getElementById('attachment-chip-container');
-        container.innerHTML = '';
-        pendingFiles.forEach((f, idx) => {
-            const chip = document.createElement('span');
-            chip.className = 'inline-flex items-center gap-1 text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg border border-indigo-100';
-            chip.innerHTML = `<i data-lucide="file" class="w-3 h-3"></i> ${f.name} <button data-rm="${idx}" class="hover:text-red-500 ml-1">&times;</button>`;
-            container.appendChild(chip);
-        });
-        container.classList.toggle('hidden', pendingFiles.length === 0);
-        if (window.lucide) lucide.createIcons();
-    }
-
-    document.getElementById('attachment-chip-container').addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-rm]');
-        if (!btn) return;
-        pendingFiles.splice(parseInt(btn.dataset.rm, 10), 1);
-        updateAttachmentChips();
-    });
-
-    document.getElementById('file-input').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        pendingFiles.push(file);
-        updateAttachmentChips();
-        e.target.value = '';
-    });
-
-    // Chat State
+  <script>
+    const BACKEND = 'http://localhost:3000';
+    let userId = 'admin-user'; // Replace with Auth Logic
+    let currentSessionId = Date.now().toString(36);
+    let currentAttachments = [];
     let chatHistory = [];
-    let currentMode = 'chat';
-    let saveLock = false;
 
-    function getCurrentMode() {
-        return document.getElementById('chat-mode-select').value;
+    // --- Animations & UI Helpers ---
+    function renderMessage(role, content) {
+        const chat = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} animate__animated animate__fadeInUp animate__faster`;
+        
+        const inner = document.createElement('div');
+        inner.className = `max-w-2xl px-5 py-3 rounded-2xl shadow-sm ${role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border text-slate-800 rounded-tl-none'}`;
+        
+        const sanitizedHtml = DOMPurify.sanitize(marked.parse(content));
+        inner.innerHTML = sanitizedHtml;
+        msgDiv.appendChild(inner);
+        chat.appendChild(msgDiv);
+        chat.scrollTop = chat.scrollHeight;
+        lucide.createIcons();
     }
 
-    // Send Button & Enter Key
-    document.getElementById('send-btn').addEventListener('click', sendMessage);
-    document.getElementById('message-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            document.getElementById('slash-menu').classList.add('hidden');
-            sendMessage();
+    // --- Voice Logic (Stub implemented) ---
+    const voiceBtn = document.getElementById('voice-btn');
+    voiceBtn.addEventListener('mousedown', () => { voiceBtn.classList.add('recording-ring'); });
+    voiceBtn.addEventListener('mouseup', () => { voiceBtn.classList.remove('recording-ring'); });
+
+    // --- File Handling ---
+    const fileInput = document.getElementById('file-input');
+    const attachmentBtn = document.getElementById('attachment-btn');
+    const attachmentBar = document.getElementById('attachment-bar');
+
+    attachmentBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+        for (const file of e.target.files) {
+            const base64 = await toBase64(file);
+            currentAttachments.push({ name: file.name, mime: file.type, data: base64.split(',')[1] });
+            const chip = document.createElement('div');
+            chip.className = "bg-slate-100 text-xs px-2 py-1 rounded flex items-center gap-1 border animate__animated animate__bounceIn";
+            chip.innerHTML = `<i data-lucide="file" class="w-3 h-3"></i> ${file.name.substring(0,10)}...`;
+            attachmentBar.appendChild(chip);
+            lucide.createIcons();
         }
     });
 
-    function renderMessage(role, content, attachments = []) {
-        const messagesDiv = document.getElementById('chat-messages');
-        const homeScreen = document.getElementById('home-screen');
-        if (homeScreen && !homeScreen.classList.contains('hidden')) {
-            homeScreen.style.opacity = '0';
-            setTimeout(() => homeScreen.classList.add('hidden'), 300);
-        }
+    const toBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 
-        const msgEl = document.createElement('div');
-        msgEl.className = role === 'user'
-            ? 'self-end bg-indigo-600 text-white px-4 py-2 rounded-2xl max-w-[80%] shadow-md'
-            : 'self-start bg-white border border-slate-200 text-slate-800 px-4 py-2 rounded-2xl max-w-[80%] shadow-sm';
-
-        let html = '';
-        if (attachments && attachments.length) {
-            html += '<div class="flex flex-wrap gap-2 mb-2">';
-            attachments.forEach(att => {
-                if (att.mime && att.mime.startsWith('image/') && att.data) {
-                    html += `<img src="data:${att.mime};base64,${att.data}" class="max-w-[180px] max-h-[180px] rounded-lg border border-slate-200 object-cover" />`;
-                } else {
-                    html += `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200"><i data-lucide="file" class="w-3 h-3"></i> ${att.name || 'file'}</span>`;
-                }
-            });
-            html += '</div>';
-        }
-
-        html += marked.parse(content || '');
-        html = html.replace(/<table>/g, '<table class="border-collapse w-full my-4 text-sm">')
-                   .replace(/<th>/g, '<th class="bg-slate-100 text-indigo-600 font-semibold p-2 border border-slate-300 text-left">')
-                   .replace(/<td>/g, '<td class="p-2 border border-slate-200">');
-        html = html.replace(/<pre>/g, '<pre class="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto my-3 text-xs">');
-        html = html.replace(/<code>/g, '<code class="font-mono text-xs">');
-        html = html.replace(/<a\s+href="([^"]+)"[^>]*>([^<]*)<\/a>/g, (match, url, text) => {
-            if (isValidUrl(url)) return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 underline">${text}</a>`;
-            return text;
-        });
-        html = html.replace(/<img(?![^>]*src=)/g, '<img');
-        html = html.replace(/<img([^>]*?)src="([^"]+)"([^>]*?)>/g, (match, before, url, after) => {
-            if (isValidUrl(url) && /\.(jpg|jpeg|png|webp|gif|bmp|svg)(\?|$)/i.test(url)) {
-                return `<img${before}src="${url}"${after} class="max-w-full h-auto rounded-lg my-2 shadow-md" loading="lazy" />`;
-            }
-            if (isValidUrl(url) && url.includes('pollinations.ai')) {
-                return `<img${before}src="${url}"${after} class="max-w-full h-auto rounded-lg my-2 shadow-md" loading="lazy" />`;
-            }
-            if (isValidUrl(url) && !url.startsWith('data:')) {
-                return `<img${before}src="${url}"${after} class="max-w-full h-auto rounded-lg my-2 shadow-md" loading="lazy" />`;
-            }
-            return '';
-        });
-
-        if (role === 'assistant' && !content) {
-            html = '<div class="claude-shimmer h-3 w-32 rounded"></div><div class="claude-shimmer h-3 w-48 rounded mt-2"></div>';
-        }
-
-        msgEl.innerHTML = html;
-        if (window.lucide) lucide.createIcons();
-
-        if (role === 'assistant') {
-            setTimeout(() => {
-                msgEl.querySelectorAll('pre code').forEach(block => Prism.highlightElement(block));
-                if (window.mermaid && msgEl.querySelector('.language-mermaid')) {
-                    msgEl.querySelectorAll('.language-mermaid').forEach(el => {
-                        mermaid.render(`mermaid-${Date.now()}-${Math.random()}`, el.textContent).then(result => {
-                            el.innerHTML = result.svg;
-                        }).catch(() => { el.textContent = el.textContent; });
-                    });
-                }
-            }, 0);
-        }
-
-        messagesDiv.appendChild(msgEl);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-
-    function formatCodeDiff(original, refactored) {
-        const diffLines = [];
-        const origLines = original.split('\n');
-        const refLines = (refactored || '').split('\n');
-        
-        origLines.forEach((line, i) => {
-            if (line && !refLines.includes(line)) {
-                diffLines.push(`<div class="text-red-500 line-through">- ${escapeHtml(line)}</div>`);
-            }
-        });
-        
-        refLines.forEach(line => {
-            if (line && !origLines.includes(line)) {
-                diffLines.push(`<div class="text-green-500">+ ${escapeHtml(line)}</div>`);
-            }
-        });
-        
-        return `<pre class="bg-slate-900 p-3 rounded-lg text-xs overflow-x-auto">${diffLines.join('\n')}</pre>`;
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    async function sendMessage() {
+    // --- Sending Logic ---
+    async function handleSend() {
         const input = document.getElementById('message-input');
-        const message = input.value.trim();
-        const hasFiles = pendingFiles.length > 0;
-        const mode = getCurrentMode();
-
-        const routeToGemini = hasFiles && (mode === 'code' || mode === 'chat' || mode === 'agentic' || mode === 'learn' || mode === 'study');
-
-        if (!message && !hasFiles) return;
-
-        const userMsg = {
-            role: 'user',
-            content: message || (hasFiles ? `Please analyze these ${pendingFiles.length} file(s).` : ''),
-            attachments: []
-        };
-
-        if (hasFiles) {
-            for (const file of pendingFiles) {
-                const base64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result.split(',')[1]);
-                    reader.readAsDataURL(file);
-                });
-                userMsg.attachments.push({ name: file.name, mime: file.type, data: base64 });
-            }
-        }
+        const text = input.value.trim();
+        if (!text && currentAttachments.length === 0) return;
 
         input.value = '';
-        pendingFiles = [];
-        updateAttachmentChips();
-
-        chatHistory.push(userMsg);
-        renderMessage('user', userMsg.content, userMsg.attachments);
-
-        if (mode === 'agentic') {
-            await runAgentic(userMsg.content, mode, userMsg.attachments || []);
-            return;
-        }
-
-        if (userMsg.content.startsWith('/')) {
-            handleSlashCommand(userMsg.content, mode);
-            return;
-        }
-
-        showTypingIndicator(true);
-        try {
-            let data;
-            if (routeToGemini) {
-                const primaryAttachment = userMsg.attachments[0];
-                const res = await fetch(`${BACKEND_URL}/api/gemini`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-                    body: JSON.stringify({
-                        message: userMsg.content,
-                        fileData: primaryAttachment.data,
-                        mimeType: primaryAttachment.mime,
-                        mode,
-                        chatHistory
-                    })
-                });
-                data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Gemini request failed');
-            } else {
-                const res = await fetch(`${BACKEND_URL}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-                    body: JSON.stringify({ messages: chatHistory, mode })
-                });
-                data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Chat request failed');
-            }
-            if (data.text) {
-                chatHistory.push({ role: 'assistant', content: data.text });
-                renderMessage('assistant', data.text);
-            } else if (data.error) {
-                renderMessage('assistant', `⚠️ **Error:** ${data.error}`);
-            } else {
-                renderMessage('assistant', 'No response received from AI.');
-            }
-            saveChat();
-        } catch (err) {
-            renderMessage('assistant', `⚠️ **Connection Error:** ${err.message || 'Failed to reach AI service.'}`);
-        } finally {
-            showTypingIndicator(false);
-        }
-    }
-
-    function showTypingIndicator(show) {
-        const indicator = document.getElementById('typing-indicator');
-        if (show) indicator.classList.remove('hidden');
-        else indicator.classList.add('hidden');
-    }
-
-    async function runAgentic(message, mode, attachments = []) {
-        showTypingIndicator(true);
-        renderMessage('assistant', '🤖 **Agentic reasoning started** (max 5 steps)...\n');
+        renderMessage('user', text || "(Attachment Analysis Request)");
+        document.getElementById('typing').classList.remove('hidden');
 
         try {
-            const body = { message, mode, maxSteps: 5, chatHistory };
-            if (attachments.length) {
-                body.fileData = attachments[0].data;
-                body.mimeType = attachments[0].mime;
-            }
-            const res = await fetch(`${BACKEND_URL}/api/agentic/run`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-                body: JSON.stringify(body)
-            });
-            const data = await res.json();
-            if (data.response) {
-                chatHistory.push({ role: 'assistant', content: data.response });
-                renderMessage('assistant', data.response);
-            }
-            saveChat();
-        } catch (err) {
-            renderMessage('assistant', 'Agentic execution failed.');
-        } finally {
-            showTypingIndicator(false);
-        }
-    }
+            const payload = {
+                messages: [...chatHistory, { role: 'user', content: text }],
+                attachments: currentAttachments,
+                mode: 'chat'
+            };
 
-    // WebSocket streaming with auto-wake reconnect
-    function connectWebSocket() {
-        const backoff = (attempt) => Math.min(30000, 1000 * Math.pow(1.5, attempt));
-        let attempt = 0;
-        const url = `ws://${window.location.hostname}:3001`;
-
-        function start() {
-            try {
-                const ws = new WebSocket(url);
-                ws.onopen = () => { attempt = 0; };
-                ws.onmessage = (event) => {
-                    const chunk = event.data;
-                    if (chunk.startsWith('data: ')) {
-                        const text = chunk.replace('data: ', '').trim();
-                        if (text === '[DONE]') return;
-                        const lastMsg = document.querySelector('.chat-gradient .self-start:last-child');
-                        if (lastMsg && !lastMsg.dataset.streaming) {
-                            lastMsg.dataset.streaming = 'true';
-                            lastMsg.innerHTML = '';
-                        }
-                    }
-                };
-                ws.onclose = () => setTimeout(start, backoff(attempt++));
-                ws.onerror = () => setTimeout(start, backoff(attempt++));
-                window.__ws = ws;
-            } catch (_) {
-                setTimeout(start, backoff(attempt++));
-            }
-        }
-        start();
-    }
-
-    async function handleSlashCommand(cmd, mode) {
-        const [command, ...args] = cmd.split(' ');
-        const arg = args.join(' ');
-
-        switch (command) {
-            case '/explain':
-                const explainRes = await fetch(`${BACKEND_URL}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: `Explain in simple terms: ${arg || 'this concept'}` }], mode: 'learn' })
-                });
-                const explainData = await explainRes.json();
-                renderMessage('assistant', explainData.text || 'Could not generate explanation.');
-                break;
-
-            case '/refactor':
-                if (arg) {
-                    const refactorRes = await fetch(`${BACKEND_URL}/api/chat`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ messages: [{ role: 'user', content: `Refactor this code: ${arg}` }], mode: 'code' })
-                    });
-                    const refactorData = await refactorRes.json();
-                    renderMessage('assistant', formatCodeDiff(arg, refactorData.text) || 'Could not refactor code.');
-                }
-                break;
-
-            case '/test':
-                if (arg) {
-                    try {
-                        const funcMatch = arg.match(/(?:function\s+(\w+)|const\s+(\w+)|let\s+(\w+))\s*[\(]/);
-                        const funcName = funcMatch ? funcMatch[1] || funcMatch[2] || funcMatch[3] : 'test';
-                        const testRes = await fetch(`${BACKEND_URL}/api/test/generate`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ functions: [{ name: funcName, body: '' }], language: 'javascript' })
-                        });
-                        const testData = await testRes.json();
-                        renderMessage('assistant', '```javascript\n' + testData.tests + '\n
-```');
-                    } catch (e) {
-                        renderMessage('assistant', 'Could not generate tests.');
-                    }
-                }
-                break;
-
-            case '/summarize':
-                const summarize = chatHistory.map(m => `${m.role}: ${m.content}`).join('\n').substring(0, 2000);
-                const sumRes = await fetch(`${BACKEND_URL}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [{ role: 'user', content: `Summary: ${summarize}` }], mode: 'chat' })
-                });
-                const sumData = await sumRes.json();
-                renderMessage('assistant', `**Summary:**\n${sumData.text || 'Could not generate summary.'}`);
-                break;
-
-            default:
-                renderMessage('assistant', 'Unknown command. Try /explain, /refactor, /test, or /summarize');
-        }
-    }
-
-    // Chat Mode Change
-    document.getElementById('chat-mode-select').addEventListener('change', (e) => {
-        currentMode = e.target.value;
-    });
-
-    // Search Sessions
-    document.getElementById('search-bar').addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        document.querySelectorAll('#session-list button').forEach(btn => {
-            btn.style.display = btn.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
-        });
-    });
-
-    // Clear Screen
-    document.getElementById('clear-btn').addEventListener('click', () => {
-        document.getElementById('chat-messages').innerHTML = '';
-        chatHistory = [];
-    });
-
-    // Export PDF with Syntax-Preserved Formatting
-    document.getElementById('export-btn').addEventListener('click', async () => {
-        const printStyles = `
-            <style>
-                .chat-message { margin: 8px 0; page-break-inside: avoid; }
-                pre { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow: hidden; font-size: 10px; }
-                code { font-family: 'Courier New', monospace; }
-                .user-msg { text-align: right; }
-                .ai-msg { text-align: left; }
-                @media print { 
-                    body { background: white !important; }
-                    .chat-message { break-inside: avoid; }
-                }
-            </style>
-        `;
-        
-        let content = '<div style="font-family: Arial, sans-serif; padding: 20px;">';
-        chatHistory.forEach(m => {
-            const role = m.role === 'user' ? 'user-msg' : 'ai-msg';
-            const safeContent = m.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-            content += `<div class="chat-message ${role}"><strong>${role === 'user' ? 'You' : 'Joes AI'}:</strong> ${safeContent}</div>`;
-        });
-        content += '</div>';
-        
-        const tempEl = document.createElement('div');
-        tempEl.innerHTML = printStyles + content;
-        document.body.appendChild(tempEl);
-        
-        html2pdf().from(tempEl).save('chat-export.pdf').then(() => {
-            document.body.removeChild(tempEl);
-            showToast('PDF exported successfully', 'success');
-        });
-    });
-
-    // Toast Notifications
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg text-sm shadow-lg transform transition-all duration-300 ${
-            type === 'success' ? 'bg-green-500 text-white' : 
-            type === 'error' ? 'bg-red-500 text-white' : 'bg-slate-800 text-white'
-        }`;
-        toast.textContent = message;
-        toast.style.transform = 'translateY(100%)';
-        document.body.appendChild(toast);
-        
-        setTimeout(() => toast.style.transform = 'translateY(0)', 10);
-        setTimeout(() => {
-            toast.style.transform = 'translateY(100%)';
-            setTimeout(() => document.body.removeChild(toast), 300);
-        }, 3000);
-    }
-
-    // Deploy Live Button
-    function addDeployButton() {
-        const deployBtn = document.createElement('button');
-        deployBtn.id = 'deploy-btn';
-        deployBtn.className = 'fixed bottom-4 left-4 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs rounded-lg shadow-md hover:scale-105 transition-all z-40 hidden';
-        deployBtn.innerHTML = '<i data-lucide="rocket" class="w-3 h-3 inline mr-1"></i>Deploy Live';
-        deployBtn.onclick = deploySandbox;
-        document.body.appendChild(deployBtn);
-        if (window.lucide) lucide.createIcons();
-    }
-
-    async function deploySandbox() {
-        const code = document.getElementById('sandbox-iframe')?.contentDocument?.documentElement?.innerHTML || '';
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/deploy`, {
+            const res = await fetch(`${BACKEND}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
-            showToast('Deployed! Live at: ' + data.url, 'success');
-        } catch (err) {
-            showToast('Deploy failed', 'error');
-        }
-    }
-
-    // Theme Switcher
-    function setupThemeSwitcher() {
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === '1') applyTheme('nord');
-            if (e.ctrlKey && e.key === '2') applyTheme('slate');
-            if (e.ctrlKey && e.key === '3') applyTheme('cyberpunk');
-        });
-    }
-
-    function applyTheme(themeName) {
-        const theme = themes[themeName];
-        if (!theme) return;
-        document.body.style.setProperty('--theme-bg', theme.bg);
-        document.body.style.setProperty('--theme-accent', theme.accent);
-        document.body.style.backgroundColor = theme.bg;
-    }
-
-    // Sidebar collapse toggle (Gemini-style)
-    let sidebarCollapsed = false;
-    const sidebar = document.getElementById('sidebar');
-    const sidebarTitle = document.getElementById('sidebar-title');
-    const sidebarContent = sidebar.querySelectorAll('.p-4, .flex-1, .border-t');
-
-    document.getElementById('sidebar-collapse-btn')?.addEventListener('click', () => {
-        sidebarCollapsed = !sidebarCollapsed;
-        if (sidebarCollapsed) {
-            sidebar.style.width = '3.5rem';
-            sidebarTitle.style.display = 'none';
-            sidebar.querySelectorAll('span:not(.hidden), button:not(#sidebar-collapse-btn):not(#sidebar-close-btn)').forEach(el => {
-                if (!el.closest('#sidebar-collapse-btn') && !el.closest('#sidebar-close-btn')) {
-                    el.style.display = 'none';
-                }
-            });
-            sidebar.querySelectorAll('.space-x-3, .space-y-3, .space-x-1').forEach(el => {
-                el.style.display = 'none';
-            });
-        } else {
-            sidebar.style.width = '18rem';
-            sidebarTitle.style.display = '';
-            sidebar.querySelectorAll('span, button').forEach(el => {
-                el.style.display = '';
-            });
-            sidebar.querySelectorAll('.space-x-3, .space-y-3, .space-x-1').forEach(el => {
-                el.style.display = '';
-            });
-        }
-        if (window.lucide) lucide.createIcons();
-    });
-
-    // Side-by-Side Split Workspace
-    function initSplitWorkspace() {
-        if (window.Split) {
-            const chatMain = document.querySelector('main .max-w-5xl');
-            const sandbox = document.getElementById('sandbox-modal');
-            if (chatMain && sandbox) {
-                sandbox.classList.remove('fixed', 'inset-0');
-                sandbox.classList.add('fixed', 'inset-y-0', 'right-0', 'w-1/2', 'z-50');
-                chatMain.style.transition = 'width 0.3s';
-            }
-        }
-    }
-
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-            e.preventDefault();
-            document.getElementById('message-input').focus();
-        }
-        if ((e.metaKey || e.ctrlKey) && e.key === '/') {
-            e.preventDefault();
-            toggleSidebar();
-        }
-        if (e.key === 'Escape') {
-            document.getElementById('sidebar').classList.add('-translate-x-full');
-            document.getElementById('sandbox-modal').classList.add('hidden');
-            document.getElementById('slash-menu').classList.add('hidden');
-        }
-    });
-
-    // Load Sessions
-    async function loadSessions() {
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/chats`, {
-                headers: { 'x-user-id': userId }
-            });
-            const sessions = await res.json();
-            const listEl = document.getElementById('session-list');
-            listEl.innerHTML = sessions.map(s => 
-                `<div class="flex items-center gap-1 p-2 text-xs bg-slate-50 rounded-lg group">
-                    <button class="flex-1 text-left truncate session-click" data-filename="${s.filename}">${s.title}</button>
-                    <button class="rename-session text-slate-400 hover:text-indigo-600 hidden" data-filename="${s.filename}" title="Rename">✎</button>
-                    <button class="delete-session text-slate-400 hover:text-red-500 hidden" data-filename="${s.filename}" title="Delete">✕</button>
-                </div>`
-            ).join('');
             
-            listEl.querySelectorAll('.session-click').forEach((btn, i) => {
-                btn.addEventListener('click', async () => {
-                    const filename = btn.getAttribute('data-filename');
-                    const res = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                        headers: { 'x-user-id': userId }
-                    });
-                    const data = await res.json();
-                    chatHistory = data.history || [];
-                    document.getElementById('chat-messages').innerHTML = '';
-                    chatHistory.forEach(m => renderMessage(m.role, m.content));
-                    currentSessionId = data.sessionId;
-                });
-                
-                btn.addEventListener('mouseenter', () => {
-                    btn.parentElement.querySelector('.rename-session').classList.remove('hidden');
-                    btn.parentElement.querySelector('.delete-session').classList.remove('hidden');
-                });
-                btn.addEventListener('mouseleave', () => {
-                    btn.parentElement.querySelector('.rename-session').classList.add('hidden');
-                    btn.parentElement.querySelector('.delete-session').classList.add('hidden');
-                });
+            document.getElementById('typing').classList.add('hidden');
+            renderMessage('assistant', data.text);
+
+            // Update local state
+            chatHistory.push({ role: 'user', content: text });
+            chatHistory.push({ role: 'assistant', content: data.text });
+            currentAttachments = [];
+            attachmentBar.innerHTML = '';
+
+            // Auto-Save Session
+            await fetch(`${BACKEND}/api/chats`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+                body: JSON.stringify({
+                    sessionId: currentSessionId,
+                    title: text.substring(0, 20) || "Attachment Chat",
+                    history: chatHistory
+                })
             });
-            
-            listEl.querySelectorAll('.rename-session').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const filename = btn.getAttribute('data-filename');
-                    const newTitle = prompt('Enter new title:');
-                    if (!newTitle) return;
-                    await fetch(`${BACKEND_URL}/api/chats/rename`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ oldFilename: filename, sessionId: currentSessionId, newTitle })
-                    });
-                    loadSessions();
-                });
-            });
-            
-            listEl.querySelectorAll('.delete-session').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    if (!confirm('Delete this chat?')) return;
-                    const filename = btn.getAttribute('data-filename');
-                    await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                        method: 'DELETE',
-                        headers: { 'x-user-id': userId }
-                    });
-                    loadSessions();
-                    if (chatHistory.length > 0 && currentSessionId) {
-                        document.getElementById('chat-messages').innerHTML = '';
-                        chatHistory = [];
-                        currentSessionId = Date.now().toString(36);
-                    }
-                });
-            });
-        } catch (err) {
-            console.error('Failed to load sessions:', err);
-        }
+            refreshSidebar();
+
+        } catch (e) { alert("AI routing failed."); }
     }
 
-    // New Chat
-    function isSystemLocked() { return document.getElementById('lock-screen') && !document.getElementById('lock-screen').classList.contains('hidden'); }
+    async function refreshSidebar() {
+        const res = await fetch(`${BACKEND}/api/chats`, { headers: { 'x-user-id': userId } });
+        const list = await res.json();
+        const sidebar = document.getElementById('session-list');
+        sidebar.innerHTML = list.map(s => `
+            <div class="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition cursor-pointer border border-transparent hover:border-slate-100">
+                <span class="text-sm font-medium text-slate-600 truncate">${s.title}</span>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-slate-300"></i>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
 
-    document.getElementById('new-chat-btn').addEventListener('click', () => {
-        chatHistory = [];
+    document.getElementById('send-btn').addEventListener('click', handleSend);
+    document.getElementById('message-input').addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey) {e.preventDefault(); handleSend();} });
+    document.getElementById('new-chat-btn').addEventListener('click', () => { 
+        currentSessionId = Date.now().toString(36); 
+        chatHistory = []; 
         document.getElementById('chat-messages').innerHTML = '';
-        currentSessionId = Date.now().toString(36);
     });
 
-    // Save Chat with debounce lock
-    function saveChat() {
-        if (!currentSessionId) currentSessionId = Date.now().toString(36);
-        if (saveLock) return;
-        saveLock = true;
-        fetch(`${BACKEND_URL}/api/chats`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-            body: JSON.stringify({
-                sessionId: currentSessionId,
-                title: `Chat ${new Date().toLocaleString()}`,
-                history: chatHistory
-            })
-        }).then(() => {
-            storeMemory();
-            setTimeout(loadSessions, 128);
-        }).catch(() => {}).finally(() => { saveLock = false; });
-    }
-
-    // Long-term Memory
-    function storeMemory() {
-        const summary = chatHistory.map(m => m.content).join(' ').substring(0, 500);
-        fetch(`${BACKEND_URL}/api/memory/store`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-            body: JSON.stringify({ sessionId: currentSessionId, content: summary })
-        });
-    }
-
-    // Tool Invocation
-    async function invokeTool(tool, args) {
-        const res = await fetch(`${BACKEND_URL}/api/tools/invoke`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
-            body: JSON.stringify({ tool, args })
-        });
-        return res.json();
-    }
-
-// File Upload - Multi-modal (all file types accepted with background analysis)
-    function analyzeFileBackground(file) {
-        return new Promise((resolve) => {
-            if (!file || !file.type) return resolve({ type: 'unknown', mime: 'application/octet-stream', valid: false });
-            const validImage = file.type.startsWith('image/');
-            const validVideo = file.type.startsWith('video/');
-            const validAudio = file.type.startsWith('audio/');
-            const validDoc = ['application/pdf','text/plain','text/markdown','application/json','text/html','application/xml','text/csv','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type);
-            resolve({ type: validImage ? 'image' : validVideo ? 'video' : validAudio ? 'audio' : validDoc ? 'document' : 'other', mime: file.type, valid: validImage||validVideo||validAudio||validDoc });
-        });
-    }
-
-    // Run core engine stack initiation sequence
-    initApp();
-    addDeployButton();
-    setupThemeSwitcher();
+    lucide.createIcons();
+    refreshSidebar();
   </script>
 </body>
 </html>
