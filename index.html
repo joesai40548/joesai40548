@@ -6,9 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
+   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/split/1.3.5/split.min.js"></script>
   
   <!-- Safe Console Patch to suppress Tailwind's client-side development warning -->
   <script>
@@ -302,6 +303,7 @@
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('app').classList.remove('hidden');
                     checkAdminStatus(user.email);
+                    loadSessions();
                 } else {
                     document.getElementById('app').classList.add('hidden');
                     document.getElementById('auth-screen').classList.remove('hidden');
@@ -391,8 +393,482 @@
         firebase.auth().signOut();
     });
 
+    // Auth Submit Handler
+    document.getElementById('auth-submit-btn').addEventListener('click', () => {
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+        const isSignIn = !document.getElementById('tab-signup').classList.contains('text-indigo-600');
+        if (isSignIn) {
+            firebase.auth().signInWithEmailAndPassword(email, password).catch(alert);
+        } else {
+            firebase.auth().createUserWithEmailAndPassword(email, password).catch(alert);
+        }
+    });
+
+    // Tab Switching
+    document.getElementById('tab-signin').addEventListener('click', () => {
+        document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
+        document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
+        document.getElementById('auth-title').innerText = 'Sign In to Joes AI';
+    });
+    document.getElementById('tab-signup').addEventListener('click', () => {
+        document.getElementById('tab-signup').className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
+        document.getElementById('tab-signin').className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
+        document.getElementById('auth-title').innerText = 'Create Account';
+    });
+
+    // Phone Toggle & OTP Handler
+    document.getElementById('phone-toggle').addEventListener('click', () => {
+        const phoneBlock = document.getElementById('phone-block');
+        const passwordField = document.getElementById('auth-password').closest('div').closest('div');
+        phoneBlock.classList.toggle('hidden');
+        passwordField.classList.toggle('hidden');
+    });
+
+    document.getElementById('otp-btn').addEventListener('click', async () => {
+        const phone = document.getElementById('auth-phone').value;
+        if (phone) {
+            document.getElementById('auth-otp').classList.remove('hidden');
+        }
+    });
+
+    // Attachment Handler
+    document.getElementById('attachment-btn').addEventListener('click', () => {
+        document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const chipContainer = document.getElementById('attachment-chip-container');
+            chipContainer.innerHTML = `<span class="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg">${file.name}</span>`;
+            chipContainer.classList.remove('hidden');
+        }
+    });
+
+    // Voice Input Handler
+    document.getElementById('mic-btn').addEventListener('click', () => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.onresult = (e) => {
+                document.getElementById('message-input').value += e.results[0][0].transcript;
+            };
+            recognition.start();
+        }
+    });
+
+    // Chat State
+    let chatHistory = [];
+    let currentMode = 'chat';
+
+    function getCurrentMode() {
+        return document.getElementById('chat-mode-select').value;
+    }
+
+    function renderMessage(role, content) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const msgEl = document.createElement('div');
+        msgEl.className = role === 'user' ? 'self-end bg-indigo-600 text-white px-4 py-2 rounded-xl max-w-[80%]' : 'self-start bg-slate-100 text-slate-800 px-4 py-2 rounded-xl max-w-[80%]';
+        msgEl.innerHTML = content.replace(/\n/g, '<br>');
+        messagesDiv.appendChild(msgEl);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function formatCodeDiff(original, refactored) {
+        const diffLines = [];
+        const origLines = original.split('\n');
+        const refLines = (refactored || '').split('\n');
+        
+        origLines.forEach((line, i) => {
+            if (line && !refLines.includes(line)) {
+                diffLines.push(`<div class="text-red-500 line-through">- ${escapeHtml(line)}</div>`);
+            }
+        });
+        
+        refLines.forEach(line => {
+            if (line && !origLines.includes(line)) {
+                diffLines.push(`<div class="text-green-500">+ ${escapeHtml(line)}</div>`);
+            }
+        });
+        
+        return `<pre class="bg-slate-900 p-3 rounded-lg text-xs overflow-x-auto">${diffLines.join('\n')}</pre>`;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        if (!message) return;
+
+        const mode = getCurrentMode();
+
+        if (message.startsWith('/')) {
+            handleSlashCommand(message, mode);
+            input.value = '';
+            return;
+        }
+
+        input.value = '';
+        chatHistory.push({ role: 'user', content: message });
+        renderMessage('user', message);
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+                body: JSON.stringify({ messages: chatHistory, mode })
+            });
+            const data = await res.json();
+            if (data.text) {
+                chatHistory.push({ role: 'assistant', content: data.text });
+                renderMessage('assistant', data.text);
+            }
+            saveChat();
+        } catch (err) {
+            renderMessage('assistant', 'Error connecting to AI service.');
+        }
+    }
+
+    async function handleSlashCommand(cmd, mode) {
+        const [command, ...args] = cmd.split(' ');
+        const arg = args.join(' ');
+
+        switch (command) {
+            case '/explain':
+                const explainRes = await fetch(`${BACKEND_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: [{ role: 'user', content: `Explain in simple terms: ${arg || 'this concept'}` }], mode: 'learn' })
+                });
+                const explainData = await explainRes.json();
+                renderMessage('assistant', explainData.text || 'Could not generate explanation.');
+                break;
+
+            case '/refactor':
+                if (arg) {
+                    const refactorRes = await fetch(`${BACKEND_URL}/api/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messages: [{ role: 'user', content: `Refactor this code: ${arg}` }], mode: 'code' })
+                    });
+                    const refactorData = await refactorRes.json();
+                    renderMessage('assistant', formatCodeDiff(arg, refactorData.text) || 'Could not refactor code.');
+                }
+                break;
+
+            case '/test':
+                if (arg) {
+                    try {
+                        const funcMatch = arg.match(/(?:function\s+(\w+)|const\s+(\w+)|let\s+(\w+))\s*[\(]/);
+                        const funcName = funcMatch ? funcMatch[1] || funcMatch[2] || funcMatch[3] : 'test';
+                        const testRes = await fetch(`${BACKEND_URL}/api/test/generate`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ functions: [{ name: funcName, body: '' }], language: 'javascript' })
+                        });
+                        const testData = await testRes.json();
+                        renderMessage('assistant', '```javascript\n' + testData.tests + '\n```');
+                    } catch (e) {
+                        renderMessage('assistant', 'Could not generate tests.');
+                    }
+                }
+                break;
+
+            case '/summarize':
+                const summarize = chatHistory.map(m => `${m.role}: ${m.content}`).join('\n').substring(0, 2000);
+                const sumRes = await fetch(`${BACKEND_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: [{ role: 'user', content: `Summarize: ${summarize}` }], mode: 'chat' })
+                });
+                const sumData = await sumRes.json();
+                renderMessage('assistant', `**Summary:**\n${sumData.text || 'Could not generate summary.'}`);
+                break;
+
+            default:
+                renderMessage('assistant', 'Unknown command. Try /explain, /refactor, /test, or /summarize');
+        }
+    }
+
+    // Send Button & Enter Key
+    document.getElementById('send-btn').addEventListener('click', sendMessage);
+    document.getElementById('message-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Chat Mode Change
+    document.getElementById('chat-mode-select').addEventListener('change', (e) => {
+        currentMode = e.target.value;
+    });
+
+    // Search Sessions
+    document.getElementById('search-bar').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('#session-list button').forEach(btn => {
+            btn.style.display = btn.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Clear Screen
+    document.getElementById('clear-btn').addEventListener('click', () => {
+        document.getElementById('chat-messages').innerHTML = '';
+        chatHistory = [];
+    });
+
+    // Export PDF with Syntax-Preserved Formatting
+    document.getElementById('export-btn').addEventListener('click', async () => {
+        const printStyles = `
+            <style>
+                .chat-message { margin: 8px 0; page-break-inside: avoid; }
+                pre { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 6px; overflow: hidden; font-size: 10px; }
+                code { font-family: 'Courier New', monospace; }
+                .user-msg { text-align: right; }
+                .ai-msg { text-align: left; }
+                @media print { 
+                    body { background: white !important; }
+                    .chat-message { break-inside: avoid; }
+                }
+            </style>
+        `;
+        
+        let content = '<div style="font-family: Arial, sans-serif; padding: 20px;">';
+        chatHistory.forEach(m => {
+            const role = m.role === 'user' ? 'user-msg' : 'ai-msg';
+            content += `<div class="chat-message ${role}"><strong>${role === 'user' ? 'You' : 'Joes AI'}:</strong> ${m.content.replace(/\\n/g, '<br>')}</div>`;
+        });
+        content += '</div>';
+        
+        const tempEl = document.createElement('div');
+        tempEl.innerHTML = printStyles + content;
+        document.body.appendChild(tempEl);
+        
+        html2pdf().from(tempEl).save('chat-export.pdf').then(() => {
+            document.body.removeChild(tempEl);
+            showToast('PDF exported successfully', 'success');
+        });
+    });
+
+    // Toast Notifications
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg text-sm shadow-lg transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-500 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 'bg-slate-800 text-white'
+        }`;
+        toast.textContent = message;
+        toast.style.transform = 'translateY(100%)';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.style.transform = 'translateY(0)', 10);
+        setTimeout(() => {
+            toast.style.transform = 'translateY(100%)';
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+    }
+
+    // Deploy Live Button
+    function addDeployButton() {
+        const deployBtn = document.createElement('button');
+        deployBtn.id = 'deploy-btn';
+        deployBtn.className = 'fixed bottom-4 left-4 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs rounded-lg shadow-md hover:scale-105 transition-all z-40 hidden';
+        deployBtn.innerHTML = '<i data-lucide="rocket" class="w-3 h-3 inline mr-1"></i>Deploy Live';
+        deployBtn.onclick = deploySandbox;
+        document.body.appendChild(deployBtn);
+        if (window.lucide) lucide.createIcons();
+    }
+
+    async function deploySandbox() {
+        const code = document.getElementById('sandbox-iframe')?.contentDocument?.documentElement?.innerHTML || '';
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/deploy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            const data = await res.json();
+            showToast('Deployed! Live at: ' + data.url, 'success');
+        } catch (err) {
+            showToast('Deploy failed', 'error');
+        }
+    }
+
+    // Theme Switcher
+    function setupThemeSwitcher() {
+        const themes = {
+            nord: { bg: '#f8fafc', accent: '#4f46e5' },
+            slate: { bg: '#0f172a', accent: '#6366f1' },
+            cyberpunk: { bg: '#0a0a0a', accent: '#ff00ff' }
+        };
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === '1') applyTheme('nord');
+            if (e.ctrlKey && e.key === '2') applyTheme('slate');
+            if (e.ctrlKey && e.key === '3') applyTheme('cyberpunk');
+        });
+    }
+
+    function applyTheme(themeName) {
+        const theme = themes[themeName];
+        document.body.style.setProperty('--theme-bg', theme.bg);
+        document.body.style.setProperty('--theme-accent', theme.accent);
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    }
+
+    // Side-by-Side Split Workspace
+    function initSplitWorkspace() {
+        // Initialize Split.js for resizable panes
+        if (window.Split) {
+            Split(['#chat-panel', '#preview-panel'], {
+                sizes: [50, 50],
+                minSize: 300,
+                gutterSize: 8,
+                gutterAlign: 'center',
+                cursor: 'col-resize'
+            });
+        }
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('message-input').focus();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sandbox-modal').classList.add('hidden');
+        }
+    });
+
+    // Load Sessions
+    async function loadSessions() {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chats`, {
+                headers: { 'x-user-id': userId }
+            });
+            const sessions = await res.json();
+            const listEl = document.getElementById('session-list');
+            listEl.innerHTML = sessions.map(s => 
+                `<button class="w-full text-left p-2 text-xs bg-slate-50 rounded-lg hover:bg-slate-100" data-filename="${s.filename}">${s.title}</button>`
+            ).join('');
+            listEl.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const filename = btn.getAttribute('data-filename');
+                    const res = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                        headers: { 'x-user-id': userId }
+                    });
+                    const data = await res.json();
+                    chatHistory = data.history || [];
+                    document.getElementById('chat-messages').innerHTML = '';
+                    chatHistory.forEach(m => renderMessage(m.role, m.content));
+                    currentSessionId = data.sessionId;
+                });
+            });
+        } catch (err) {
+            console.error('Failed to load sessions:', err);
+        }
+    }
+
+    // New Chat
+    document.getElementById('new-chat-btn').addEventListener('click', () => {
+        chatHistory = [];
+        document.getElementById('chat-messages').innerHTML = '';
+        currentSessionId = Date.now().toString(36);
+    });
+
+    // Save Chat
+    function saveChat() {
+        if (!currentSessionId) currentSessionId = Date.now().toString(36);
+        fetch(`${BACKEND_URL}/api/chats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({
+                sessionId: currentSessionId,
+                title: `Chat ${new Date().toLocaleString()}`,
+                history: chatHistory
+            })
+        }).then(() => loadSessions());
+    }
+
+    // Long-term Memory
+    function storeMemory() {
+        const summary = chatHistory.map(m => m.content).join(' ').substring(0, 500);
+        fetch(`${BACKEND_URL}/api/memory/store`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ sessionId: currentSessionId, content: summary })
+        });
+    }
+
+    // Tool Invocation
+    async function invokeTool(tool, args) {
+        const res = await fetch(`${BACKEND_URL}/api/tools/invoke`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+            body: JSON.stringify({ tool, args })
+        });
+        return res.json();
+    }
+
+    // File Upload - Multi-modal
+    document.getElementById('file-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const fileData = reader.result.split(',')[1];
+            let endpoint = '';
+            
+            if (file.type.startsWith('image/')) {
+                endpoint = '/api/upload-image';
+            } else if (file.type.startsWith('audio/')) {
+                endpoint = '/api/upload-audio';
+            } else {
+                chatHistory.push({ role: 'user', content: `File uploaded: ${file.name}` });
+                renderMessage('user', `File uploaded: ${file.name}`);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileData, mimeType: file.type })
+                });
+                const data = await res.json();
+                if (data.text) {
+                    chatHistory.push({ role: 'assistant', content: data.text });
+                    renderMessage('assistant', data.text);
+                }
+            } catch (err) {
+                renderMessage('assistant', 'Could not process file.');
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
     // Run core engine stack initiation sequence
     initApp();
+    addDeployButton();
+    setupThemeSwitcher();
   </script>
 </body>
 </html>
