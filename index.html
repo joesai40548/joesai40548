@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <!-- Primary SEO Meta Tags -->
   <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
   <meta name="title" content="Joes AI - Intelligent AI Assistant & Coding Workspace">
   <meta name="description" content="Meet Joes AI, a powerful web companion designed by Akram Joes Technologies. Switch between Chat, Code, Study, and Learning modes with an integrated sandbox canvas code previewer.">
@@ -14,25 +13,21 @@
   <meta name="language" content="English">
   <meta name="author" content="Akram Joes Technologies">
 
-  <!-- Mobile Browser Theme Color Integration (Matches your layout background styling) -->
   <meta name="theme-color" content="#070514">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Open Graph / Facebook / WhatsApp (Controls how your link card previews when shared) -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://joesai.work.gd/">
   <meta property="og:title" content="Joes AI - Intelligent AI Assistant & Workspace">
   <meta property="og:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
-  <meta property="og:image" content="https://joesai.work.gd/assets/og-preview.png"> <!-- Upload an app screenshot to this path later -->
+  <meta property="og:image" content="https://joesai.work.gd/assets/og-preview.png">
 
-  <!-- Twitter / X -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://joesai.work.gd/">
   <meta property="twitter:title" content="Joes AI - Intelligent AI Assistant & Workspace">
   <meta property="twitter:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
   <meta property="twitter:image" content="https://joesai.work.gd/assets/og-preview.png">
 
-  <!-- Canonical Relationship Tag (Locks ranking equity to your free domain route) -->
   <link rel="canonical" href="https://joesai.work.gd/">
 
   <link class="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
@@ -140,7 +135,6 @@
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-white relative">
-  <!-- Dynamic Color Shifting Ambient Glow Background Orbs -->
   <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
     <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-purple-600/15 via-indigo-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-600/10 via-purple-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
@@ -151,8 +145,55 @@
     <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
-  <div id="app" class="app-container">
-    <!-- Sidebar -->
+  <div id="auth-screen" class="fixed inset-0 z-40 bg-[#070514]/90 backdrop-blur-2xl flex items-center justify-center overflow-y-auto p-4 hidden">
+    <div class="w-full max-w-md bg-[#0c0a1f]/80 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl chat-gradient animate__animated animate__fadeInUp">
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg text-2xl mb-3">⚡</div>
+        <h2 id="auth-title" class="text-2xl font-bold text-white tracking-wide">Welcome to Joes AI</h2>
+        <p id="auth-subtitle" class="text-xs text-white/50 mt-1">Sign in to sync your conversation vaults seamlessly</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <button id="google-auth-btn" class="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-medium text-white transition-all transform active:scale-95">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12.2 10.2v3.3h5.5c-.2 1.2-.9 2.2-2 2.9v2.4h3.2c1.9-1.8 3-4.4 3-7.4 0-.6-.1-1.1-.2-1.6l-9.5.2z"/><path fill="#4285F4" d="M12.2 3.5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.5.7 15 .1 12.2.1 7.4.1 3.3 2.8 1.3 6.8l3.6 2.8c.9-2.7 3.5-4.6 6.5-4.6z"/><path fill="#FBBC05" d="M4.9 9.6c-.2.7-.4 1.5-.4 2.4s.2 1.7.4 2.4L1.3 17.2C.5 15.6 0 13.8 0 12s.5-3.6 1.3-5.2l3.6 2.8z"/><path fill="#34A853" d="M12.2 20.5c-3 0-5.6-1.9-6.5-4.6L2.1 18.7c2 4 6.1 6.7 10.1 6.7 3.1 0 5.7-1 7.6-2.8l-3.2-2.4c-1.1.7-2.6 1.1-4.4 1.1z"/></svg>
+          Google
+        </button>
+        <button id="github-auth-btn" class="flex items-center justify-center gap-2 py-2.5 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-medium text-white transition-all transform active:scale-95">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </button>
+      </div>
+
+      <div class="relative flex items-center justify-center my-4">
+        <div class="border-t border-white/10 w-full"></div>
+        <span class="absolute bg-[#0c0a1f] px-3 text-[10px] uppercase font-bold text-white/30 tracking-wider">Or secure email</span>
+      </div>
+
+      <form id="auth-form" class="space-y-4">
+        <div>
+          <label class="block text-[10px] uppercase font-semibold text-white/40 mb-1 tracking-wide">Email Address</label>
+          <input type="email" id="auth-email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder-white/20" placeholder="engineer@akramjoes.com">
+        </div>
+        <div>
+          <label class="block text-[10px] uppercase font-semibold text-white/40 mb-1 tracking-wide">Password</label>
+          <input type="password" id="auth-password" required minlength="6" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all placeholder-white/20" placeholder="••••••••">
+        </div>
+        
+        <div id="auth-error-msg" class="text-xs text-red-400 font-medium hidden pt-1"></div>
+
+        <button type="submit" id="auth-submit-btn" class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium rounded-xl text-sm shadow-lg hover:scale-[1.01] transition-all transform active:scale-95 mt-2">
+          Sign In
+        </button>
+      </form>
+
+      <div class="text-center mt-5 pt-3 border-t border-white/5 text-xs text-white/40">
+        <span id="auth-switch-text">Don't have an account?</span>
+        <button id="auth-switch-btn" class="text-purple-400 hover:underline font-semibold ml-1">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app-container hidden">
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0c0a1f]/95 border-r border-white/10 flex flex-col transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 backdrop-blur-xl shrink-0 h-full">
         <div class="p-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center space-x-3">
@@ -174,6 +215,11 @@
         </div>
 
         <div class="p-4 border-t border-white/5 bg-black/20 space-y-3">
+            <div id="user-profile-badge" class="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/5 text-xs">
+                <span id="user-display-email" class="truncate text-white/60 max-w-[160px]">syncing profile...</span>
+                <button id="logout-btn" class="text-white/40 hover:text-red-400 text-[10px] font-bold uppercase transition-colors" title="Sign Out Securely">Logout ↗</button>
+            </div>
+            
             <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-semibold text-white/30 uppercase tracking-wider">Active Mode</label>
                 <select id="chat-mode-select" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
@@ -213,28 +259,22 @@
           <div class="chat-gradient md:rounded-3xl rounded-none shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5 h-full">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
 
-            <!-- Input Dashboard Container (Fixed Stacking Flow) -->
             <div class="flex flex-col w-full bg-black/40 border-t border-white/10 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0">
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
               
               <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <!-- Minimalist Plus Button for Media Upload -->
                 <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-2xl flex items-center justify-center text-2xl transition-all border border-white/10" title="Upload Media">
                   ＋
                 </button>
                 
-                <!-- Pill Input Box (Wrapper with active color-changing glow) -->
                 <div class="flex-grow flex items-center relative bg-white/5 border border-white/20 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                  <!-- Enlarged, Elastic Text Area (Gemini Style) -->
                   <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-white/40 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
                   
-                  <!-- Google Style Mic Button inside input bar wrapper -->
                   <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-purple-400 p-2 rounded-xl transition-all" title="Voice Input">
                     🎤
                   </button>
                 </div>
 
-                <!-- Send Action Button -->
                 <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
                   <span id="send-icon" class="flex items-center justify-center w-full h-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
@@ -271,18 +311,161 @@
   </script>
 
   <script type="module">
+    // Modern Modular SDK references from the official Firebase CDN network
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      signInWithEmailAndPassword, 
+      createUserWithEmailAndPassword, 
+      signInWithPopup, 
+      GoogleAuthProvider, 
+      GithubAuthProvider, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
     const BACKEND_URL = 'https://joes-ai-server.onrender.com';
     
-    // Safety Window Loader dismiss handler (guarantees loader is removed once parsed)
-    window.addEventListener('load', () => {
-        const loader = document.getElementById('page-loader');
-        if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500);
+    // Auth-state Global variables
+    let auth = null;
+    let userId = null;
+    let isSignUpMode = false;
+
+    // UI Element Selections for Auth System
+    const authScreen = document.getElementById('auth-screen');
+    const appContainer = document.getElementById('app');
+    const authForm = document.getElementById('auth-form');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authTitle = document.getElementById('auth-title');
+    const authSubtitle = document.getElementById('auth-subtitle');
+    const authSwitchBtn = document.getElementById('auth-switch-btn');
+    const authSwitchText = document.getElementById('auth-switch-text');
+    const authErrorMsg = document.getElementById('auth-error-msg');
+    const userDisplayEmail = document.getElementById('user-display-email');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Toggle logic screen between Authentication Modes
+    authSwitchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        isSignUpMode = !isSignUpMode;
+        authErrorMsg.classList.add('hidden');
+        if (isSignUpMode) {
+            authTitle.textContent = "Create Account";
+            authSubtitle.textContent = "Sign up to start tracking technical workspace profiles";
+            authSubmitBtn.textContent = "Sign Up";
+            authSwitchText.textContent = "Already have an account?";
+            authSwitchBtn.textContent = "Sign In";
+        } else {
+            authTitle.textContent = "Welcome to Joes AI";
+            authSubtitle.textContent = "Sign in to sync your conversation vaults seamlessly";
+            authSubmitBtn.textContent = "Sign In";
+            authSwitchText.textContent = "Don't have an account?";
+            authSwitchBtn.textContent = "Create Account";
         }
     });
+
+    // Initialize core Firebase environment dynamically via backend configuration parameters
+    async function initializeFirebaseEngine() {
+        try {
+            // Read environment variables directly via your server config route to secure the stack
+            const response = await fetch(`${BACKEND_URL}/api/config`);
+            if (!response.ok) throw new Error("Could not acquire system configuration maps.");
+            const firebaseConfig = await response.json();
+            
+            const firebaseApp = initializeApp(firebaseConfig);
+            auth = getAuth(firebaseApp);
+            
+            // Wire Auth Listeners to catch sign-in statuses
+            onAuthStateChanged(auth, (user) => {
+                const loader = document.getElementById('page-loader');
+                if (user) {
+                    // Logged in: Sync structural values with your workspace requirements
+                    userId = user.uid;
+                    userDisplayEmail.textContent = user.email || `User ID: ${user.uid.substring(0,8)}`;
+                    
+                    authScreen.classList.add('hidden');
+                    appContainer.classList.remove('hidden');
+                    
+                    // Fire core app retrieval sequences
+                    fetchSessions();
+                } else {
+                    // Not logged in: Show the clean authentication screen
+                    userId = null;
+                    appContainer.classList.add('hidden');
+                    authScreen.classList.remove('hidden');
+                }
+                
+                // Safety Window Loader dismiss trigger
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { loader.style.display = 'none'; }, 500);
+                }
+            });
+
+            setupAuthListeners();
+
+        } catch (err) {
+            console.error("Critical identity setup crash:", err);
+            alert("Orchestration identity failure. Confirm your environment maps are active on Render.");
+        }
+    }
+
+    // Set up standard Firebase Authentication event handling models
+    function setupAuthListeners() {
+        // Form Processing submission handling
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            authErrorMsg.classList.add('hidden');
+            const email = authEmail.value.trim();
+            const password = authPassword.value;
+
+            try {
+                if (isSignUpMode) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (err) {
+                authErrorMsg.textContent = err.message.replace("Firebase: ", "");
+                authErrorMsg.classList.remove('hidden');
+            }
+        });
+
+        // Federated Google Sign-In pop-up transaction mapping
+        document.getElementById('google-auth-btn').addEventListener('click', async () => {
+            authErrorMsg.classList.add('hidden');
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                authErrorMsg.textContent = err.message.replace("Firebase: ", "");
+                authErrorMsg.classList.remove('hidden');
+            }
+        });
+
+        // Federated GitHub Sign-In pop-up transaction mapping
+        document.getElementById('github-auth-btn').addEventListener('click', async () => {
+            authErrorMsg.classList.add('hidden');
+            const provider = new GithubAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                authErrorMsg.textContent = err.message.replace("Firebase: ", "");
+                authErrorMsg.classList.remove('hidden');
+            }
+        });
+
+        // Clean user disconnect mechanism execution handling
+        logoutBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to end this workspace session?")) {
+                signOut(auth).then(() => {
+                    startNewChat();
+                });
+            }
+        });
+    }
 
     // Hardware-accelerated cursor mouse glow tracker
     document.addEventListener('mousemove', (e) => {
@@ -291,9 +474,6 @@
         document.body.style.setProperty('--mouse-x', `${x}%`);
         document.body.style.setProperty('--mouse-y', `${y}%`);
     });
-
-    const userId = localStorage.getItem('joes_ai_user_id') || 'user_' + Math.random().toString(36).substring(2, 11);
-    localStorage.setItem('joes_ai_user_id', userId);
 
     let sessions = [];
     let currentSessionId = null;
@@ -346,7 +526,6 @@
         messageInput.style.height = (messageInput.scrollHeight) + 'px';
     });
 
-    // Mobile-optimized hoisted function definitions (safeguards temporal dead-zone errors)
     function showWelcome(show) {
         const welcomeMsg = document.getElementById('welcome-msg');
         if(show) {
@@ -357,19 +536,24 @@
                 <p class="max-w-md text-sm text-white/50">Developed & Powered by <strong class="text-purple-400">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
                 
                 <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
-                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
-                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
-                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
+                  <button id="qp-physics" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
+                  <button id="qp-learn" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
+                  <button id="qp-code" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
+                  <button id="qp-creator" class="px-3.5 py-2 bg-white/5 hover:bg-purple-600/30 border border-white/10 hover:border-purple-500/50 rounded-full text-xs text-white/80 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
                 </div>
               </div>
             `;
+            
+            // Re-bind listeners natively to protect modular parsing pipelines
+            document.getElementById('qp-physics').addEventListener('click', () => window.useQuickPrompt('Explain quantum physics in simple terms', 'study'));
+            document.getElementById('qp-learn').addEventListener('click', () => window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn'));
+            document.getElementById('qp-code').addEventListener('click', () => window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code'));
+            document.getElementById('qp-creator').addEventListener('click', () => window.useQuickPrompt('Who developed you and what can you do?', 'chat'));
         } else if (welcomeMsg) {
             welcomeMsg.remove();
         }
     }
 
-    // Binary file reader helper (restored to fix uncaught promise reference error)
     function readFileAsBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -412,10 +596,10 @@
         const utterance = new SpeechSynthesisUtterance(cleanTextString);
         const loadedVoices = window.speechSynthesis.getVoices();
         if (loadedVoices.length > 0) {
-            const preferedVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
-                                  loadedVoices.find(v => v.lang.startsWith('en')) || 
-                                  loadedVoices[0];
-            utterance.voice = preferedVoice;
+            const preferredVoice = loadedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) || 
+                                   loadedVoices.find(v => v.lang.startsWith('en')) || 
+                                   loadedVoices[0];
+            utterance.voice = preferredVoice;
         }
 
         utterance.onend = () => { 
@@ -475,7 +659,6 @@
         }
     }
 
-    // Dynamic copy handler fallback for iOS or legacy protocols
     window.copyToClipboard = (btn, encodedText) => {
         const text = decodeURIComponent(encodedText);
         navigator.clipboard.writeText(text).then(() => {
@@ -567,6 +750,7 @@
     }
 
     async function fetchSessions() {
+        if (!userId) return;
         sessionList.innerHTML = `<p class="text-xs text-white/40 italic px-2">Syncing with Koofr...</p>`;
         try {
             const response = await fetch(`${BACKEND_URL}/api/chats`, {
@@ -707,6 +891,7 @@
     }
 
     async function saveCurrentChatToCloud(title) {
+        if (!userId) return;
         try {
             const response = await fetch(`${BACKEND_URL}/api/chats`, {
                 method: 'POST',
@@ -755,10 +940,11 @@
             <div class="bg-purple-600/80 backdrop-blur-md border border-purple-400 text-white pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
                 ${previewHtml}
                 <span class="font-medium truncate max-w-[200px]">📎 ${file.name}</span>
-                <button onclick="window.removeAttachment()" class="hover:text-pink-300 transition-colors font-bold ml-2">✕</button>
+                <button id="remove-attach-trigger" class="hover:text-pink-300 transition-colors font-bold ml-2">✕</button>
             </div>
         `;
         container.classList.remove('hidden');
+        document.getElementById('remove-attach-trigger').addEventListener('click', window.removeAttachment);
     }
 
     window.removeAttachment = () => {
@@ -941,9 +1127,7 @@
 
       if (window.mermaid) {
           setTimeout(() => {
-              window.mermaid.run({
-                  querySelector: '.mermaid'
-              }).catch(err => {});
+              window.mermaid.run({ querySelector: '.mermaid' }).catch(err => {});
           }, 50);
       }
     }
@@ -1114,7 +1298,6 @@
             if (block.lang && block.lang.toLowerCase() === 'mermaid') {
                 finalOutput = `<div class="mermaid my-4 p-4 bg-black/20 border border-white/5 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
             } else {
-                let runBtn = '';
                 if (['HTML', 'XML', 'JS', 'JAVASCRIPT', 'CSS'].includes(displayLang)) {
                     finalOutput = `
                         <div class="relative group my-3 border border-white/10 rounded-xl overflow-hidden bg-black/40 text-left">
@@ -1154,7 +1337,7 @@
         setupSpeechRecognition();
         
         showWelcome(true);
-        fetchSessions();
+        initializeFirebaseEngine();
     }
 
     initializeApp();
