@@ -397,7 +397,6 @@
     document.getElementById('auth-submit-btn').addEventListener('click', () => {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
-        const isSignIn = !document.getElementById('tab-signup').classList.contains('text-indigo-600');
         if (isSignIn) {
             firebase.auth().signInWithEmailAndPassword(email, password).catch(alert);
         } else {
@@ -420,9 +419,12 @@
     // Phone Toggle & OTP Handler
     document.getElementById('phone-toggle').addEventListener('click', () => {
         const phoneBlock = document.getElementById('phone-block');
-        const passwordField = document.getElementById('auth-password').closest('div').closest('div');
+        const emailPassGroup = document.getElementById('auth-email').closest('div');
         phoneBlock.classList.toggle('hidden');
-        passwordField.classList.toggle('hidden');
+        emailPassGroup.classList.toggle('hidden');
+        if (!emailPassGroup.classList.contains('hidden')) {
+            emailPassGroup.nextElementSibling.classList.remove('hidden');
+        }
     });
 
     document.getElementById('otp-btn').addEventListener('click', async () => {
@@ -462,16 +464,53 @@
     // Chat State
     let chatHistory = [];
     let currentMode = 'chat';
+    const themes = {
+        nord: { bg: '#f8fafc', accent: '#4f46e5' },
+        slate: { bg: '#0f172a', accent: '#6366f1' },
+        cyberpunk: { bg: '#0a0a0a', accent: '#ff00ff' }
+    };
+
+        function getCurrentMode() {
+        return document.getElementById('chat-mode-select').value;
+    }
+
+    let isSignIn = true;
 
     function getCurrentMode() {
         return document.getElementById('chat-mode-select').value;
     }
 
+    function updateAuthTabs() {
+        const signinBtn = document.getElementById('tab-signin');
+        const signupBtn = document.getElementById('tab-signup');
+        const title = document.getElementById('auth-title');
+        
+        if (isSignIn) {
+            signinBtn.className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
+            signupBtn.className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
+            title.innerText = 'Sign In to Joes AI';
+        } else {
+            signupBtn.className = 'flex-1 pb-3 text-center border-b-2 border-indigo-600 font-semibold text-sm text-indigo-600';
+            signinBtn.className = 'flex-1 pb-3 text-center border-b-2 border-transparent font-medium text-sm text-slate-400 hover:text-slate-600';
+            title.innerText = 'Create Account';
+        }
+    }
+
+    // Tab Switching
+    document.getElementById('tab-signin').addEventListener('click', () => {
+        isSignIn = true;
+        updateAuthTabs();
+    });
+    document.getElementById('tab-signup').addEventListener('click', () => {
+        isSignIn = false;
+        updateAuthTabs();
+    });
+
     function renderMessage(role, content) {
         const messagesDiv = document.getElementById('chat-messages');
         const msgEl = document.createElement('div');
         msgEl.className = role === 'user' ? 'self-end bg-indigo-600 text-white px-4 py-2 rounded-xl max-w-[80%]' : 'self-start bg-slate-100 text-slate-800 px-4 py-2 rounded-xl max-w-[80%]';
-        msgEl.innerHTML = content.replace(/\n/g, '<br>');
+        msgEl.textContent = content;
         messagesDiv.appendChild(msgEl);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -602,6 +641,7 @@
     document.getElementById('message-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
+            document.getElementById('slash-menu').classList.add('hidden');
             sendMessage();
         }
     });
@@ -644,7 +684,8 @@
         let content = '<div style="font-family: Arial, sans-serif; padding: 20px;">';
         chatHistory.forEach(m => {
             const role = m.role === 'user' ? 'user-msg' : 'ai-msg';
-            content += `<div class="chat-message ${role}"><strong>${role === 'user' ? 'You' : 'Joes AI'}:</strong> ${m.content.replace(/\\n/g, '<br>')}</div>`;
+            const safeContent = m.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+            content += `<div class="chat-message ${role}"><strong>${role === 'user' ? 'You' : 'Joes AI'}:</strong> ${safeContent}</div>`;
         });
         content += '</div>';
         
@@ -704,12 +745,6 @@
 
     // Theme Switcher
     function setupThemeSwitcher() {
-        const themes = {
-            nord: { bg: '#f8fafc', accent: '#4f46e5' },
-            slate: { bg: '#0f172a', accent: '#6366f1' },
-            cyberpunk: { bg: '#0a0a0a', accent: '#ff00ff' }
-        };
-        
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === '1') applyTheme('nord');
             if (e.ctrlKey && e.key === '2') applyTheme('slate');
@@ -719,8 +754,10 @@
 
     function applyTheme(themeName) {
         const theme = themes[themeName];
+        if (!theme) return;
         document.body.style.setProperty('--theme-bg', theme.bg);
         document.body.style.setProperty('--theme-accent', theme.accent);
+        document.body.style.backgroundColor = theme.bg;
     }
 
     function toggleSidebar() {
@@ -729,15 +766,14 @@
 
     // Side-by-Side Split Workspace
     function initSplitWorkspace() {
-        // Initialize Split.js for resizable panes
         if (window.Split) {
-            Split(['#chat-panel', '#preview-panel'], {
-                sizes: [50, 50],
-                minSize: 300,
-                gutterSize: 8,
-                gutterAlign: 'center',
-                cursor: 'col-resize'
-            });
+            const chatMain = document.querySelector('main .max-w-5xl');
+            const sandbox = document.getElementById('sandbox-modal');
+            if (chatMain && sandbox) {
+                sandbox.classList.remove('fixed', 'inset-0');
+                sandbox.classList.add('fixed', 'inset-y-0', 'right-0', 'w-1/2', 'z-50');
+                chatMain.style.transition = 'width 0.3s';
+            }
         }
     }
 
@@ -754,6 +790,7 @@
         if (e.key === 'Escape') {
             document.getElementById('sidebar').classList.add('-translate-x-full');
             document.getElementById('sandbox-modal').classList.add('hidden');
+            document.getElementById('slash-menu').classList.add('hidden');
         }
     });
 
@@ -766,9 +803,14 @@
             const sessions = await res.json();
             const listEl = document.getElementById('session-list');
             listEl.innerHTML = sessions.map(s => 
-                `<button class="w-full text-left p-2 text-xs bg-slate-50 rounded-lg hover:bg-slate-100" data-filename="${s.filename}">${s.title}</button>`
+                `<div class="flex items-center gap-1 p-2 text-xs bg-slate-50 rounded-lg group">
+                    <button class="flex-1 text-left truncate session-click" data-filename="${s.filename}">${s.title}</button>
+                    <button class="rename-session text-slate-400 hover:text-indigo-600 hidden" data-filename="${s.filename}" title="Rename">✎</button>
+                    <button class="delete-session text-slate-400 hover:text-red-500 hidden" data-filename="${s.filename}" title="Delete">✕</button>
+                </div>`
             ).join('');
-            listEl.querySelectorAll('button').forEach(btn => {
+            
+            listEl.querySelectorAll('.session-click').forEach((btn, i) => {
                 btn.addEventListener('click', async () => {
                     const filename = btn.getAttribute('data-filename');
                     const res = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
@@ -779,6 +821,48 @@
                     document.getElementById('chat-messages').innerHTML = '';
                     chatHistory.forEach(m => renderMessage(m.role, m.content));
                     currentSessionId = data.sessionId;
+                });
+                
+                btn.addEventListener('mouseenter', () => {
+                    btn.parentElement.querySelector('.rename-session').classList.remove('hidden');
+                    btn.parentElement.querySelector('.delete-session').classList.remove('hidden');
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.parentElement.querySelector('.rename-session').classList.add('hidden');
+                    btn.parentElement.querySelector('.delete-session').classList.add('hidden');
+                });
+            });
+            
+            listEl.querySelectorAll('.rename-session').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const filename = btn.getAttribute('data-filename');
+                    const newTitle = prompt('Enter new title:');
+                    if (!newTitle) return;
+                    await fetch(`${BACKEND_URL}/api/chats/rename`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ oldFilename: filename, sessionId: currentSessionId, newTitle })
+                    });
+                    loadSessions();
+                });
+            });
+            
+            listEl.querySelectorAll('.delete-session').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm('Delete this chat?')) return;
+                    const filename = btn.getAttribute('data-filename');
+                    await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
+                        method: 'DELETE',
+                        headers: { 'x-user-id': userId }
+                    });
+                    loadSessions();
+                    if (chatHistory.length > 0 && currentSessionId) {
+                        document.getElementById('chat-messages').innerHTML = '';
+                        chatHistory = [];
+                        currentSessionId = Date.now().toString(36);
+                    }
                 });
             });
         } catch (err) {
@@ -804,7 +888,10 @@
                 title: `Chat ${new Date().toLocaleString()}`,
                 history: chatHistory
             })
-        }).then(() => loadSessions());
+        }).then(() => {
+            loadSessions();
+            storeMemory();
+        });
     }
 
     // Long-term Memory
