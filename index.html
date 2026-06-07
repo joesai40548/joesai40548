@@ -3,567 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- UI Dependencies -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <script>
-    (function() {
-      const originalWarn = console.warn;
-      console.warn = function(...args) {
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
-          return; // Mute the production warning cleanly
-        }
-        originalWarn.apply(console, args);
-      };
-    })();
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
-    .gradient-bg { background: #f8fafc; }
-    .chat-gradient { background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(15, 23, 42, 0.08); color: #334155 !important; }
-    
-    /* 2026 Era Micro-Scrollbars */
+    body { font-family: 'Plus Jakarta Sans', sans-serif; height: 100dvh; background: #fdfdfd; overflow: hidden; }
     #chat-messages::-webkit-scrollbar { width: 4px; }
-    #chat-messages::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
-    #chat-messages::-webkit-scrollbar-track { background: transparent; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+    
+    .prose img { border-radius: 1rem; margin: 1.5rem 0; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); border: 5px solid white; max-width: 100%; height: auto; transition: transform 0.3s; }
+    .prose img:hover { transform: scale(1.02); }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; border: 1px solid #eee; font-size: 0.9rem; border-radius: 12px; overflow: hidden; }
+    .prose th { background: #f8fafc; padding: 12px; font-weight: 700; color: #4f46e5; border-bottom: 2px solid #e2e8f0; }
+    .prose td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
 
-    /* Collapsible Sidebar Logic */
-    #sidebar { transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s ease; }
-    #sidebar.collapsed { width: 5rem !important; }
-    #sidebar.collapsed .sidebar-text, #sidebar.collapsed .sidebar-icon-only { opacity: 0; display: none; }
-    #sidebar.collapsed .sidebar-center-icon { justify-content: center; margin: 0 auto; }
-    #sidebar.collapsed .p-4 { padding: 1rem 0.5rem; }
+    .shimmer-loader { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-    @keyframes snakeWave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-    .snake-dot { animation: snakeWave 1.2s ease-in-out infinite; width: 6px; height: 6px; background-color: #4f46e5; border-radius: 50%; display: inline-block; }
-    .snake-dot:nth-child(2) { animation-delay: 0.15s; }
-    .snake-dot:nth-child(3) { animation-delay: 0.3s; }
-    .snake-dot:nth-child(4) { animation-delay: 0.45s; }
-    
-    /* Ambient hardware-accelerated glowing mesh */
-    body { background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.08) 0%, #f1f5f9 60%); }
-    @keyframes borderGlow { 0%, 100% { border-color: rgba(79, 70, 229, 0.4); box-shadow: 0 0 15px rgba(99, 102, 241, 0.15); } 50% { border-color: rgba(236, 72, 153, 0.4); box-shadow: 0 0 20px rgba(236, 72, 153, 0.2); } }
-    .glowing-input:focus-within { animation: borderGlow 4s ease-in-out infinite; }
-    
-    table { border-collapse: collapse; width: 100%; margin: 16px 0; border-radius: 8px; overflow: hidden; }
-    th { background-color: rgba(15, 23, 42, 0.04); color: #4f46e5 !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 1px solid rgba(15, 23, 42, 0.08); text-align: left; }
-    td { padding: 12px 16px; border-bottom: 1px solid rgba(15, 23, 42, 0.06); text-align: left; }
-    tr:hover { background-color: rgba(15, 23, 42, 0.02); }
-    
-    @keyframes skeletonSweeper { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-    .claude-shimmer { background: linear-gradient(90deg, rgba(15,23,42,0.03) 25%, rgba(15,23,42,0.08) 50%, rgba(15,23,42,0.03) 75%); background-size: 200% 100%; animation: skeletonSweeper 1.6s infinite linear; }
-    .app-container { height: 100dvh; max-height: 100dvh; width: 100vw; display: flex; overflow: hidden; position: relative; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+    .sidebar-collapsed { width: 80px !important; }
+    .sidebar-collapsed .sidebar-txt { display: none; }
   </style>
 </head>
-<body class="gradient-bg min-h-screen text-slate-800 relative">
+<body class="text-slate-900">
 
-  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-pink-500/5 via-indigo-500/5 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000004_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+  <!-- Full-screen Page Loader -->
+  <div id="loader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+    <p class="mt-4 text-[10px] font-bold text-slate-400 tracking-[0.3em] uppercase">Akram Joes Technologies</p>
   </div>
 
-  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex flex-col items-center justify-center transition-opacity duration-500">
-    <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(79,70,229,0.5)]"></div>
-  </div>
-
-  <div id="auth-screen" class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-100/40 backdrop-blur-md hidden animate__animated animate__fadeIn">
-      <div class="bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-[2rem] p-6 md:p-8 w-full max-w-md shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] space-y-6 relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-          <div class="text-center relative z-10">
-              <div class="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-white mx-auto mb-4 hover:scale-105 transition-transform duration-300">
-                  <i data-lucide="zap" class="w-7 h-7 fill-current"></i>
-              </div>
-              <h1 id="auth-title" class="text-2xl font-bold text-slate-900 tracking-tight">Sign In to Joes AI</h1>
-              <p class="text-xs text-slate-500 mt-1.5 font-medium">Unlock your private, 2026-era production workspace</p>
-          </div>
-          
-          <div class="flex border-b border-slate-200/60 relative z-10">
-              <button id="tab-signin" class="flex-1 pb-3 text-center border-b-[3px] border-indigo-600 font-bold text-sm text-indigo-600 transition-colors">Sign In</button>
-              <button id="tab-signup" class="flex-1 pb-3 text-center border-b-[3px] border-transparent font-semibold text-sm text-slate-400 hover:text-slate-600 transition-colors">Sign Up</button>
-          </div>
-
-          <div class="space-y-4 relative z-10">
-              <div class="group">
-                  <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-indigo-600 transition-colors">Email Address</label>
-                  <input id="auth-email" type="email" placeholder="you@domain.com" class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all mt-1.5 text-slate-800 shadow-sm">
-              </div>
-              <div class="group">
-                  <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider group-focus-within:text-indigo-600 transition-colors">Password</label>
-                  <input id="auth-password" type="password" placeholder="••••••••" class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all mt-1.5 text-slate-800 shadow-sm">
-              </div>
-              <button id="phone-toggle" class="text-xs text-indigo-600 font-bold hover:text-indigo-700 transition-colors flex items-center gap-1.5">
-                  <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> Continue with Phone Number
-              </button>
-              
-              <div id="phone-block" class="hidden border-t border-slate-100 pt-4 space-y-3 animate__animated animate__fadeIn animate__faster">
-                  <input id="auth-phone" type="tel" placeholder="+256700000000" class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 shadow-sm">
-                  <div id="recaptcha-container"></div>
-                  <button id="otp-btn" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
-                      <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Request OTP Code
-                  </button>
-                  <input id="auth-otp" type="text" placeholder="Enter 6-digit Code" class="hidden w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 shadow-sm tracking-widest text-center font-bold">
-              </div>
-          </div>
-          <button id="auth-submit-btn" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-sm shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] transition-all active:scale-[0.98] relative z-10 flex items-center justify-center gap-2">
-              Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-          
-          <div class="space-y-4 relative z-10">
-              <div class="flex items-center my-4"><div class="flex-grow border-t border-slate-200/80"></div><span class="px-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">Or continue with</span><div class="flex-grow border-t border-slate-200/80"></div></div>
-              <div class="grid grid-cols-2 gap-3">
-                  <button id="google-login-btn" class="py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-slate-700 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
-                      <i data-lucide="globe" class="w-4 h-4 text-blue-500"></i> Google
-                  </button>
-                  <button id="github-login-btn" class="py-3 bg-[#18181b] hover:bg-black border border-[#18181b] rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
-                      <i data-lucide="github" class="w-4 h-4"></i> GitHub
-                  </button>
-              </div>
-          </div>
+  <!-- AUTHENTICATION SCREEN -->
+  <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-50 p-4 hidden">
+    <div class="bg-white rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-200/50 w-full max-w-md p-8 md:p-10 space-y-6">
+      <div class="text-center">
+        <div class="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white mx-auto shadow-2xl mb-4">
+          <i data-lucide="zap" class="w-10 h-10"></i>
+        </div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Joes AI</h1>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Intelligence Redefined</p>
       </div>
-  </div>
 
-  <div id="app" class="app-container hidden">
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white/60 backdrop-blur-2xl border-r border-slate-200/60 flex flex-col transform -translate-x-full md:translate-x-0 transition-all duration-400 ease-in-out shrink-0 h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+      <!-- Auth Switch -->
+      <div class="flex p-1 bg-slate-100 rounded-2xl">
+        <button id="login-tab" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all bg-white shadow text-indigo-600">SIGN IN</button>
+        <button id="signup-tab" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-400">SIGN UP</button>
+      </div>
+
+      <div class="space-y-4">
+        <input id="email-field" type="email" placeholder="Email" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 outline-none focus:ring-2 focus:ring-indigo-500/20">
+        <input id="pass-field" type="password" placeholder="Password" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-6 outline-none focus:ring-2 focus:ring-indigo-500/20">
         
-        <div class="p-4 flex items-center justify-between border-b border-slate-200/50 h-[72px] shrink-0 sidebar-center-icon transition-all">
-            <div class="flex items-center space-x-3 overflow-hidden whitespace-nowrap">
-                <div class="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md text-white shrink-0">
-                    <i data-lucide="zap" class="w-4.5 h-4.5 fill-current"></i>
-                </div>
-                <span class="text-lg font-extrabold text-slate-900 tracking-tight sidebar-text">joes ai</span>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <button id="admin-trigger" class="hidden text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-2 py-1 rounded-lg flex items-center gap-1 border border-amber-300/30 transition-all sidebar-text">
-                    <i data-lucide="crown" class="w-3 h-3"></i> Admin
-                </button>
-                <button id="desktop-sidebar-toggle" class="hidden md:flex text-slate-400 hover:text-indigo-600 transition-colors p-1.5 rounded-lg hover:bg-slate-100">
-                    <i data-lucide="panel-left-close" class="w-5 h-5 toggle-icon"></i>
-                </button>
-                <button id="sidebar-close-btn" class="md:hidden text-slate-400 hover:text-slate-600 p-1">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+        <div id="phone-zone" class="hidden space-y-3 pt-2 border-t border-slate-100">
+           <div class="flex gap-2">
+              <input id="phone-field" type="tel" placeholder="+256..." class="flex-1 h-14 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold">
+              <button id="send-otp" class="px-4 h-14 bg-indigo-50 text-indigo-600 rounded-2xl text-[10px] font-bold uppercase shrink-0 hover:bg-indigo-100 transition-colors">Send OTP</button>
+           </div>
+           <div id="recaptcha-box"></div>
+           <input id="otp-field" type="text" placeholder="6-digit SMS code" class="hidden w-full h-14 bg-indigo-50/50 border-2 border-indigo-200 border-dashed rounded-2xl px-4 text-center tracking-[0.5em] font-black text-indigo-600">
         </div>
+      </div>
 
-        <div class="p-4 space-y-3 shrink-0 sidebar-center-icon">
-            <button id="new-chat-btn" class="w-full h-11 bg-slate-900 hover:bg-indigo-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_15px_rgba(79,70,229,0.4)] transition-all text-sm shrink-0 overflow-hidden group">
-                <i data-lucide="plus" class="w-4.5 h-4.5 group-hover:rotate-90 transition-transform duration-300"></i> 
-                <span class="sidebar-text">New Workspace</span>
-            </button>
-            
-            <div class="relative sidebar-text">
-                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                <input id="search-bar" type="text" placeholder="Search conversations..." class="w-full bg-slate-100/50 hover:bg-slate-100 focus:bg-white border border-slate-200/80 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
-            </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-3 py-1 space-y-1">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-3 sidebar-text">Recent History</p>
-            <div id="session-list" class="space-y-1 w-full overflow-hidden"></div>
-        </div>
-
-        <div class="p-3 border-t border-slate-200/50 bg-slate-50/50 shrink-0 transition-all">
-            
-            <div class="flex items-center justify-between p-3 bg-white border border-slate-200/80 rounded-xl text-xs shadow-sm mb-3 sidebar-center-icon group cursor-pointer hover:border-indigo-200 transition-colors">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold shrink-0 shadow-inner">
-                        <i data-lucide="user" class="w-4 h-4"></i>
-                    </div>
-                    <div class="truncate flex flex-col sidebar-text">
-                        <span id="user-status-email" class="font-bold text-slate-800 truncate">Guest User</span>
-                        <span class="text-indigo-500 text-[9px] uppercase font-bold tracking-widest mt-0.5">Verified Profile</span>
-                    </div>
-                </div>
-                <button id="logout-btn" class="text-slate-400 hover:text-red-500 ml-1 flex items-center justify-center transition-colors sidebar-text" title="Log Out">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <div class="flex flex-col gap-1.5 sidebar-text">
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Engine Mode</label>
-                <div class="relative">
-                    <i data-lucide="cpu" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-500 pointer-events-none"></i>
-                    <select id="chat-mode-select" class="w-full bg-white border border-slate-200/80 rounded-xl pl-9 pr-3 py-2.5 text-slate-800 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm appearance-none cursor-pointer hover:bg-slate-50">
-                        <option value="chat">Chat Intelligence</option>
-                        <option value="code">Code Copilot</option>
-                        <option value="study">Study Tutor</option>
-                        <option value="learn">Deep Learning</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <div class="flex-grow flex flex-col h-full overflow-hidden relative bg-white md:rounded-l-[2rem] md:shadow-[-10px_0_30px_rgba(0,0,0,0.03)] z-10 transition-all duration-300">
+      <button id="submit-auth" class="w-full h-14 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl hover:scale-[1.01] active:scale-95 transition-all">Continue to Workspace</button>
       
-      <header class="bg-white/90 backdrop-blur-xl md:px-6 md:py-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-100 z-20 shrink-0 h-[72px]">
-          <div class="flex items-center space-x-3">
-              <button id="sidebar-open-btn" class="md:hidden text-slate-600 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center">
-                  <i data-lucide="menu" class="w-5 h-5"></i>
-              </button>
-              <div class="flex items-center space-x-2 md:hidden">
-                <span class="text-lg font-extrabold text-slate-900 tracking-tight">joes ai</span>
-              </div>
-          </div>
-          
-          <div class="flex items-center space-x-2">
-              <button id="export-btn" class="text-slate-500 hover:text-indigo-600 transition-all p-2 hover:bg-indigo-50 rounded-xl flex items-center justify-center gap-2 text-xs font-bold" title="Export PDF">
-                  <i data-lucide="download" class="w-4 h-4"></i> <span class="hidden sm:inline">Export</span>
-              </button>
-              <div class="w-px h-5 bg-slate-200"></div>
-              <button id="clear-btn" class="text-slate-500 hover:text-red-500 transition-all p-2 hover:bg-red-50 rounded-xl flex items-center justify-center gap-2 text-xs font-bold" title="Clear Screen">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i> <span class="hidden sm:inline">Clear</span>
-              </button>
-          </div>
-      </header>
+      <div class="flex items-center gap-4 text-slate-300">
+        <hr class="flex-1"> <span class="text-[9px] font-black uppercase tracking-tighter">Secure Connections</span> <hr class="flex-1">
+      </div>
 
-      <main class="flex-1 overflow-hidden md:p-6 p-0 bg-gradient-to-b from-slate-50/50 to-white">
-        <div class="max-w-4xl mx-auto h-full flex flex-col relative">
-          
-          <button id="snap-btn" class="hidden absolute bottom-24 right-4 md:right-6 bg-white/90 backdrop-blur border border-slate-200 hover:border-indigo-500 text-indigo-600 hover:text-indigo-700 rounded-full p-3 shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all z-30 hover:scale-110 active:scale-95 flex items-center justify-center">
-              <i data-lucide="arrow-down" class="w-5 h-5"></i>
-          </button>
+      <!-- AUTH PROVIDERS WITH ORIGINAL LOGOS -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="google-auth" class="h-12 border border-slate-200 rounded-2xl flex items-center justify-center gap-3 text-xs font-bold hover:bg-slate-50 transition-all active:scale-95">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.20455c0-.63819-.05727-1.25182-.16364-1.84091H9V10.8341h4.84364c-.20864 1.125-.84273 2.07818-1.79591 2.71636v2.25818h2.90864c1.70182-1.56681 2.68364-3.87409 2.68364-6.60363z" fill="#4285F4"/><path d="M9 18c2.43 0 4.46727-.80591 5.95636-2.19136l-2.90864-2.25818c-.80591.53977-1.83682.85909-3.04773.85909-2.34409 0-4.32818-1.58318-5.03591-3.71045H.95727v2.33182C2.43818 15.9832 5.48182 18 9 18z" fill="#34A853"/><path d="M3.96409 10.70455c-.18-.53977-.28227-1.11273-.28227-1.70455s.10227-1.16477.28227-1.70455V4.96364H.95727C.34773 6.17318 0 7.54773 0 9c0 1.45227.34773 2.82682.95727 4.03636l3.00682-2.33181z" fill="#FBBC05"/><path d="M9 3.57955c1.32136 0 2.50773.45409 3.44045 1.35409l2.58136-2.58136C13.46318.89182 11.42591 0 9 0 5.48182 0 2.43818 2.01682.95727 4.96364l3.00682 2.33182C4.67182 5.16273 6.65591 3.57955 9 3.57955z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button id="github-auth" class="h-12 bg-[#24292e] text-white rounded-2xl flex items-center justify-center gap-3 text-xs font-bold hover:bg-black transition-all active:scale-95">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.416-4.041-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </button>
+      </div>
 
-          <div class="md:bg-white/40 md:backdrop-blur-xl md:border md:border-slate-200/50 md:rounded-[2rem] shadow-none md:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)] overflow-hidden flex-1 flex flex-col relative h-full">
-            <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col scroll-smooth"></div>
-
-            <div class="flex flex-col w-full bg-white/80 backdrop-blur-xl border-t border-slate-200/60 p-3 md:p-5 rounded-b-none md:rounded-b-[2rem] shrink-0 relative z-20">
-              
-              <div id="slash-menu" class="hidden absolute bottom-[calc(100%+12px)] left-4 md:left-5 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-2xl p-2 w-64 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] text-xs space-y-1 z-30 animate__animated animate__fadeInUp animate__faster">
-                  <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest px-3 py-2">Quick Commands</p>
-                  <button class="w-full text-left px-3 py-2 hover:bg-indigo-50 rounded-xl flex items-center justify-between text-slate-700 hover:text-indigo-700 font-semibold transition-colors" data-cmd="/explain">
-                      <span class="flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-indigo-500"></i> /explain</span>
-                      <span class="text-[10px] text-slate-400 font-normal">Concepts</span>
-                  </button>
-                  <button class="w-full text-left px-3 py-2 hover:bg-indigo-50 rounded-xl flex items-center justify-between text-slate-700 hover:text-indigo-700 font-semibold transition-colors" data-cmd="/refactor">
-                      <span class="flex items-center gap-2"><i data-lucide="code-2" class="w-4 h-4 text-indigo-500"></i> /refactor</span>
-                      <span class="text-[10px] text-slate-400 font-normal">Optimize</span>
-                  </button>
-                  <button class="w-full text-left px-3 py-2 hover:bg-indigo-50 rounded-xl flex items-center justify-between text-slate-700 hover:text-indigo-700 font-semibold transition-colors" data-cmd="/test">
-                      <span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4 text-indigo-500"></i> /test</span>
-                      <span class="text-[10px] text-slate-400 font-normal">Unit Tests</span>
-                  </button>
-                  <button class="w-full text-left px-3 py-2 hover:bg-indigo-50 rounded-xl flex items-center justify-between text-slate-700 hover:text-indigo-700 font-semibold transition-colors" data-cmd="/summarize">
-                      <span class="flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-indigo-500"></i> /summarize</span>
-                      <span class="text-[10px] text-slate-400 font-normal">Abstract</span>
-                  </button>
-              </div>
-
-              <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out px-1"></div>
-              
-              <div class="flex items-end space-x-2 md:space-x-3 w-full bg-slate-50/50 border border-slate-200/80 rounded-2xl md:rounded-3xl p-1.5 md:p-2 glowing-input transition-all shadow-sm focus-within:bg-white">
-                <button id="attachment-btn" class="flex-shrink-0 w-10 h-10 md:w-11 md:h-11 hover:bg-indigo-50 active:scale-95 text-slate-500 hover:text-indigo-600 rounded-xl md:rounded-2xl flex items-center justify-center transition-all" title="Upload Media">
-                    <i data-lucide="paperclip" class="w-5 h-5"></i>
-                </button>
-                
-                <div id="text-input-wrap" class="flex-grow flex items-center relative min-h-[40px] md:min-h-[44px]">
-                  <textarea id="message-input" enterkeyhint="send" placeholder="Message Joes AI or type '/' for commands..." rows="1" class="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 px-2 resize-none max-h-[150px] leading-relaxed font-medium"></textarea>
-                  <button id="mic-btn" class="absolute right-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 p-2 rounded-xl transition-all flex items-center justify-center hover:bg-indigo-50" title="Voice Input">
-                      <i data-lucide="mic" class="w-5 h-5"></i>
-                  </button>
-                </div>
-
-                <button id="send-btn" class="flex-shrink-0 bg-slate-900 hover:bg-indigo-600 hover:scale-105 text-white w-10 h-10 md:w-11 md:h-11 rounded-xl md:rounded-2xl shadow-md transition-all active:scale-95 flex items-center justify-center shrink-0">
-                  <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                      <i data-lucide="arrow-up" class="w-5 h-5 stroke-[2.5]"></i>
-                  </span>
-                </button>
-              </div>
-              <div class="text-center mt-2">
-                  <span class="text-[10px] text-slate-400 font-medium">Joes AI can make mistakes. Consider verifying important information.</span>
-              </div>
-              <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt,.doc,.docx">
-            </div>
-          </div>
-        </div>
-      </main>
+      <button id="toggle-phone-btn" class="w-full text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center hover:text-indigo-600 transition-colors">Access via Phone Number</button>
     </div>
   </div>
 
-  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xl hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-      <div class="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-900 text-white">
-          <span class="text-sm font-bold flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4 text-indigo-400"></i> Sandbox Live Preview</span>
-          <button id="sandbox-close-btn" class="text-slate-400 hover:text-white font-semibold transition-colors flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg">
-              <i data-lucide="x" class="w-4 h-4"></i> Close
-          </button>
+  <!-- WORKSPACE DASHBOARD -->
+  <div id="workspace" class="flex h-screen hidden">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-slate-100 flex flex-col shrink-0 transition-all duration-400">
+      <div class="h-20 px-6 flex items-center justify-between border-b border-slate-50 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white"><i data-lucide="zap" class="w-4 h-4"></i></div>
+          <span class="sidebar-txt font-black text-lg tracking-tight text-slate-900">Joes AI</span>
+        </div>
       </div>
-      <div class="flex-1 bg-white relative">
-          <iframe id="sandbox-iframe" class="w-full h-full border-none"></iframe>
+
+      <div class="p-4 flex flex-col flex-1 overflow-hidden">
+        <button id="reset-workspace" class="w-full h-12 bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl flex items-center justify-center gap-2 mb-6 font-bold shadow-lg transition-all active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i> <span class="sidebar-txt">New Workspace</span>
+        </button>
+        <div id="session-history" class="flex-1 overflow-y-auto space-y-1"></div>
       </div>
+
+      <div class="p-6 border-t bg-slate-50/50 space-y-4">
+        <div class="flex items-center gap-3 bg-white p-3 border rounded-2xl shadow-sm sidebar-txt">
+          <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-indigo-600"><i data-lucide="user" class="w-4 h-4"></i></div>
+          <div class="overflow-hidden">
+             <p id="user-display-email" class="text-xs font-bold truncate">...</p>
+             <button id="sign-out" class="text-[9px] font-black text-red-400 uppercase tracking-widest">Logout</button>
+          </div>
+        </div>
+        <select id="mode-trigger" class="w-full p-3 bg-white border rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none shadow-sm cursor-pointer sidebar-txt">
+          <option value="chat">Intelligent Chat</option>
+          <option value="code">Code Engineering</option>
+          <option value="study">Academic Lab</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- Content Engine -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-white relative">
+      <header class="h-20 flex items-center justify-between px-6 md:px-10 bg-white/80 backdrop-blur-xl border-b border-slate-100 z-10 shrink-0">
+         <div class="flex items-center gap-4">
+            <button id="sidebar-fold" class="p-2 -ml-2 text-slate-400 hover:text-indigo-600 transition-colors"><i data-lucide="menu" class="w-5 h-5"></i></button>
+            <div>
+               <h2 class="text-slate-900 font-extrabold text-lg">Joes AI Hub</h2>
+               <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em]">Connected / Neural-02</p>
+            </div>
+         </div>
+         <div class="flex gap-2">
+            <button id="export-btn" class="p-2.5 text-slate-400 hover:text-indigo-600 transition-colors rounded-xl"><i data-lucide="download" class="w-5 h-5"></i></button>
+            <button id="clear-view" class="p-2.5 text-slate-400 hover:text-red-500 transition-colors rounded-xl"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+         </div>
+      </header>
+
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-10 space-y-10 relative">
+        <!-- WELCOME STATE / SPLASH AREA -->
+        <div id="welcome-area" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center animate__animated animate__fadeIn">
+          <div class="w-24 h-24 md:w-32 md:h-32 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center text-white shadow-2xl mb-8 animate__animated animate__zoomIn">
+            <i data-lucide="zap" class="w-12 h-12 md:w-16 md:h-16"></i>
+          </div>
+          <h3 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Joes AI</h3>
+          <p class="text-lg md:text-xl font-bold text-slate-400 italic mb-8 max-w-xl">"Your Intelligent AI Assistant & Coding Workspace"</p>
+          <div class="flex flex-wrap justify-center gap-3">
+             <span class="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-sm">Real-time Visuals</span>
+             <span class="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-sm">Enterprise Coding</span>
+             <span class="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest shadow-sm">Live Search</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 md:p-10 pt-0 shrink-0">
+        <div class="max-w-4xl mx-auto">
+          <div class="relative bg-slate-50 border border-slate-200 p-2 rounded-[2.5rem] flex items-end gap-2 focus-within:bg-white focus-within:shadow-2xl focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+             <button id="clip-trigger" class="p-3 text-slate-400 hover:text-indigo-600 transition-all shrink-0"><i data-lucide="paperclip" class="w-6 h-6"></i></button>
+             <textarea id="user-input" rows="1" placeholder="Type a message or task..." class="flex-1 bg-transparent border-none focus:ring-0 p-3 text-lg font-medium text-slate-800 outline-none resize-none overflow-hidden" style="min-height: 54px;"></textarea>
+             <button id="send-trigger" class="w-14 h-14 bg-indigo-600 text-white rounded-[1.4rem] shadow-xl shadow-indigo-100 flex items-center justify-center shrink-0 hover:bg-slate-900 transition-all active:scale-90">
+                <i data-lucide="send" class="w-6 h-6"></i>
+             </button>
+          </div>
+          <div class="flex justify-center mt-5">
+             <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">Engineered By Akram Joes Technologies</p>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false, theme: 'default', look: 'handDrawn' });
-    window.mermaid = mermaid;
-  </script>
+    const ENDPOINT = 'https://joes-ai-server.onrender.com';
+    let auth, verifier, confirmRef, mode = 'chat', chat_history = [];
 
-  <script type="module">
-    const BACKEND_URL = 'https://joes-ai-server.onrender.com';
-    let auth = null;
-    let currentUser = null;
-    let userId = 'default';
-    let currentSessionId = null;
-    let authMode = 'signin';
-
-    // Remove Spinning Circle Loader on Complete Parse Execution Window
-    async function initApp() {
-        const loader = document.getElementById('page-loader');
-        
-        try {
-            // Step 1: Query Dynamic Configuration Setup from Cloud Backend Env Layers
-            const configRes = await fetch(`${BACKEND_URL}/api/config`);
-            if (!configRes.ok) throw new Error("Backend setup configurations unreached.");
-            const firebaseConfig = await configRes.json();
-            
-            // Step 2: Initialize Firebase Client
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            auth = firebase.auth();
-
-            // Ported: Setup all Email/Phone Auth Event Listeners
-            setupAuthEventListeners();
-
-            // Step 3: Configure Auth State Observability Change Flow
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    currentUser = user;
-                    userId = user.uid;
-                    document.getElementById('user-status-email').innerText = user.email || user.phoneNumber || 'Verified Account';
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    checkAdminStatus(user.email);
-                } else {
-                    currentUser = null;
-                    document.getElementById('app').classList.add('hidden');
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                }
-                
-                // Clear the loader layout once auth determination completes
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => { loader.style.display = 'none'; }, 500);
-                }
-            });
-
-        } catch (err) {
-            console.error("Initialization Failed:", err);
-            // Fallback clear loader layout so developer can troubleshoot console
-            if (loader) loader.style.display = 'none';
-            alert("Backend status offline. Ensure your Render web service is live and active.");
-        }
-
-        if (window.lucide) { lucide.createIcons(); }
+    async function bootstrap() {
+      try {
+        const configRes = await fetch(`${ENDPOINT}/api/config`);
+        const firebaseConfig = await configRes.json();
+        if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        setupEvents();
+        monitorAuth();
+      } catch(e) { console.error("Bootstrap Failure", e); }
     }
 
-    // --- PORTED AUTHENTICATION LOGIC FROM INDEX.HTML ---
-    function setupAuthEventListeners() {
-        if (!auth) return;
+    function monitorAuth() {
+       auth.onAuthStateChanged(user => {
+         document.getElementById('loader').classList.add('opacity-0');
+         setTimeout(() => document.getElementById('loader').remove(), 500);
 
-        // Auth Tab Toggles
-        document.getElementById('tab-signin').addEventListener('click', () => {
-            authMode = 'signin';
-            toggleAuthTabs('signin');
-        });
-        document.getElementById('tab-signup').addEventListener('click', () => {
-            authMode = 'signup';
-            toggleAuthTabs('signup');
-        });
-
-        // Phone Toggle
-        document.getElementById('phone-toggle').addEventListener('click', () => {
-            document.getElementById('phone-block').classList.toggle('hidden');
-        });
-
-        // Setup Recaptcha
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-
-        // Phone Auth
-        document.getElementById('otp-btn').addEventListener('click', async () => {
-            const phoneNumber = document.getElementById('auth-phone').value.trim();
-            if (!phoneNumber) return alert("Please enter your phone number.");
-            try {
-                const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
-                window.confirmationResult = confirmationResult;
-                document.getElementById('auth-otp').classList.remove('hidden');
-                alert("Verification OTP sent! Enter the code below.");
-            } catch (err) {
-                alert(`Phone request failed: ${err.message}`);
-            }
-        });
-
-        // Email / Password Auth Submission
-        document.getElementById('auth-submit-btn').addEventListener('click', async () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) return alert("Please fill in your credentials.");
-
-            try {
-                if (authMode === 'signin') {
-                    await auth.signInWithEmailAndPassword(email, password);
-                } else {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                }
-            } catch (err) {
-                alert(`Authentication Failed: ${err.message}`);
-            }
-        });
-
-        // Google/Github Authentication Strategy Bindings (Updated to Match index.html popup handling)
-        document.getElementById('google-login-btn').addEventListener('click', async () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (err) {
-                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-                    await auth.signInWithRedirect(provider);
-                } else {
-                    alert(`Google Auth Failed: ${err.message}`);
-                }
-            }
-        });
-
-        document.getElementById('github-login-btn').addEventListener('click', async () => {
-            const provider = new firebase.auth.GithubAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (err) {
-                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-                    await auth.signInWithRedirect(provider);
-                } else {
-                    alert(`GitHub Auth Failed: ${err.message}`);
-                }
-            }
-        });
-
-        // Logout
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            if (confirm("Log out of Joes AI?")) {
-                try {
-                    await auth.signOut();
-                    location.reload();
-                } catch (err) { alert("Sign-out failed."); }
-            }
-        });
+         if(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('workspace').classList.remove('hidden');
+            document.getElementById('user-display-email').textContent = user.email || user.phoneNumber;
+         } else {
+            document.getElementById('auth-screen').classList.remove('hidden');
+            document.getElementById('workspace').classList.add('hidden');
+         }
+         if(window.lucide) lucide.createIcons();
+       });
     }
 
-    function toggleAuthTabs(active) {
-        const signinBtn = document.getElementById('tab-signin');
-        const signupBtn = document.getElementById('tab-signup');
-        const title = document.getElementById('auth-title');
-        const activeClass = "flex-1 pb-3 text-center border-b-[3px] border-indigo-600 font-bold text-sm text-indigo-600 transition-colors";
-        const inactiveClass = "flex-1 pb-3 text-center border-b-[3px] border-transparent font-semibold text-sm text-slate-400 hover:text-slate-600 transition-colors";
-        
-        if (active === 'signin') {
-            signinBtn.className = activeClass;
-            signupBtn.className = inactiveClass;
-            title.textContent = "Sign In to Joes AI";
-        } else {
-            signupBtn.className = activeClass;
-            signinBtn.className = inactiveClass;
-            title.textContent = "Create an Account";
-        }
+    function setupEvents() {
+       // Tab Switches
+       document.getElementById('login-tab').onclick = () => switchAuth(true);
+       document.getElementById('signup-tab').onclick = () => switchAuth(false);
+       
+       // Real-time TextArea
+       const area = document.getElementById('user-input');
+       area.oninput = () => { 
+          area.style.height = '54px'; 
+          area.style.height = Math.min(area.scrollHeight, 200) + 'px'; 
+       };
+       area.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); processPrompt(); } };
+       document.getElementById('send-trigger').onclick = processPrompt;
+
+       // Social Logins
+       document.getElementById('google-auth').onclick = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+       document.getElementById('github-auth').onclick = () => auth.signInWithPopup(new firebase.auth.GithubAuthProvider());
+
+       // Phone Flow
+       document.getElementById('toggle-phone-btn').onclick = () => document.getElementById('phone-zone').classList.toggle('hidden');
+       document.getElementById('send-otp').onclick = async () => {
+          verifier = new firebase.auth.RecaptchaVerifier('recaptcha-box', { size: 'invisible' });
+          confirmRef = await auth.signInWithPhoneNumber(document.getElementById('phone-field').value, verifier);
+          document.getElementById('otp-field').classList.remove('hidden');
+       };
+
+       document.getElementById('submit-auth').onclick = async () => {
+          const email = document.getElementById('email-field').value;
+          const pass = document.getElementById('pass-field').value;
+          const otp = document.getElementById('otp-field').value;
+
+          try {
+             if(otp) { await confirmRef.confirm(otp); }
+             else { 
+                const isLogin = document.getElementById('login-tab').classList.contains('text-indigo-600');
+                if(isLogin) await auth.signInWithEmailAndPassword(email, pass);
+                else await auth.createUserWithEmailAndPassword(email, pass);
+             }
+          } catch(e) { alert(e.message); }
+       };
+
+       document.getElementById('sign-out').onclick = () => auth.signOut();
+       document.getElementById('sidebar-fold').onclick = () => document.getElementById('sidebar').classList.toggle('sidebar-collapsed');
     }
-    // --- END PORTED AUTHENTICATION LOGIC ---
 
-    async function checkAdminStatus(email) {
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/check-admin`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (data.isAdmin || email.toLowerCase().includes('kaigwaakram')) { // Fallback safety inclusion
-                document.getElementById('admin-trigger').classList.remove('hidden');
-            }
-        } catch(e) { console.error("Admin verification step failed."); }
+    async function processPrompt() {
+       const box = document.getElementById('user-input');
+       const msg = box.value.trim();
+       if(!msg) return;
+
+       document.getElementById('welcome-area').style.display = 'none';
+       appendBubble('user', msg);
+       box.value = ''; 
+       box.style.height = '54px';
+
+       const loaderId = showSkeleton();
+
+       try {
+         const r = await fetch(`${ENDPOINT}/api/gemini`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ message: msg, mode: document.getElementById('mode-trigger').value, history: chat_history })
+         });
+         const data = await r.json();
+         hideSkeleton(loaderId);
+         appendBubble('model', data.text);
+       } catch(e) { hideSkeleton(loaderId); appendBubble('model', "Search connection failed. Please check environment variables."); }
     }
 
-    // Dynamic Tracking Mesh UI Lighting Effect
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth) * 100;
-        const y = (e.clientY / window.innerHeight) * 100;
-        document.body.style.setProperty('--mouse-x', `${x}%`);
-        document.body.style.setProperty('--mouse-y', `${y}%`);
-    });
+    function appendBubble(role, txt) {
+       const wrap = document.getElementById('chat-messages');
+       const bubble = document.createElement('div');
+       bubble.className = `flex ${role==='user'?'justify-end':'justify-start'} animate__animated animate__fadeInUp`;
+       
+       const content = document.createElement('div');
+       content.className = `${role==='user'?'bg-indigo-600 text-white rounded-tr-none shadow-indigo-100':'bg-white border rounded-tl-none shadow-sm prose max-w-full overflow-hidden'} p-5 rounded-[1.8rem] shadow-xl text-lg font-medium transition-all hover:scale-[1.01]`;
+       
+       if(role === 'model') {
+         content.innerHTML = marked.parse(txt);
+         chat_history.push({ role, content: txt });
+         content.querySelectorAll('pre code').forEach(el => Prism.highlightElement(el));
+       } else {
+         content.textContent = txt;
+       }
 
-    // --- GEMINI STYLE SIDEBAR LOGIC ---
-    const sidebar = document.getElementById('sidebar');
-    const desktopToggle = document.getElementById('desktop-sidebar-toggle');
-    
-    desktopToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        const icon = desktopToggle.querySelector('.toggle-icon');
-        if(sidebar.classList.contains('collapsed')) {
-            icon.setAttribute('data-lucide', 'panel-left-open');
-        } else {
-            icon.setAttribute('data-lucide', 'panel-left-close');
-        }
-        lucide.createIcons();
-    });
+       bubble.appendChild(content);
+       wrap.appendChild(bubble);
+       wrap.scrollTop = wrap.scrollHeight;
+    }
 
-    // Setup Layout Routing Triggers (Mobile)
-    document.getElementById('sidebar-open-btn').addEventListener('click', () => {
-        sidebar.classList.remove('-translate-x-full');
-    });
-    document.getElementById('sidebar-close-btn').addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-    });
+    function showSkeleton() {
+       const id = 'ske-' + Date.now();
+       const wrap = document.getElementById('chat-messages');
+       const skel = document.createElement('div');
+       skel.id = id;
+       skel.innerHTML = `
+        <div class="flex justify-start gap-4 animate-pulse">
+          <div class="w-12 h-12 bg-slate-100 rounded-2xl"></div>
+          <div class="flex-1 space-y-3 pt-2">
+            <div class="h-3 bg-slate-100 rounded-full w-2/3 shimmer-loader"></div>
+            <div class="h-3 bg-slate-100 rounded-full w-1/2 shimmer-loader"></div>
+          </div>
+        </div>`;
+       wrap.appendChild(skel);
+       wrap.scrollTop = wrap.scrollHeight;
+       return id;
+    }
 
-    // Slash Utility Interaction Framework Helper
-    window.insertSlashCommand = function(cmd) {
-        const txtArea = document.getElementById('message-input');
-        let text = '';
-        if (cmd === '/explain') text = 'Please explain this concept in simple terms: ';
-        else if (cmd === '/refactor') text = 'Please optimize and refactor this code for performance: ';
-        else if (cmd === '/test') text = 'Please generate comprehensive unit tests for this code: ';
-        else if (cmd === '/summarize') text = 'Please provide a clear bulleted summary of this text: ';
+    function hideSkeleton(id) { const el = document.getElementById(id); if(el) el.remove(); }
+    function switchAuth(isLogin) {
+       document.getElementById('login-tab').className = isLogin ? "flex-1 py-2 text-xs font-bold rounded-xl bg-white shadow text-indigo-600" : "flex-1 py-2 text-xs font-bold rounded-xl text-slate-400";
+       document.getElementById('signup-tab').className = !isLogin ? "flex-1 py-2 text-xs font-bold rounded-xl bg-white shadow text-indigo-600" : "flex-1 py-2 text-xs font-bold rounded-xl text-slate-400";
+    }
 
-        txtArea.value = text;
-        document.getElementById('slash-menu').classList.add('hidden');
-        txtArea.focus();
-    };
-
-    document.querySelectorAll('#slash-menu button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const cmd = btn.getAttribute('data-cmd');
-            if(cmd) window.insertSlashCommand(cmd);
-        });
-    });
-
-    document.getElementById('message-input').addEventListener('input', (e) => {
-        const menu = document.getElementById('slash-menu');
-        if (e.target.value === '/') {
-            menu.classList.remove('hidden');
-        } else if (!e.target.value.startsWith('/')) {
-            menu.classList.add('hidden');
-        }
-        // Auto-resize
-        e.target.style.height = 'auto';
-        e.target.style.height = (e.target.scrollHeight) + 'px';
-    });
-
-    // Run core engine stack initiation sequence
-    initApp();
+    bootstrap();
   </script>
 </body>
 </html>
