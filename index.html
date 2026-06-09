@@ -38,7 +38,7 @@
     
     /* Default soft off-white cream background gradient */
     .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #f8fafc; }
-    body.light { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
+    body.cream { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
     
     /* Hardware Accelerated Glassmorphism saturated panels */
     .chat-gradient { 
@@ -47,19 +47,19 @@
       border: 1px solid rgba(148, 163, 184, 0.18); 
       color: #0f172a; 
     }
-    body.light .chat-gradient { 
+    body.cream .chat-gradient { 
       background: rgba(255, 255, 255, 0.92) !important; 
       backdrop-filter: blur(24px); 
       border: 1px solid rgba(148, 163, 184, 0.14); 
       color: #1e293b !important; 
     }
-    body.light .bg-black\/20 { background-color: rgba(15, 23, 42, 0.06) !important; }
-    body.light .bg-black\/40 { background-color: rgba(15, 23, 42, 0.10) !important; }
-    body.light .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
-    body.light .border-white\/5 { border-color: rgba(15, 23, 42, 0.04) !important; }
-    body.light .border-white\/20 { border-color: rgba(15, 23, 42, 0.12) !important; }
-    body.light .bg-white\/5 { background-color: rgba(255, 255, 255, 0.65) !important; }
-    body.light .bg-white\/10 { background-color: rgba(255, 255, 255, 0.8) !important; }
+    body.cream .bg-black\/20 { background-color: rgba(15, 23, 42, 0.06) !important; }
+    body.cream .bg-black\/40 { background-color: rgba(15, 23, 42, 0.10) !important; }
+    body.cream .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
+    body.cream .border-white\/5 { border-color: rgba(15, 23, 42, 0.04) !important; }
+    body.cream .border-white\/20 { border-color: rgba(15, 23, 42, 0.12) !important; }
+    body.cream .bg-white\/5 { background-color: rgba(255, 255, 255, 0.65) !important; }
+    body.cream .bg-white\/10 { background-color: rgba(255, 255, 255, 0.8) !important; }
 
     .glowing-input {
       position: relative;
@@ -129,7 +129,7 @@
 
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
-    body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
+    body.cream #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
 
     /* Custom Snake Motion Wave Animation */
     @keyframes snakeWave {
@@ -437,7 +437,26 @@
         border-color: #fbbf24;
         box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
     }
-  </style>
+  
+    /* Live disappearing glowing dots */
+    @keyframes disappearingDot {
+        0% { opacity: 1; transform: scale(1); filter: blur(0); }
+        55% { opacity: 0.65; transform: scale(1.35); filter: blur(1px); }
+        100% { opacity: 0; transform: scale(1.8); filter: blur(4px); }
+    }
+    .disappearing-dot {
+        animation: disappearingDot 1.8s ease-in-out infinite;
+        width: 8px;
+        height: 8px;
+        background: radial-gradient(circle, #fbbf24 0%, #f59e0b 45%, transparent 70%);
+        border-radius: 50%;
+        box-shadow: 0 0 16px rgba(251, 191, 36, 0.55);
+        display: inline-block;
+    }
+    .disappearing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .disappearing-dot:nth-child(3) { animation-delay: 0.4s; }
+    .disappearing-dot:nth-child(4) { animation-delay: 0.6s; }
+</style>
 </head>
 <body class="gradient-bg min-h-screen text-slate-900 relative">
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
@@ -842,11 +861,11 @@ function setupThemeHandler() {
             localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'cream');
         });
 
-        if (localStorage.getItem('joes_ai_theme') === 'light') {
-            document.body.classList.add('light');
-            themeBtn.innerHTML = '☀️';
+        if (localStorage.getItem('joes_ai_theme') === 'cream') {
+            document.body.classList.add('cream');
+            themeBtn.innerHTML = '🌙';
         } else {
-            document.body.classList.remove('light');
+            document.body.classList.remove('cream');
             themeBtn.innerHTML = '🌙';
         }
     }
