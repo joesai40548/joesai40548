@@ -34,18 +34,18 @@
   <style>
     /* Reset margins and force full-height canvas safely */
     html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
-    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; color: #f1f5f9; background-color: #0b0f19; }
-    body.light { color: #0f172a; background-color: #f8fafc; }
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; color: #0f172a; }
     
-    .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #0b0f19; }
-    body.light .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
+    /* Default soft off-white cream background gradient */
+    .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #f8fafc; }
+    body.light { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
     
     /* Hardware Accelerated Glassmorphism saturated panels */
     .chat-gradient { 
-      background: rgba(15, 23, 42, 0.65) !important; 
+      background: rgba(255, 255, 255, 0.78) !important; 
       backdrop-filter: blur(24px) saturate(180%); 
-      border: 1px solid rgba(255, 255, 255, 0.08); 
-      color: #f1f5f9; 
+      border: 1px solid rgba(148, 163, 184, 0.18); 
+      color: #0f172a; 
     }
     body.light .chat-gradient { 
       background: rgba(255, 255, 255, 0.92) !important; 
@@ -172,25 +172,22 @@
 
     /* Markdown tables layout styling */
     table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-    th { background-color: rgba(255, 255, 255, 0.08); color: #a78bfa !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
-    body.light th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; }
-    td { padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: left; }
-    body.light td { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
-    tr:hover { background-color: rgba(255, 255, 255, 0.03); }
-    body.light tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+    th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); text-align: left; }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); text-align: left; }
+    tr:hover { background-color: rgba(0, 0, 0, 0.02); }
 
-    /* Light Theme typography adjustments */
-    body.light .text-white { color: #1e293b !important; }
-    body.light .text-white\/30 { color: rgba(30, 41, 59, 0.5) !important; }
-    body.light .text-white\/40 { color: rgba(30, 41, 59, 0.6) !important; }
-    body.light .text-white\/50 { color: rgba(30, 41, 59, 0.7) !important; }
-    body.light textarea { color: #1e293b !important; background: transparent; border-color: transparent; }
-    body.light select { color: #1e293b !important; background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
-    body.light aside { background: rgba(241, 245, 249, 0.95); border-color: rgba(0,0,0,0.1); }
-    body.light header { background: rgba(255, 255, 255, 0.6); border-color: rgba(0,0,0,0.05); }
-    body.light #welcome-msg h1 { color: #1e293b !important; }
-    body.light .chat-gradient p, body.light .chat-gradient li { color: #334155 !important; }
-    body.light .chat-gradient strong { color: #4338ca !important; }
+    /* Theme typography adjustments */
+    body .text-white { color: #1e293b !important; }
+    body .text-white\/30 { color: rgba(30, 41, 59, 0.5) !important; }
+    body .text-white\/40 { color: rgba(30, 41, 59, 0.6) !important; }
+    body .text-white\/50 { color: rgba(30, 41, 59, 0.7) !important; }
+    body textarea { color: #1e293b !important; background: transparent; border-color: transparent; }
+    body select { color: #1e293b !important; background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
+    body aside { background: rgba(241, 245, 249, 0.95); border-color: rgba(0,0,0,0.1); }
+    body header { background: rgba(255, 255, 255, 0.6); border-color: rgba(0,0,0,0.05); }
+    body #welcome-msg h1 { color: #1e293b !important; }
+    body .chat-gradient p, body .chat-gradient li { color: #334155 !important; }
+    body .chat-gradient strong { color: #4338ca !important; }
 
     /* Unified mobile-responsive container protecting Safe Areas on phones */
     .app-container {
@@ -442,7 +439,7 @@
     }
   </style>
 </head>
-<body class="gradient-bg light min-h-screen text-slate-900 relative">
+<body class="gradient-bg min-h-screen text-slate-900 relative">
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
     <div class="w-14 h-14 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
   </div>
@@ -842,7 +839,7 @@ function setupThemeHandler() {
             document.body.classList.toggle('light');
             const lightActive = document.body.classList.contains('light');
             themeBtn.innerHTML = lightActive ? '☀️' : '🌙';
-            localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'dark');
+            localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'cream');
         });
 
         if (localStorage.getItem('joes_ai_theme') === 'light') {
@@ -1434,12 +1431,14 @@ ${msg.content}
         
         const temporaryCodeVault = [];
         
-        // Securely escape raw inputs before parsing markdown logic to prevent XSS
+        // Collapse 3 or more consecutive newlines to maximum 2 to avoid huge empty scattered gaps
         let escaped = text
+            .replace(/\n{3,}/g, '\n\n')
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
 
+        // Extract code blocks first to protect them from parsing
         escaped = escaped.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
             const token = `__CODE_TOKEN_REPLACEMENT_${temporaryCodeVault.length}__`;
             temporaryCodeVault.push({ lang, code });
@@ -1452,15 +1451,19 @@ ${msg.content}
         });
 
         escaped = escaped.replace(/___IMG_START___(.*?)___ALT___(.*?)___IMG_END___/g, (match, src, alt) => {
-            return `
-                <div class="my-4 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-xl max-w-full bg-slate-100/80 dark:bg-slate-800/80">
-                    <img src="${src}" alt="${alt}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain max-h-[380px]" onerror="this.onerror=null; this.classList.add('hidden');">
-                    <p class="p-2 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/90 dark:bg-slate-800/90 border-t border-slate-200/50 dark:border-slate-700">${alt}</p>
+            const wrapperClass = "bg-white/60 border-slate-200/80 shadow-md";
+            const captionClass = "bg-slate-50/90 text-slate-500 border-slate-200";
+            // Strip newlines inside image template to prevent hoisted <br>
+            const html = `
+                <div class="image-card my-4 overflow-hidden rounded-xl border shadow-xl max-w-full ${wrapperClass}">
+                    <img src="${src}" alt="${alt}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain max-h-[380px]" onerror="this.onerror=null; this.closest('.image-card').remove();">
+                    <p class="p-2 text-center text-xs border-t ${captionClass}">${alt}</p>
                 </div>
             `;
+            return html.replace(/\n/g, ' ');
         });
 
-        // Refined line-by-line GFM table construction
+        // Refined line-by-line GFM table construction with clean, cream-safe styling
         const lines = escaped.split('\n');
         let insideTable = false;
         let generatedTableBuffer = '';
@@ -1477,10 +1480,13 @@ ${msg.content}
                 const columnValues = rawLine.split('|').slice(1, -1).map(v => v.trim());
                 if (!insideTable) {
                     insideTable = true;
+                    const wrapperClass = "bg-white/60 border-slate-200/80 shadow-md";
+                    const headClass = "bg-slate-100/90 text-amber-600";
+                    
                     generatedTableBuffer = `
-                        <div class="overflow-x-auto my-4 border border-slate-200 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 shadow-lg max-w-full">
-                            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm text-left">
-                                <thead class="bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-amber-500 uppercase tracking-wider">
+                        <div class="overflow-x-auto my-4 border rounded-xl max-w-full ${wrapperClass}">
+                            <table class="min-w-full divide-y divide-slate-200 text-sm text-left">
+                                <thead class="${headClass} text-xs font-semibold uppercase tracking-wider">
                                     <tr>
                     `;
                     columnValues.forEach(columnTitle => {
@@ -1489,19 +1495,21 @@ ${msg.content}
                     generatedTableBuffer += `
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                                <tbody class="divide-y divide-slate-200">
                     `;
                 } else {
-                    generatedTableBuffer += `<tr class="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">`;
+                    const textClass = "text-slate-800";
+                    generatedTableBuffer += `<tr class="hover:bg-slate-100/50 transition-colors">`;
                     columnValues.forEach(cellValue => {
-                        generatedTableBuffer += `<td class="px-4 py-3 text-slate-900 dark:text-slate-100">${cellValue}</td>`;
+                        generatedTableBuffer += `<td class="px-4 py-3 ${textClass}">${cellValue}</td>`;
                     });
                     generatedTableBuffer += `</tr>`;
                 }
             } else {
                 if (insideTable) {
                     generatedTableBuffer += `</tbody></table></div>`;
-                    compiledLines.push(generatedTableBuffer);
+                    // Strip all newlines inside table markup to prevent hoisted <br> tags above it
+                    compiledLines.push(generatedTableBuffer.replace(/\n/g, ' '));
                     generatedTableBuffer = '';
                     insideTable = false;
                 }
@@ -1510,7 +1518,7 @@ ${msg.content}
         }
         if (insideTable) {
             generatedTableBuffer += `</tbody></table></div>`;
-            compiledLines.push(generatedTableBuffer);
+            compiledLines.push(generatedTableBuffer.replace(/\n/g, ' '));
         }
 
         escaped = compiledLines.join('\n');
@@ -1523,13 +1531,17 @@ ${msg.content}
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                     </svg>
                 </a>
-            `;
+            `.replace(/\n/g, ' '); // Clean inline link
         });
 
         escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-amber-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
             .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-amber-700">$1</strong>')
             .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-slate-700">$1</li>');
 
+        // Convert actual remaining text newlines into <br> tags
+        escaped = escaped.replace(/\n/g, '<br>');
+
+        // Restore protected code blocks at the very end to keep formatting exact
         temporaryCodeVault.forEach((block, idx) => {
             const token = `__CODE_TOKEN_REPLACEMENT_${idx}__`;
             const displayLang = block.lang ? block.lang.toUpperCase() : 'CODE';
@@ -1567,7 +1579,7 @@ ${msg.content}
             escaped = escaped.replace(token, finalOutput);
         });
 
-        return escaped.replace(/\n/g, '<br>');
+        return escaped;
     }
 
     function initializeApp() {
@@ -1610,18 +1622,18 @@ ${msg.content}
             return `
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     ${videos.map(v => `
-                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                        <div class="bg-white/95 rounded-xl border border-slate-200/70 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
                             <div class="relative aspect-video bg-slate-100 overflow-hidden">
                                 <img src="${v.thumbnail}" referrerpolicy="no-referrer" loading="lazy" alt="${v.title}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/320x180?text=No+Thumbnail';">
                                 <span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">Video</span>
                             </div>
                             <div class="p-3 flex-grow flex flex-col justify-between">
                                 <div>
-                                    <h4 class="font-semibold text-slate-900 dark:text-slate-100 text-sm line-clamp-2" title="${v.title}">${v.title}</h4>
-                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">${v.channelTitle}</p>
-                                    <p class="text-slate-400 dark:text-slate-500 text-[11px] mt-1 line-clamp-2">${v.description || ''}</p>
+                                    <h4 class="font-semibold text-slate-800 text-sm line-clamp-2" title="${v.title}">${v.title}</h4>
+                                    <p class="text-slate-500 text-xs mt-1 font-medium">${v.channelTitle}</p>
+                                    <p class="text-slate-400 text-[11px] mt-1 line-clamp-2">${v.description || ''}</p>
                                 </div>
-                                <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
                                     <a href="${v.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-amber-500 hover:text-amber-400 inline-flex items-center gap-1">
                                         ▶ Play Video
                                     </a>
