@@ -38,7 +38,7 @@
     
     /* Default soft off-white cream background gradient */
     .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #f8fafc; }
-    body.cream { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
+    body.light { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
     
     /* Hardware Accelerated Glassmorphism saturated panels */
     .chat-gradient { 
@@ -47,19 +47,19 @@
       border: 1px solid rgba(148, 163, 184, 0.18); 
       color: #0f172a; 
     }
-    body.cream .chat-gradient { 
+    body.light .chat-gradient { 
       background: rgba(255, 255, 255, 0.92) !important; 
       backdrop-filter: blur(24px); 
       border: 1px solid rgba(148, 163, 184, 0.14); 
       color: #1e293b !important; 
     }
-    body.cream .bg-black\/20 { background-color: rgba(15, 23, 42, 0.06) !important; }
-    body.cream .bg-black\/40 { background-color: rgba(15, 23, 42, 0.10) !important; }
-    body.cream .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
-    body.cream .border-white\/5 { border-color: rgba(15, 23, 42, 0.04) !important; }
-    body.cream .border-white\/20 { border-color: rgba(15, 23, 42, 0.12) !important; }
-    body.cream .bg-white\/5 { background-color: rgba(255, 255, 255, 0.65) !important; }
-    body.cream .bg-white\/10 { background-color: rgba(255, 255, 255, 0.8) !important; }
+    body.light .bg-black\/20 { background-color: rgba(15, 23, 42, 0.06) !important; }
+    body.light .bg-black\/40 { background-color: rgba(15, 23, 42, 0.10) !important; }
+    body.light .border-white\/10 { border-color: rgba(15, 23, 42, 0.08) !important; }
+    body.light .border-white\/5 { border-color: rgba(15, 23, 42, 0.04) !important; }
+    body.light .border-white\/20 { border-color: rgba(15, 23, 42, 0.12) !important; }
+    body.light .bg-white\/5 { background-color: rgba(255, 255, 255, 0.65) !important; }
+    body.light .bg-white\/10 { background-color: rgba(255, 255, 255, 0.8) !important; }
 
     .glowing-input {
       position: relative;
@@ -129,7 +129,7 @@
 
     #chat-messages::-webkit-scrollbar { width: 6px; }
     #chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 10px; }
-    body.cream #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
+    body.light #chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
 
     /* Custom Snake Motion Wave Animation */
     @keyframes snakeWave {
@@ -171,10 +171,13 @@
     .glowing-input { animation: borderGlow 6s ease-in-out infinite; }
 
     /* Markdown tables layout styling */
-    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
-    th { background-color: rgba(0, 0, 0, 0.05); color: #4f46e5 !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; tracking-wider; padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); text-align: left; }
-    td { padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); text-align: left; }
-    tr:hover { background-color: rgba(0, 0, 0, 0.02); }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; background: rgba(255, 255, 255, 0.4); border-radius: 12px; }
+    th { background-color: rgba(0, 0, 0, 0.04) !important; color: #4f46e5 !important; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.06); text-align: left; }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); text-align: left; color: #334155 !important; }
+    tr:hover { background-color: rgba(0, 0, 0, 0.015); }
+    
+    /* GFM bullet list styling alignments */
+    li { margin-left: 1.25rem; margin-top: 4px; margin-bottom: 4px; color: #475569; }
 
     /* Theme typography adjustments */
     body .text-white { color: #1e293b !important; }
@@ -616,7 +619,7 @@
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ 
         startOnLoad: false, 
-        theme: 'dark',
+        theme: 'default', // matches the light cream style!
         look: 'handDrawn',
         flowchart: { curve: 'cardinal' }
     });
@@ -861,11 +864,11 @@ function setupThemeHandler() {
             localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'cream');
         });
 
-        if (localStorage.getItem('joes_ai_theme') === 'cream') {
-            document.body.classList.add('cream');
-            themeBtn.innerHTML = '🌙';
+        if (localStorage.getItem('joes_ai_theme') === 'light') {
+            document.body.classList.add('light');
+            themeBtn.innerHTML = '☀️';
         } else {
-            document.body.classList.remove('cream');
+            document.body.classList.remove('light');
             themeBtn.innerHTML = '🌙';
         }
     }
@@ -1557,7 +1560,7 @@ ${msg.content}
             .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-amber-700">$1</strong>')
             .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-slate-700">$1</li>');
 
-        // Convert actual remaining text newlines into <br> tags
+        // Convert actual remaining text newlines into HTML breaks
         escaped = escaped.replace(/\n/g, '<br>');
 
         // Restore protected code blocks at the very end to keep formatting exact
