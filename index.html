@@ -34,17 +34,18 @@
   <style>
     /* Reset margins and force full-height canvas safely */
     html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
-    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; color: #0f172a; }
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; color: #f1f5f9; background-color: #0b0f19; }
+    body.light { color: #0f172a; background-color: #f8fafc; }
     
-    .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #f8fafc; }
-    body.light { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
+    .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 26%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.14), transparent 24%), #0b0f19; }
+    body.light .gradient-bg { background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.11), transparent 24%), radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 22%), #ffffff; }
     
     /* Hardware Accelerated Glassmorphism saturated panels */
     .chat-gradient { 
-      background: rgba(255, 255, 255, 0.78) !important; 
+      background: rgba(15, 23, 42, 0.65) !important; 
       backdrop-filter: blur(24px) saturate(180%); 
-      border: 1px solid rgba(148, 163, 184, 0.18); 
-      color: #0f172a; 
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      color: #f1f5f9; 
     }
     body.light .chat-gradient { 
       background: rgba(255, 255, 255, 0.92) !important; 
@@ -494,7 +495,6 @@
             <div class="flex flex-col gap-2">
                 <button id="drive-files-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">📁 Drive Files</button>
                 <button id="youtube-search-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">▶️ YouTube Search</button>
-                <button id="gmail-alert-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">📧 Gmail Alert</button>
             </div>
         </div>
     </aside>
@@ -557,7 +557,7 @@
   <div id="sandbox-modal" class="fixed inset-0 z-50 bg-white/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
       <div class="flex justify-between items-center p-4 border-b border-slate-200/70 bg-white/95 text-slate-900">
           <span class="text-sm font-semibold flex items-center gap-2">💻 Sandbox Live Code Preview</span>
-<button id="sandbox-close-btn" class="text-slate-700 hover:text-red-500 font-bold transition-colors">✕ Close</button>
+          <button id="sandbox-close-btn" class="text-slate-700 hover:text-red-500 font-bold transition-colors">✕ Close</button>
        </div>
        <div class="flex-1 bg-white">
            <iframe id="sandbox-iframe" sandbox="allow-scripts" class="w-full h-full border-none"></iframe>
@@ -593,34 +593,6 @@
            <div class="flex-1 overflow-auto" id="youtube-results-list">
                <p class="text-center text-slate-500 py-8">Search for videos...</p>
            </div>
-       </div>
-   </div>
-
-   <!-- Gmail Alert Modal -->
-   <div id="gmail-modal" class="fixed inset-0 z-50 bg-white/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-       <div class="flex justify-between items-center p-4 border-b border-slate-200/70 bg-white/95 text-slate-900">
-           <span class="text-sm font-semibold flex items-center gap-2">📧 Gmail Alert</span>
-           <button id="gmail-close-btn" class="text-slate-700 hover:text-red-500 font-bold transition-colors">✕ Close</button>
-       </div>
-       <div class="flex-1 p-4">
-           <form id="gmail-form" class="flex flex-col space-y-3">
-               <div class="flex flex-col space-y-1">
-                   <label for="gmail-to" class="text-slate-700 text-xs font-medium">To:</label>
-                   <input type="email" id="gmail-to" class="bg-slate-100/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-amber-500" placeholder="recipient@example.com" required>
-               </div>
-               <div class="flex flex-col space-y-1">
-                   <label for="gmail-subject" class="text-slate-700 text-xs font-medium">Subject:</label>
-                   <input type="text" id="gmail-subject" class="bg-slate-100/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-amber-500" placeholder="Alert Subject" required>
-               </div>
-               <div class="flex flex-col space-y-1">
-                   <label for="gmail-message" class="text-slate-700 text-xs font-medium">Message:</label>
-                   <textarea id="gmail-message" class="bg-slate-100/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-amber-500 min-h-[80px]" placeholder="Enter your alert message..." required></textarea>
-               </div>
-               <button type="submit" id="gmail-submit-btn" class="bg-gradient-to-r from-amber-500 to-yellow-400 hover:scale-105 text-white w-full py-2 rounded-2xl shadow-xl transition-all active:scale-95 font-medium">
-                   Send Alert
-               </button>
-               <p id="gmail-status" class="text-center text-xs mt-2"></p>
-           </form>
        </div>
    </div>
 
@@ -876,6 +848,9 @@ function setupThemeHandler() {
         if (localStorage.getItem('joes_ai_theme') === 'light') {
             document.body.classList.add('light');
             themeBtn.innerHTML = '☀️';
+        } else {
+            document.body.classList.remove('light');
+            themeBtn.innerHTML = '🌙';
         }
     }
 }
@@ -1329,7 +1304,7 @@ ${msg.content}
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error('Groq Offline');
+            if (!response.ok) throw new Error('Model Request Failed');
             aiText = data.text;
         }
 
@@ -1360,7 +1335,7 @@ ${msg.content}
       let attachmentHtml = '';
       if (attachmentData) {
           if (attachmentData.base64) {
-              attachmentHtml = `<img src="${attachmentData.base64}" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
+              attachmentHtml = `<img src="${attachmentData.base64}" referrerpolicy="no-referrer" class="rounded-xl max-w-full my-2 max-h-48 object-cover border border-white/10 shadow-md">`;
           } else {
               attachmentHtml = `
                   <div class="flex items-center space-x-3 p-3 my-2 bg-slate-100/80 border border-slate-200 rounded-xl max-w-sm text-xs">
@@ -1471,19 +1446,21 @@ ${msg.content}
             return token;
         });
 
-        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
-            return `___IMG_START___${src}___ALT___${alt || 'Image'}___IMG_END___`;
+        // Robust matching for markdown images
+        escaped = escaped.replace(/!\[([^\]]*)\]\(([^)]+?)(?:\s+"[^"]*")?\)/g, (match, alt, src) => {
+            return `___IMG_START___${src.trim()}___ALT___${alt || 'Image'}___IMG_END___`;
         });
 
         escaped = escaped.replace(/___IMG_START___(.*?)___ALT___(.*?)___IMG_END___/g, (match, src, alt) => {
             return `
-                <div class="my-4 overflow-hidden rounded-xl border border-slate-200 shadow-xl max-w-full bg-slate-100/80">
-                    <img src="${src}" alt="${alt}" class="w-full h-auto object-cover max-h-[350px]" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Unavailable';">
-                    <p class="p-2 text-center text-xs text-slate-500 bg-slate-100/80">${alt}</p>
+                <div class="my-4 overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-xl max-w-full bg-slate-100/80 dark:bg-slate-800/80">
+                    <img src="${src}" alt="${alt}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain max-h-[380px]" onerror="this.onerror=null; this.classList.add('hidden');">
+                    <p class="p-2 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/90 dark:bg-slate-800/90 border-t border-slate-200/50 dark:border-slate-700">${alt}</p>
                 </div>
             `;
         });
 
+        // Refined line-by-line GFM table construction
         const lines = escaped.split('\n');
         let insideTable = false;
         let generatedTableBuffer = '';
@@ -1492,6 +1469,7 @@ ${msg.content}
         for (let i = 0; i < lines.length; i++) {
             const rawLine = lines[i].trim();
             if (rawLine.startsWith('|') && rawLine.endsWith('|')) {
+                // If the line consists strictly of table separation indicators (GFM compliant)
                 if (/^[|:\-\s]+$/.test(rawLine)) {
                     insideTable = true;
                     continue;
@@ -1500,9 +1478,9 @@ ${msg.content}
                 if (!insideTable) {
                     insideTable = true;
                     generatedTableBuffer = `
-                        <div class="overflow-x-auto my-4 border border-white/10 rounded-xl bg-white/5 shadow-lg max-w-full">
-                            <table class="min-w-full divide-y divide-white/10 text-sm text-left">
-                                <thead class="bg-white/10 text-xs font-semibold text-amber-500 uppercase tracking-wider">
+                        <div class="overflow-x-auto my-4 border border-slate-200 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 shadow-lg max-w-full">
+                            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm text-left">
+                                <thead class="bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-amber-500 uppercase tracking-wider">
                                     <tr>
                     `;
                     columnValues.forEach(columnTitle => {
@@ -1511,12 +1489,12 @@ ${msg.content}
                     generatedTableBuffer += `
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-white/5">
+                                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                     `;
                 } else {
-                    generatedTableBuffer += `<tr class="hover:bg-slate-100 transition-colors">`;
+                    generatedTableBuffer += `<tr class="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">`;
                     columnValues.forEach(cellValue => {
-                        generatedTableBuffer += `<td class="px-4 py-3 text-slate-900">${cellValue}</td>`;
+                        generatedTableBuffer += `<td class="px-4 py-3 text-slate-900 dark:text-slate-100">${cellValue}</td>`;
                     });
                     generatedTableBuffer += `</tr>`;
                 }
@@ -1615,12 +1593,6 @@ ${msg.content}
         const youtubeSearchSubmit = document.getElementById('youtube-search-submit');
         const youtubeResultsList = document.getElementById('youtube-results-list');
 
-        const gmailModal = document.getElementById('gmail-modal');
-        const gmailCloseBtn = document.getElementById('gmail-close-btn');
-        const gmailForm = document.getElementById('gmail-form');
-        const gmailSubmitBtn = document.getElementById('gmail-submit-btn');
-        const gmailStatus = document.getElementById('gmail-status');
-
         driveCloseBtn.addEventListener('click', () => {
             driveModal.classList.add('hidden');
         });
@@ -1630,27 +1602,35 @@ ${msg.content}
             youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Search results will appear here.</p>';
         });
 
-        // Render YouTube results as a table
+        // Render YouTube results as robust visual card items
         function renderYouTubeResults(videos) {
             if (!videos.length) {
                 return '<p class="text-center text-slate-500">No videos found.</p>';
             }
-            const header = '<thead><tr><th class="px-3 py-2 text-left">Title</th><th class="px-3 py-2 text-left">Channel</th><th class="px-3 py-2 text-left">Actions</th></tr></thead>';
-            const rows = videos.map(v => `
-                <tr class="border-b border-slate-200">
-                    <td class="px-3 py-2">
-                        <p class="font-medium text-slate-900 truncate max-w-[150px]">${v.title}</p>
-                        <p class="text-slate-500 text-[10px]">${v.channelTitle}</p>
-                    </td>
-                    <td class="px-3 py-2">
-                        <p class="text-slate-500 text-xs">${v.channelTitle}</p>
-                    </td>
-                    <td class="px-3 py-2 space-x-1">
-                        <a href="${v.url}" target="_blank" class="text-blue-500 hover:text-blue-400 text-xs">Play</a>
-                        <a href="https://www.youtube.com/watch?v=${v.videoId}" download class="text-green-500 hover:text-green-400 text-xs" onclick="event.preventDefault(); alert('Download via 3rd party tools')">Download</a>
-                    </td>
-                </tr>`).join('');
-            return `<div class="overflow-x-auto"><table class="min-w-full text-xs">${header}<tbody>${rows}</tbody></table></div>`;
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${videos.map(v => `
+                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
+                            <div class="relative aspect-video bg-slate-100 overflow-hidden">
+                                <img src="${v.thumbnail}" referrerpolicy="no-referrer" loading="lazy" alt="${v.title}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/320x180?text=No+Thumbnail';">
+                                <span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">Video</span>
+                            </div>
+                            <div class="p-3 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-slate-900 dark:text-slate-100 text-sm line-clamp-2" title="${v.title}">${v.title}</h4>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">${v.channelTitle}</p>
+                                    <p class="text-slate-400 dark:text-slate-500 text-[11px] mt-1 line-clamp-2">${v.description || ''}</p>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                    <a href="${v.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-amber-500 hover:text-amber-400 inline-flex items-center gap-1">
+                                        ▶ Play Video
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
         // Update YouTube results rendering
@@ -1670,12 +1650,12 @@ ${msg.content}
                 const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, maxResults: 5 })
+                    body: JSON.stringify({ query, maxResults: 6 })
                 });
                 if (!response.ok) throw new Error('Search failed');
                 const data = await response.json();
                 const results = data.videos;
-                if (!results.length) {
+                if (!results || !results.length) {
                     updateYouTubeResults([]);
                 } else {
                     updateYouTubeResults(results);
@@ -1686,62 +1666,8 @@ ${msg.content}
             }
         });
 
-        // Gmail handlers
-        const openGmailModal = () => {
-            gmailModal.classList.remove('hidden');
-            gmailStatus.textContent = '';
-        };
-        const closeGmailModal = () => {
-            gmailModal.classList.add('hidden');
-            gmailForm.reset();
-            gmailStatus.textContent = '';
-        };
-        gmailCloseBtn.addEventListener('click', closeGmailModal);
-        gmailModal.addEventListener('click', (e) => {
-            if (e.target === gmailModal) closeGmailModal();
-        });
-
-        gmailSubmitBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const to = document.getElementById('gmail-to').value.trim();
-            const subject = document.getElementById('gmail-subject').value.trim();
-            const message = document.getElementById('gmail-message').value.trim();
-
-            if (!to || !subject || !message) {
-                gmailStatus.textContent = 'All fields are required.';
-                gmailStatus.className = 'text-red-500';
-                return;
-            }
-
-            gmailStatus.textContent = 'Sending...';
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/gmail/alert`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ to, subject, message })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    gmailStatus.textContent = '✅ Alert sent!';
-                    gmailStatus.className = 'text-green-500';
-                } else {
-                    throw new Error(result.error || 'Failed');
-                }
-            } catch (err) {
-                console.error(err);
-                gmailStatus.textContent = '❌ Failed to send alert.';
-                gmailStatus.className = 'text-red-500';
-            }
-        });
-
         const driveFilesBtn = document.getElementById('drive-files-btn');
         const youtubeSearchBtn = document.getElementById('youtube-search-btn');
-        const gmailAlertBtn = document.getElementById('gmail-alert-btn');
-
-        // Hook up Gmail Alert button trigger
-        if (gmailAlertBtn) {
-            gmailAlertBtn.addEventListener('click', openGmailModal);
-        }
 
         driveFilesBtn.addEventListener('click', async () => {
             driveModal.classList.remove('hidden');
