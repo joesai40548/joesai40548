@@ -627,7 +627,7 @@
   </script>
 
   <script type="module">
-    const BACKEND_URL = 'https://joes-ai-server.onrender.com';
+    const BACKEND_URL = window.APP_CONFIG?.BACKEND_URL || 'https://joes-ai-server.onrender.com';
     
     // Silence Tailwind production warning programmatically
     window.tailwind = window.tailwind || {};
