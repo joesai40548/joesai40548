@@ -992,21 +992,22 @@ ${msg.content}
       }
     }
 
-    async function fetchSessions() {
+async function fetchSessions() {
         if (!sessionList) return;
-        sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>`;
+        sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">Syncing conversations...</p>`;
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
-                headers: { 'x-user-id': userId }
-            });
-            if (!response.ok) throw new Error("Failed to load sessions.");
-            sessions = await response.json();
-            renderSessions();
+          const response = await fetch(`${BACKEND_URL}/api/chats`, {
+            headers: { 'x-user-id': userId }
+          });
+          if (!response.ok) throw new Error(`Failed to load conversations: ${response.status}`);
+          sessions = await response.json();
+          renderSessions();
         } catch (err) {
-            console.error(err);
-            sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
+          console.error(err);
+          const errorMessage = handleError(err);
+          sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">${errorMessage}</p>`;
         }
-    }
+      }
 
     function startNewChat() {
         currentSessionId = null;
@@ -1057,14 +1058,14 @@ ${msg.content}
                 method: 'DELETE',
                 headers: { 'x-user-id': userId }
             });
-            if (!response.ok) throw new Error("Cloud rejected deletion.");
+            if (!response.ok) throw new Error(`Deletion failed: ${response.statusText}`);
             
             if (activeFilename === filename) {
                 startNewChat();
             }
             fetchSessions();
         } catch (err) {
-            alert(`Deletion failed: ${err.message}`);
+            alert(`Unable to delete conversation:\n${handleError(err)}`);
         }
     };
 
@@ -1336,10 +1337,32 @@ ${msg.content}
 
       } catch (err) {
         removeProcessingIndicator();
-        addMessageToUI('assistant', `⚠️ **Error:** ${err.message}`);
+        addMessageToUI('assistant', handleError(err));
       } finally {
         toggleInputState(false);
       }
+    }
+
+    function handleError(err) {
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        return '⚠️ **Connection Error:** Unable to reach the server. Please check your internet connection and try again.';
+      }
+      if (err.message?.includes('Failed to fetch')) {
+        return '⚠️ **Network Error:** Cannot connect to the backend. Please verify the server is running.';
+      }
+      if (err.message?.includes('500') || err.message?.includes('Internal Server Error')) {
+        return '⚠️ **Server Error:** The backend encountered an issue. Please try again in a moment.';
+      }
+      if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+        return '⚠️ **Authentication Error:** Your session may have expired. Please refresh the page.';
+      }
+      if (err.message?.includes('429') || err.message?.includes('Too Many Requests')) {
+        return '⚠️ **Rate Limited:** Too many requests. Please wait a moment before trying again.';
+      }
+      if (err.message?.includes('404')) {
+        return '⚠️ **Not Found:** The requested resource was not found.';
+      }
+      return `⚠️ **Error:** ${err.message || 'An unexpected error occurred. Please try again.'}`;
     }
 
     function addMessageToUI(role, content, attachmentData = null) {
@@ -1740,6 +1763,13 @@ ${msg.content}
     }
     
     initializeApp();
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg.scope))
+        .catch(err => console.log('Service Worker registration failed:', err));
+    }
   </script>
 </body>
 </html>
