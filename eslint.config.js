@@ -1,0 +1,38 @@
+export default [
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        fetch: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        URL: 'readonly',
+        Blob: 'readonly',
+        SpeechSynthesis: 'readonly',
+        SpeechSynthesisUtterance: 'readonly',
+        SpeechRecognition: 'readonly',
+        webkitSpeechRecognition: 'readonly',
+        mermaid: 'readonly',
+        tailwind: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'warn',
+      'no-unused-vars': 'warn',
+      'eqeqeq': ['error', 'always'],
+      'curly': ['error', 'all'],
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'always'],
+      'indent': ['error', 2],
+    },
+  },
+];

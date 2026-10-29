@@ -1,5 +1,7 @@
 /* ========== Joes AI — Application Logic ========== */
 
+import { escapeHtml } from './utils.js';
+
 const BACKEND_URL = 'https://joes-ai-server.onrender.com';
 
 window.tailwind = window.tailwind || {};
@@ -31,18 +33,66 @@ window.showToast = function (message, type = 'info', duration = 4000) {
   return toast;
 };
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+// ---------- Offline / online detection ----------
+let isOnline = navigator.onLine;
+function updateOnlineStatus() {
+  const wasOnline = isOnline;
+  isOnline = navigator.onLine;
+  if (!wasOnline && isOnline) {
+    showToast('You are back online.', 'success');
+    fetchSessions();
+  } else if (wasOnline && !isOnline) {
+    showToast('You appear to be offline. Some features may not work.', 'error');
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// ---------- Fetch with exponential-backoff retry ----------
+async function retryFetch(url, options = {}, { retries = 3, baseDelay = 800 } = {}) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      if (!navigator.onLine) {throw new Error('You appear to be offline.');}
+      const res = await fetch(url, options);
+      if (!res.ok) {throw new Error(`HTTP ${res.status}`);}
+      return res;
+    } catch (err) {
+      lastErr = err;
+      if (i < retries) {
+        await new Promise((r) => setTimeout(r, baseDelay * Math.pow(2, i)));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// ---------- Read a response body as text (supports streaming chunks) ----------
+async function readStreamText(response, onChunk) {
+  if (!response.body) {
+    const text = await response.text();
+    if (onChunk) {onChunk(text, text);}
+    return text;
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let result = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {break;}
+    const chunk = decoder.decode(value, { stream: true });
+    result += chunk;
+    if (onChunk) {onChunk(chunk, result);}
+  }
+  return result;
 }
 
 // ---------- Page loader ----------
 function hidePageLoader() {
   const loader = document.getElementById('page-loader');
-  if (!loader) return;
+  if (!loader) {return;}
   loader.style.opacity = '0';
-  setTimeout(() => { if (loader) loader.style.display = 'none'; }, 400);
+  setTimeout(() => { if (loader) {loader.style.display = 'none';} }, 400);
 }
 window.addEventListener('load', hidePageLoader);
 window.addEventListener('DOMContentLoaded', hidePageLoader);
@@ -232,7 +282,7 @@ window.runCodeSandbox = (encodedCode) => {
 
 if (sandboxCloseBtn) {
   sandboxCloseBtn.addEventListener('click', () => {
-    if (sandboxModal) sandboxModal.classList.add('hidden');
+    if (sandboxModal) {sandboxModal.classList.add('hidden');}
   });
 }
 
@@ -258,7 +308,7 @@ function setupSidebarHandlers() {
 
   if (localStorage.getItem('joes_ai_sidebar_collapsed') === 'true' && sidebar) {
     sidebar.classList.add('sidebar-collapsed');
-    if (sidebarToggleBtn) sidebarToggleBtn.textContent = '⟩';
+    if (sidebarToggleBtn) {sidebarToggleBtn.textContent = '⟩';}
   }
 }
 
@@ -329,7 +379,7 @@ function setupExportHandler() {
 
 // ---------- Core event listeners ----------
 function setupEventListeners() {
-  if (sendBtn) sendBtn.addEventListener('click', handleSend);
+  if (sendBtn) {sendBtn.addEventListener('click', handleSend);}
   if (messageInput) {
     messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -401,18 +451,17 @@ function setupSpeechRecognition() {
 
 // ---------- Sessions ----------
 async function fetchSessions() {
-  if (!sessionList) return;
-  sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>`;
+  if (!sessionList) {return;}
+  sessionList.innerHTML = '<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>';
   try {
-    const response = await fetch(`${BACKEND_URL}/api/chats`, {
+    const response = await retryFetch(`${BACKEND_URL}/api/chats`, {
       headers: { 'x-user-id': userId },
     });
-    if (!response.ok) throw new Error('Failed to load sessions.');
     sessions = await response.json();
     renderSessions();
   } catch (err) {
     console.error(err);
-    sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
+    sessionList.innerHTML = '<p class="text-xs text-red-400 italic px-2">Koofr offline</p>';
     showToast('Unable to load recent chats.', 'error');
   }
 }
@@ -421,7 +470,7 @@ function startNewChat() {
   currentSessionId = null;
   activeFilename = null;
   chatHistory = [];
-  if (chatMessages) chatMessages.innerHTML = '';
+  if (chatMessages) {chatMessages.innerHTML = '';}
   renderSessions();
   showWelcome(true);
   hideSidebarOnMobile();
@@ -433,13 +482,13 @@ window.loadSession = async (filename) => {
     const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
       headers: { 'x-user-id': userId },
     });
-    if (!response.ok) throw new Error('Could not retrieve file.');
+    if (!response.ok) {throw new Error('Could not retrieve file.');}
     const data = await response.json();
 
     currentSessionId = data.sessionId;
     activeFilename = filename;
     chatHistory = data.history || [];
-    if (chatMessages) chatMessages.innerHTML = '';
+    if (chatMessages) {chatMessages.innerHTML = '';}
 
     if (chatHistory.length === 0) {
       showWelcome(true);
@@ -459,14 +508,14 @@ window.loadSession = async (filename) => {
 };
 
 window.deleteSession = async (filename) => {
-  if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) return;
+  if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) {return;}
 
   try {
     const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
       method: 'DELETE',
       headers: { 'x-user-id': userId },
     });
-    if (!response.ok) throw new Error('Cloud rejected deletion.');
+    if (!response.ok) {throw new Error('Cloud rejected deletion.');}
 
     if (activeFilename === filename) {
       startNewChat();
@@ -479,7 +528,7 @@ window.deleteSession = async (filename) => {
 
 window.renameSession = async (filename, id, oldTitle) => {
   const renamedInput = prompt('Enter new conversation title:', oldTitle);
-  if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) return;
+  if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) {return;}
 
   try {
     const response = await fetch(`${BACKEND_URL}/api/chats/rename`, {
@@ -495,7 +544,7 @@ window.renameSession = async (filename, id, oldTitle) => {
       }),
     });
 
-    if (!response.ok) throw new Error('Koofr failed to rename file.');
+    if (!response.ok) {throw new Error('Koofr failed to rename file.');}
     const data = await response.json();
 
     if (activeFilename === filename) {
@@ -508,10 +557,10 @@ window.renameSession = async (filename, id, oldTitle) => {
 };
 
 function renderSessions() {
-  if (!sessionList) return;
+  if (!sessionList) {return;}
   sessionList.innerHTML = '';
   if (sessions.length === 0) {
-    sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">No recent chats</p>`;
+    sessionList.innerHTML = '<p class="text-xs text-slate-500 italic px-2">No recent chats</p>';
     return;
   }
 
@@ -569,10 +618,10 @@ async function saveCurrentChatToCloud(title) {
 // ---------- File select ----------
 async function handleFileSelect(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file) {return;}
 
-  if (file.size > 50 * 1024 * 1024) {
-    showToast('File size exceeds 50MB limit.', 'error');
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('File size exceeds 5MB limit. Large files may crash the tab.', 'error');
     return;
   }
 
@@ -582,7 +631,7 @@ async function handleFileSelect(event) {
 
 function showAttachmentChip(file) {
   const container = document.getElementById('attachment-chip-container');
-  if (!container) return;
+  if (!container) {return;}
   let previewHtml = '';
 
   if (file.type.startsWith('image/')) {
@@ -603,9 +652,9 @@ function showAttachmentChip(file) {
 window.removeAttachment = () => {
   selectedAttachment = null;
   const fileInput = document.getElementById('file-input');
-  if (fileInput) fileInput.value = '';
+  if (fileInput) {fileInput.value = '';}
   const container = document.getElementById('attachment-chip-container');
-  if (container) container.classList.add('hidden');
+  if (container) {container.classList.add('hidden');}
 };
 
 window.useQuickPrompt = (promptText, preferredMode) => {
@@ -621,13 +670,13 @@ window.useQuickPrompt = (promptText, preferredMode) => {
 
 // ---------- Input state ----------
 function toggleInputState(disabled) {
-  if (!messageInput || !sendBtn) return;
+  if (!messageInput || !sendBtn) {return;}
   messageInput.disabled = disabled;
   sendBtn.disabled = disabled;
 
   const attachBtn = document.getElementById('attachment-btn');
-  if (attachBtn) attachBtn.disabled = disabled;
-  if (micBtn) micBtn.disabled = disabled;
+  if (attachBtn) {attachBtn.disabled = disabled;}
+  if (micBtn) {micBtn.disabled = disabled;}
 
   if (disabled) {
     messageInput.classList.add('opacity-50');
@@ -647,12 +696,12 @@ function toggleInputState(disabled) {
 
 // ---------- Send message ----------
 async function handleSend() {
-  if (!messageInput || !chatModeSelect) return;
+  if (!messageInput || !chatModeSelect) {return;}
   const message = messageInput.value.trim();
   const hasAttachment = !!selectedAttachment;
   const currentMode = chatModeSelect.value;
 
-  if (!message && !hasAttachment) return;
+  if (!message && !hasAttachment) {return;}
 
   messageInput.value = '';
   messageInput.style.height = 'auto';
@@ -695,11 +744,29 @@ async function handleSend() {
   showWelcome(false);
   showProcessingIndicator();
 
+  // Optimistic UI: render an assistant placeholder bubble immediately so the
+  // user sees a response container appear without waiting for the round-trip.
+  let streamingBubble = null;
+  if (chatMessages) {
+    streamingBubble = document.createElement('div');
+    streamingBubble.className = 'msg-wrapper assistant';
+    streamingBubble.innerHTML = `
+      <div class="msg-bubble assistant overflow-x-auto relative">
+        <div class="flex items-center gap-2" style="min-height:1.2rem;">
+          <span class="text-xs text-amber-400 italic">Joes AI is responding</span>
+          <span class="animate-pulse text-amber-400">●</span>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(streamingBubble);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
   try {
     let aiText = '';
 
     if (hasAttachment) {
-      const response = await fetch(`${BACKEND_URL}/api/gemini`, {
+      const response = await retryFetch(`${BACKEND_URL}/api/gemini`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -715,10 +782,10 @@ async function handleSend() {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Server error');
+      if (!response.ok) {throw new Error(data.error || 'Server error');}
       aiText = data.text;
     } else {
-      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+      const response = await retryFetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -730,12 +797,33 @@ async function handleSend() {
         }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error('Model Request Failed');
-      aiText = data.text;
+      // Attempt to stream the response body as it arrives; fall back to full JSON.
+      const streamed = await readStreamText(response, (chunk, accumulated) => {
+        if (streamingBubble) {
+          const bubble = streamingBubble.querySelector('.msg-bubble.assistant');
+          if (bubble) {
+            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-amber-400 italic">Joes AI is responding</span><span class="animate-pulse text-amber-400">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          }
+        }
+      });
+
+      if (!response.ok) {throw new Error('Model Request Failed');}
+      // If the streamed text is empty, try parsing as JSON.
+      aiText = streamed;
+      if (!aiText) {
+        try {
+          const data = JSON.parse(streamed || '{}');
+          aiText = data.text || streamed;
+        } catch {
+          aiText = streamed;
+        }
+      }
     }
 
     removeProcessingIndicator();
+    // Replace the streaming placeholder with the final formatted assistant message.
+    if (streamingBubble) {streamingBubble.remove();}
     addMessageToUI('assistant', aiText);
     chatHistory.push({ role: 'assistant', content: aiText });
 
@@ -743,6 +831,7 @@ async function handleSend() {
     await fetchSessions();
   } catch (err) {
     removeProcessingIndicator();
+    if (streamingBubble) {streamingBubble.remove();}
     addMessageToUI('assistant', `⚠️ **Error:** ${escapeHtml(err.message)}`);
   } finally {
     toggleInputState(false);
@@ -751,7 +840,7 @@ async function handleSend() {
 
 // ---------- Message rendering ----------
 function addMessageToUI(role, content, attachmentData = null) {
-  if (!chatMessages) return;
+  if (!chatMessages) {return;}
   const wrapper = document.createElement('div');
   wrapper.className = `msg-wrapper ${role === 'user' ? 'user' : 'assistant'}`;
 
@@ -793,7 +882,7 @@ function addMessageToUI(role, content, attachmentData = null) {
 }
 
 function showProcessingIndicator() {
-  if (!chatMessages) return;
+  if (!chatMessages) {return;}
   const div = document.createElement('div');
   div.id = 'processing-indicator';
   div.className = 'processing-indicator';
@@ -823,7 +912,7 @@ function showProcessingIndicator() {
   const textStageInterval = setInterval(() => {
     stageCounter++;
     if (stageCounter < thinkingStages.length) {
-      if (targetTextSpan) targetTextSpan.textContent = thinkingStages[stageCounter];
+      if (targetTextSpan) {targetTextSpan.textContent = thinkingStages[stageCounter];}
       chatMessages.scrollTop = chatMessages.scrollHeight;
     } else {
       clearInterval(textStageInterval);
@@ -856,7 +945,7 @@ function showLoadingIndicator(show) {
 
 // ---------- Markdown formatter ----------
 function formatMarkdown(text) {
-  if (!text) return '';
+  if (!text) {return '';}
 
   const temporaryCodeVault = [];
 
@@ -919,15 +1008,15 @@ function formatMarkdown(text) {
               <tbody class="divide-y divide-slate-200">
         `;
       } else {
-        generatedTableBuffer += `<tr class="hover:bg-slate-100/50 transition-colors">`;
+        generatedTableBuffer += '<tr class="hover:bg-slate-100/50 transition-colors">';
         columnValues.forEach((cellValue) => {
           generatedTableBuffer += `<td class="px-4 py-3 text-slate-800">${escapeHtml(cellValue)}</td>`;
         });
-        generatedTableBuffer += `</tr>`;
+        generatedTableBuffer += '</tr>';
       }
     } else {
       if (insideTable) {
-        generatedTableBuffer += `</tbody></table></div>`;
+        generatedTableBuffer += '</tbody></table></div>';
         compiledLines.push(generatedTableBuffer.replace(/\n/g, ' '));
         generatedTableBuffer = '';
         insideTable = false;
@@ -936,7 +1025,7 @@ function formatMarkdown(text) {
     }
   }
   if (insideTable) {
-    generatedTableBuffer += `</tbody></table></div>`;
+    generatedTableBuffer += '</tbody></table></div>';
     compiledLines.push(generatedTableBuffer.replace(/\n/g, ' '));
   }
 
@@ -1002,13 +1091,13 @@ function setupToolHandlers() {
   const youtubeSearchSubmit = document.getElementById('youtube-search-submit');
   const youtubeResultsList = document.getElementById('youtube-results-list');
 
-  if (driveCloseBtn) driveCloseBtn.addEventListener('click', () => {
-    if (driveModal) driveModal.classList.add('hidden');
-  });
-  if (youtubeCloseBtn) youtubeCloseBtn.addEventListener('click', () => {
-    if (youtubeModal) youtubeModal.classList.add('hidden');
-    if (youtubeResultsList) youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Search results will appear here.</p>';
-  });
+  if (driveCloseBtn) {driveCloseBtn.addEventListener('click', () => {
+    if (driveModal) {driveModal.classList.add('hidden');}
+  });}
+  if (youtubeCloseBtn) {youtubeCloseBtn.addEventListener('click', () => {
+    if (youtubeModal) {youtubeModal.classList.add('hidden');}
+    if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Search results will appear here.</p>';}
+  });}
 
   function renderYouTubeResults(videos) {
     if (!videos.length) {
@@ -1037,24 +1126,24 @@ function setupToolHandlers() {
   }
 
   function updateYouTubeResults(videos) {
-    if (youtubeResultsList) youtubeResultsList.innerHTML = renderYouTubeResults(videos);
+    if (youtubeResultsList) {youtubeResultsList.innerHTML = renderYouTubeResults(videos);}
   }
 
   if (youtubeSearchSubmit) {
     youtubeSearchSubmit.addEventListener('click', async () => {
       const query = youtubeSearchInput.value.trim();
       if (!query) {
-        if (youtubeResultsList) youtubeResultsList.innerHTML = '<p class="text-center text-red-500">Please enter a search query.</p>';
+        if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-red-500">Please enter a search query.</p>';}
         return;
       }
-      if (youtubeResultsList) youtubeResultsList.innerHTML = '<p class="text-center text-amber-500 animate-pulse">Searching...</p>';
+      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-amber-500 animate-pulse">Searching...</p>';}
       try {
         const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query, maxResults: 6 }),
         });
-        if (!response.ok) throw new Error('Search failed');
+        if (!response.ok) {throw new Error('Search failed');}
         const data = await response.json();
         const results = data.videos;
         if (!results || !results.length) {
@@ -1064,7 +1153,7 @@ function setupToolHandlers() {
         }
       } catch (err) {
         console.error(err);
-        if (youtubeResultsList) youtubeResultsList.innerHTML = `<p class="text-center text-red-500">Search failed: ${escapeHtml(err.message)}</p>`;
+        if (youtubeResultsList) {youtubeResultsList.innerHTML = `<p class="text-center text-red-500">Search failed: ${escapeHtml(err.message)}</p>`;}
       }
     });
   }
@@ -1074,15 +1163,15 @@ function setupToolHandlers() {
 
   if (driveFilesBtn) {
     driveFilesBtn.addEventListener('click', async () => {
-      if (driveModal) driveModal.classList.remove('hidden');
-      if (driveFilesList) driveFilesList.innerHTML = '<p class="text-center text-slate-500 py-8">Loading files...</p>';
+      if (driveModal) {driveModal.classList.remove('hidden');}
+      if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-slate-500 py-8">Loading files...</p>';}
       try {
         const response = await fetch(`${BACKEND_URL}/api/drive/files`);
-        if (!response.ok) throw new Error('Failed to fetch files');
+        if (!response.ok) {throw new Error('Failed to fetch files');}
         const data = await response.json();
         const files = data.files;
         if (!files.length) {
-          if (driveFilesList) driveFilesList.innerHTML = '<p class="text-center text-slate-500">No files found.</p>';
+          if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-slate-500">No files found.</p>';}
         } else {
           const html = files.map((f) => `
             <div class="drive-item">
@@ -1093,20 +1182,20 @@ function setupToolHandlers() {
               </div>
             </div>
           `).join('');
-          if (driveFilesList) driveFilesList.innerHTML = html;
+          if (driveFilesList) {driveFilesList.innerHTML = html;}
         }
       } catch (err) {
         console.error(err);
-        if (driveFilesList) driveFilesList.innerHTML = `<p class="text-center text-red-500">Failed to load files: ${escapeHtml(err.message)}</p>`;
+        if (driveFilesList) {driveFilesList.innerHTML = `<p class="text-center text-red-500">Failed to load files: ${escapeHtml(err.message)}</p>`;}
       }
     });
   }
 
   if (youtubeSearchBtn) {
     youtubeSearchBtn.addEventListener('click', () => {
-      if (youtubeModal) youtubeModal.classList.remove('hidden');
-      if (youtubeSearchInput) youtubeSearchInput.value = '';
-      if (youtubeResultsList) youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Enter query to search videos.</p>';
+      if (youtubeModal) {youtubeModal.classList.remove('hidden');}
+      if (youtubeSearchInput) {youtubeSearchInput.value = '';}
+      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Enter query to search videos.</p>';}
     });
   }
 }
@@ -1119,6 +1208,8 @@ function initializeApp() {
   setupExportHandler();
   setupSpeechRecognition();
   setupToolHandlers();
+
+  updateOnlineStatus();
 
   showWelcome(true);
   fetchSessions();
