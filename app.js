@@ -1043,6 +1043,13 @@ function formatMarkdown(text) {
     `.replace(/\n/g, ' ');
   });
 
+  // Headings
+  escaped = escaped.replace(/^#{1,6}\s+(.*)$/gm, (match, headingText) => {
+    const level = (match.match(/^#+/) || [''])[0].length;
+    const levelClamped = Math.min(Math.max(level, 1), 6);
+    return `<h${levelClamped} class="text-slate-900 font-bold mb-1 mt-2 text-lg leading-tight">${escapeHtml(headingText.trim())}</h${levelClamped}>`;
+  });
+
   // Inline code & bold
   escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-amber-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-amber-700">$1</strong>')
