@@ -1202,20 +1202,16 @@ ${msg.content}
 
     async function saveCurrentChatToCloud(title) {
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
+            const data = await apiJson(`${BACKEND_URL}/api/chats`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sessionId: currentSessionId,
                     title: title,
                     history: chatHistory
                 })
             });
-            if (response.ok) {
-                const data = await response.json();
+            {
                 activeFilename = data.filename;
                 appStore.getState().setActiveSession(currentSessionId, activeFilename);
                 await queryClient.invalidateQueries({ queryKey: queryKeys.sessions(userId) });
@@ -1654,13 +1650,11 @@ ${msg.content}
             }
             youtubeResultsList.innerHTML = '<p class="text-center text-amber-500 animate-pulse">Searching...</p>';
             try {
-                const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
+                const data = await apiJson(`${BACKEND_URL}/api/youtube/search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, maxResults: 6, explicitSearch: true })
                 });
-                if (!response.ok) throw new Error('Search failed');
-                const data = await response.json();
                 const results = data.videos;
                 if (!results || !results.length) {
                     updateYouTubeResults([]);
@@ -1680,9 +1674,7 @@ ${msg.content}
             driveModal.classList.remove('hidden');
             driveFilesList.innerHTML = '<p class="text-center text-slate-500 py-8">Loading files...</p>';
             try {
-                const response = await fetch(`${BACKEND_URL}/api/drive/files`);
-                if (!response.ok) throw new Error('Failed to fetch files');
-                const data = await response.json();
+                const data = await apiJson(`${BACKEND_URL}/api/drive/files`);
                 const files = data.files;
                 if (!files.length) {
                     driveFilesList.innerHTML = '<p class="text-center text-slate-500">No files found.</p>';
