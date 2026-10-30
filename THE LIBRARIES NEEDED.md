@@ -255,17 +255,21 @@ The work will proceed in small, testable increments. Update this tracker after e
 |---|---|---|---|
 | 0 | Repository/dependency audit | Confirm manifests, entrypoints, Node version, existing agent/sandbox code and current PRs | [~] Initial manifest audit complete |
 | 1 | Backend agent foundation | Reuse and verify Mastra/LangGraph; typed tool schemas; bounded steps, timeouts and cancellation | [ ] |
-| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [~] Four read-only GitHub tools registered with Mastra in backend PR #17; live token/build verification pending |
+| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [~] Four read-only GitHub tools are on backend main; server-side GitHub App JWT/installation-token authentication is implemented with legacy PAT fallback and exact repository allowlist. Render credentials and live access verification remain pending; branch writes/PR proposal are not implemented |
 | 3 | Website browser tools | Navigate, screenshot, inspect DOM/accessibility tree, extract readable content; obey robots/rate limits and block private-network targets | [~] Existing Playwright/Chromium + Cheerio/Readability inspector and `/api/website/inspect` route; new Mastra `website_inspect` tool proposed in backend PR #17. Need live browser test and agent end-to-end verification |
-| 4 | E2B sandbox lifecycle | Per-task isolated sandbox; resource/time limits; no secrets in guest process; cleanup; test commands and logs | [ ] |
-| 5 | WebContainers frontend runtime | Browser Node workspace, install/run/preview; enforce origin isolation and verify licensing/browser support | [ ] |
-| 6 | Agent UI and streaming | Show plan, tool activity, files, diffs, terminal output, approvals and cancellation | [ ] |
+| 4 | E2B sandbox lifecycle | Per-task isolated sandbox; resource/time limits; no secrets in guest process; cleanup; test commands and logs | [~] Authenticated create/execute/command/stop routes, 15-minute expiry, owner checks and scheduled cleanup exist; outbound internet and public sandbox traffic are disabled. Live E2B credential/runtime verification and automated lifecycle tests remain pending |
+| 5 | WebContainers frontend runtime | Browser Node workspace, install/run/preview; enforce origin isolation and verify licensing/browser support | [~] Browser runtime implementation is present, but execution is deliberately disabled until StackBlitz production/commercial licensing is confirmed; COOP/COEP and browser acceptance tests remain pending |
+| 6 | Agent UI and streaming | Show plan, tool activity, files, diffs, terminal output, approvals and cancellation | [~] Normal chat automatically invokes LangGraph; frontend authenticates with Firebase, preserves the thread ID and displays agent plan/activity/provider/tool metadata. File diffs, approvals, cancellation and fully interactive terminal remain outstanding |
 | 7 | Code intelligence | File search, syntax-aware parsing, Monaco editor, formatting and lint diagnostics | [ ] |
 | 8 | Tests and security | Unit/API/E2E tests, dependency scan, secret scan, sandbox escape and SSRF tests | [ ] |
 | 9 | Durable jobs and persistence | Resume long tasks safely; persist runs and audit events; add a queue only if needed | [ ] |
 | 10 | Research and document tools | Search/crawl/extract and process supported files with provenance | [ ] |
 | 11 | CI and observability | CI gates, structured logs, traces, metrics and actionable errors | [ ] |
 | 12 | End-to-end acceptance | Demonstrate website inspection and a GitHub code fix from prompt to tested PR without merging/deploying | [ ] |
+
+- **31 October 2026 — normal chat and GitHub App authentication:** the frontend normal-chat request now uses the Firebase-authenticated fetch helper required by the protected backend route, creates its stable LangGraph thread ID before cloud chat persistence, and sends the existing conversation history without duplicating the latest message. Assistant messages display the automatic agent's execution plan, activity, provider/model, tools and execution ID. Backend GitHub read tools now support short-lived GitHub App installation tokens generated server-side from `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY` and `GITHUB_APP_INSTALLATION_ID`, with `GITHUB_TOKEN` retained as a migration fallback. Access remains read-only and restricted by `JOESAI_GITHUB_ALLOWED_REPOS`. Add the App credentials and exact allowlist to Render before live GitHub access can be verified; repository write/PR operations are not yet enabled.
+- **31 October 2026 — E2B hardening:** expired sandboxes are reaped by a background cleanup interval and on create; execution requests also remove and kill expired entries. Sandbox creation disables outbound internet and public traffic by default. This is source-level implementation only until E2B credentials and live sandbox tests pass.
+
 
 ## Security and approval requirements
 
