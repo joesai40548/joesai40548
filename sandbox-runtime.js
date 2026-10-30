@@ -2,6 +2,10 @@ import { ensureFirebaseSession } from './auth-client.js';
 import { API_BASE_URL } from './api-config.js';
 
 const API_BASE = API_BASE_URL;
+
+// WebContainer API production/commercial use requires an active StackBlitz plan or written license.
+// Keep disabled until JOES AI's license is explicitly confirmed.
+const WEB_CONTAINERS_LICENSE_CONFIRMED = false;
 const byId = (id) => document.getElementById(id);
 let webContainer = null;
 let e2bSandboxId = null;
@@ -156,6 +160,9 @@ function projectFiles(code) {
 }
 
 async function runWebContainer() {
+  if (!WEB_CONTAINERS_LICENSE_CONFIRMED) {
+    throw new Error('WebContainers is disabled until JOES AI confirms an active StackBlitz production/commercial license. Use E2B to run code in the meantime.');
+  }
   const code = getEditorValue();
   if (!code.trim()) throw new Error('Enter some code before running it.');
   if ((byId('sandbox-language')?.value || 'javascript') === 'python') throw new Error('WebContainers runs JavaScript/Node.js projects. Choose E2B to run Python.');
