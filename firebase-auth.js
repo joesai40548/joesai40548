@@ -5,7 +5,8 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
@@ -78,15 +79,22 @@ function mountAuthGate() {
     }
   });
 
+  // Complete any Google redirect after the browser returns from accounts.google.com.
+  // Redirect auth avoids the window.opener dependency that COOP=same-origin breaks.
+  getRedirectResult(auth).catch((err) => {
+    error.textContent = authErrorMessage(err);
+  });
+
   google.addEventListener("click", async () => {
     error.textContent = "";
     google.disabled = true;
+    google.textContent = "Redirecting to Google…";
     try {
-      await signInWithPopup(auth, googleProvider);
+      await signInWithRedirect(auth, googleProvider);
     } catch (err) {
       error.textContent = authErrorMessage(err);
-    } finally {
       google.disabled = false;
+      google.innerHTML = "<span>G</span> Continue with Google";
     }
   });
 }
@@ -96,8 +104,8 @@ function authErrorMessage(error) {
     "auth/invalid-credential": "Email or password is incorrect.",
     "auth/email-already-in-use": "An account already exists for this email. Sign in instead.",
     "auth/weak-password": "Choose a password with at least 6 characters.",
-    "auth/popup-closed-by-user": "The Google sign-in window was closed before completion.",
-    "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication.",
+    "auth/unauthorized-domain": "This website domain is not authorized in Firebase Authentication. Add joesai.work.gd and joes-ai-6eb7c.firebaseapp.com under Firebase Authentication → Settings → Authorized domains.",
+    "auth/operation-not-allowed": "Google sign-in is not enabled in Firebase Authentication. Enable the Google provider in Firebase Console.",
     "auth/network-request-failed": "Network error. Check your connection and try again.",
   };
   return messages[error?.code] || error?.message || "Authentication failed. Please try again.";
