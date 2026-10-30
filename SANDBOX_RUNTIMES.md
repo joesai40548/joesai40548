@@ -2,7 +2,7 @@
 
 Joes AI supports two complementary coding runtimes:
 
-- **WebContainers** runs Node.js projects inside the browser. It needs the frontend origin to be cross-origin isolated. The `_headers` file configures COOP and COEP on static hosts that support that convention (including Cloudflare Pages and Netlify). GitHub Pages does not apply `_headers`; if the site is still served directly by GitHub Pages, move the frontend to a host that supports response headers or configure an edge proxy before WebContainers can boot. The app detects this and reports the missing headers rather than pretending execution succeeded.
+- **WebContainers** runs Node.js projects inside the browser. It needs the frontend origin to be cross-origin isolated. The `_headers` file configures COOP and COEP on static hosts that support that convention (including Cloudflare Pages and Netlify). GitHub Pages does not apply `_headers`. The frontend therefore also registers a small service worker that adds the COOP/COEP headers to navigation responses and reloads once after it takes control. This can enable WebContainers without changing the current static host. If the browser blocks service workers or the page still reports `crossOriginIsolated === false`, use a host that supports response headers or an edge proxy instead.
 - **E2B** runs JavaScript and Python inside isolated Firecracker microVMs managed by E2B Cloud.
 
 ## Backend configuration

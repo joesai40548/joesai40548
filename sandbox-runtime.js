@@ -65,7 +65,7 @@ async function runWebContainer() {
   const code = byId('sandbox-code-editor')?.value || '';
   if (!code.trim()) throw new Error('Enter some code before running it.');
   if (!window.crossOriginIsolated || typeof SharedArrayBuffer === 'undefined') {
-    throw new Error('WebContainers needs cross-origin isolation. The website host must send COOP: same-origin and COEP: require-corp (or credentialless) response headers. This site is not receiving those headers yet.');
+    throw new Error('WebContainers needs cross-origin isolation. The website host must send COOP: same-origin and COEP: require-corp (or credentialless) response headers. Reload the page once if the isolation service worker was just installed; if this persists, the hosting configuration is still missing the required headers.');
   }
   setStatus('Starting browser runtime…');
   clearOutput();
