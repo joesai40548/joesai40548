@@ -13,6 +13,7 @@
     "eslint": "^10.13.0"
   },
   "dependencies": {
-    "zustand": "^5.0.16"
+    "zustand": "^5.0.16",
+    "@tanstack/query-core": "^5.105.0"
   }
 }
