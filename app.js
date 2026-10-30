@@ -742,6 +742,7 @@ async function handleSend() {
 
   try {
     let aiText = '';
+    let agentMeta = null;
 
     if (hasAttachment) {
       const response = await retryFetch(`${BACKEND_URL}/api/gemini`, {
@@ -784,19 +785,20 @@ async function handleSend() {
       const data = await authenticatedResponse.json();
       aiText = typeof data.text === 'string' ? data.text : '';
       if (!aiText) throw new Error('The agent returned an empty response.');
-      if (data.agent?.automatic) {
+      agentMeta = data.agent && typeof data.agent === 'object' ? data.agent : null;
+      if (agentMeta?.automatic) {
         const used = [
-          ...(data.agent.usedMcpTools || []),
-          ...(data.agent.usedSearch ? ['web_search'] : [])
+          ...(Array.isArray(agentMeta.usedMcpTools) ? agentMeta.usedMcpTools : []),
+          ...(agentMeta.usedSearch ? ['web_search'] : [])
         ];
-        if (used.length) console.info('[JOES AI agent]', { executionId: data.agent.executionId, tools: used });
+        console.info('[JOES AI agent]', { executionId: agentMeta.executionId, tools: used, steps: agentMeta.steps });
       }
     }
 
     removeProcessingIndicator();
     // Replace the streaming placeholder with the final formatted assistant message.
     if (streamingBubble) {streamingBubble.remove();}
-    addMessageToUI('assistant', aiText);
+    addMessageToUI('assistant', aiText, null, agentMeta);
     chatHistory.push({ role: 'assistant', content: aiText });
 
     await saveCurrentChatToCloud(activeTitle);
@@ -811,7 +813,7 @@ async function handleSend() {
 }
 
 // ---------- Message rendering ----------
-function addMessageToUI(role, content, attachmentData = null) {
+function addMessageToUI(role, content, attachmentData = null, agentMeta = null) {
   if (!chatMessages) {return;}
   const wrapper = document.createElement('div');
   wrapper.className = `msg-wrapper ${role === 'user' ? 'user' : 'assistant'}`;
@@ -842,7 +844,41 @@ function addMessageToUI(role, content, attachmentData = null) {
     ? `<div class="msg-actions"><button class="text-[#8e8e8e] hover:text-[#10a37f] text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}" aria-label="Read message aloud">🔊 Read</button></div>`
     : '';
 
-  wrapper.innerHTML = `<div class="${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
+  let agentPanelHtml = '';
+  if (role === 'assistant' && agentMeta && typeof agentMeta === 'object') {
+    const toolsUsed = [
+      ...(Array.isArray(agentMeta.usedMcpTools) ? agentMeta.usedMcpTools : []),
+      ...(agentMeta.usedSearch ? ['web_search'] : [])
+    ].filter((name) => typeof name === 'string');
+    const activity = Array.isArray(agentMeta.activity) ? agentMeta.activity.slice(-12) : [];
+    const planText = typeof agentMeta.plan === 'string' ? agentMeta.plan : (agentMeta.plan ? JSON.stringify(agentMeta.plan, null, 2) : '');
+    const providerLabel = [agentMeta.provider, agentMeta.model].filter(Boolean).map(escapeHtml).join(' / ');
+    const activityHtml = activity.map((event) => {
+      const type = escapeHtml(String(event?.type || 'activity').replace(/_/g, ' '));
+      const detail = escapeHtml(String(event?.detail || ''));
+      return `<li class="text-xs text-[#a1a1a1] py-1"><span class="text-[#10a37f]">${type}</span>${detail ? ` — ${detail}` : ''}</li>`;
+    }).join('');
+    const toolHtml = toolsUsed.length
+      ? toolsUsed.map((name) => `<span class="inline-flex text-[10px] px-2 py-1 rounded-full bg-[#10a37f]/10 text-[#10a37f] border border-[#10a37f]/20">${escapeHtml(name)}</span>`).join('')
+      : '<span class="text-xs text-[#8e8e8e]">No external tools used for this response.</span>';
+    agentPanelHtml = `
+      <details class="mb-3 rounded-xl border border-[#10a37f]/20 bg-[#10a37f]/5 overflow-hidden">
+        <summary class="cursor-pointer select-none px-3 py-2 text-xs text-[#10a37f] font-semibold flex items-center justify-between">
+          <span>✦ Agent execution details</span>
+          <span class="text-[#8e8e8e] font-normal">${Number.isFinite(Number(agentMeta.steps)) ? `${Number(agentMeta.steps)} steps` : 'Automatic agent'}</span>
+        </summary>
+        <div class="px-3 pb-3 space-y-2 border-t border-[#10a37f]/10">
+          ${providerLabel ? `<p class="text-[10px] text-[#8e8e8e] pt-2">${providerLabel}</p>` : ''}
+          <div class="flex flex-wrap gap-1.5 pt-1">${toolHtml}</div>
+          ${planText ? `<div><p class="text-[10px] uppercase tracking-wide text-[#8e8e8e] mb-1">Plan</p><pre class="text-xs text-[#c5c5c5] whitespace-pre-wrap font-sans">${escapeHtml(planText)}</pre></div>` : ''}
+          ${activityHtml ? `<div><p class="text-[10px] uppercase tracking-wide text-[#8e8e8e] mb-1">Execution activity</p><ul>${activityHtml}</ul></div>` : ''}
+          ${agentMeta.executionId ? `<p class="text-[10px] text-[#666]">Execution: ${escapeHtml(agentMeta.executionId)}</p>` : ''}
+        </div>
+      </details>
+    `;
+  }
+
+  wrapper.innerHTML = `<div class="${innerClass} overflow-x-auto">${agentPanelHtml}${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
   chatMessages.appendChild(wrapper);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
