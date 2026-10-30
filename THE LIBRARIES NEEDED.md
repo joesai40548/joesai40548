@@ -313,3 +313,54 @@ The work will proceed in small, testable increments. Update this tracker after e
 - Backend PR #17 now also wires the existing public-site inspector into the Mastra agent as `website_inspect`, and passes GitHub/browser tool availability and inspected URLs through LangGraph into the agent API response. This uses the already-installed Playwright/Chromium, Cheerio, Readability, JSDOM and IP address validation stack; it does not add duplicate browser packages. The PR remains **open and unmerged**; runtime/browser tests and a TypeScript build are still required.
 
 - Backend PR #17 includes a new `.github/workflows/agent-runtime-checks.yml` workflow to run TypeScript checking, backend build, and the existing website-inspector smoke test on pull requests. No run result is available yet, so validation remains pending.
+
+
+---
+
+## Verified implementation refresh — 30 October 2026
+
+This section supersedes conflicting historical notes above where they describe the current default branches. A dependency is considered integrated only where the code path below actually uses it.
+
+### Implemented / present in the current application
+
+| Capability | Current implementation | Verification / limitation |
+|---|---|---|
+| Agent orchestration | Vercel AI SDK (ai) + LangGraph planner/executor/reviewer workflow | ai-orchestrator.ts, langgraph-runtime.ts; no Mastra runtime is used in the current architecture |
+| Model providers | OpenAI, Anthropic, Google and OpenRouter adapters | Server-side provider selection and environment-key checks |
+| MCP tools | @modelcontextprotocol/sdk Streamable HTTP client | Configured through JOESAI_MCP_SERVERS_JSON; tool names are restricted to read-only verbs |
+| Agent concurrency / retries / IDs / events | p-limit, p-retry, nanoid, eventemitter3 | Used by ai-orchestrator.ts |
+| Validation | Zod | Request schemas and agent tool input schemas |
+| Website browser | playwright-core + @sparticuz/chromium | Existing public-site inspector; do not add a second browser stack |
+| Website extraction | Cheerio, Readability and JSDOM | Used to extract metadata, headings, links and readable page text |
+| Website safety | ipaddr.js, DNS resolution, hostname pinning and same-host request routing | Private/local IPs and cross-host browser requests are blocked; robots.txt support and screenshots are still outstanding |
+| GitHub repository inspection | Existing read-only GitHub REST tools in ai-orchestrator.ts | Requires server-side GITHUB_TOKEN and exact JOESAI_GITHUB_ALLOWED_REPOS; repository metadata, tree, bounded file reads and code search only; no GitHub App installation flow or repository writes |
+| Code execution | e2b SDK | Authenticated server routes; one-shot execution route creates a fresh sandbox, disables outbound internet, bounds source/output/time and cleans up in finally |
+| Browser Node runtime | @webcontainer/api 1.6.4 | Loaded by the frontend runtime; requires cross-origin isolation headers and supported browser |
+| Frontend state / data | Zustand vanilla store and TanStack Query Core | Existing browser modules; persisted state is limited to display preferences |
+| Code editor | Monaco Editor 0.55.1 | Loaded on demand in the sandbox editor; textarea fallback retained |
+| Terminal output | xterm.js 5.5.0 and @xterm/addon-fit 0.10.0 | Loaded on demand; output display is integrated. It is not yet a fully interactive PTY terminal |
+| API configuration | Shared api-config.js | Chat and sandbox clients share the current Joes-AI Render API URL |
+| Backend hosting / frontend hosting | Render and GitHub Pages | Existing hosting; this work does not claim a production deployment was manually triggered |
+
+### Deliberately not installed or not yet complete
+
+- Mastra (@mastra/core, @mastra/mcp): not added. The current implementation already uses AI SDK + LangGraph + MCP SDK; adding a second orchestration stack would duplicate responsibilities.
+- Puppeteer, full playwright, Stagehand, Crawlee: not added. The existing Playwright Core + Chromium inspector is the selected browser stack.
+- Octokit / GitHub App packages: not yet added. Current GitHub tools use a constrained server-side REST implementation and remain read-only. GitHub App authentication, user/repository authorization, branch writes and PR creation need a separate approved implementation.
+- Tree-sitter, ripgrep, language servers, Babel parser: not yet integrated. Monaco currently provides the editing surface, not semantic repository indexing or LSP diagnostics.
+- Interactive PTY / node-pty: not integrated. xterm currently renders output; E2B command execution remains a request/response API.
+- Queue products (BullMQ, Upstash, Inngest, Trigger.dev, Temporal): not selected. LangGraph is already present; durable execution depends on configuring JOESAI_LANGGRAPH_DATABASE_URL.
+- Additional database / vector stores / ORMs: not selected. Avoid introducing Supabase, Redis, Qdrant, Chroma, Prisma or Drizzle without a defined persistence/retrieval requirement.
+- Document extraction packages (PDF/DOCX/CSV), file-type validation and image processing: not yet integrated as upload-processing features. Existing PDF generation is not PDF text extraction.
+- GitHub App secrets, Tavily/Brave/SerpAPI credentials, Sentry DSNs, OTLP endpoints, Redis credentials and other external service credentials: not configured by code changes. They must be supplied through the appropriate server-side deployment settings before those integrations can be enabled.
+- Helmet, Pino, Sentry, Prometheus and OpenTelemetry: not yet integrated. Existing rate limiting is custom in-memory middleware; it is not the distributed express-rate-limit package.
+- Vitest/Jest, Supertest, Playwright Test, axe-core, Lighthouse, Semgrep and OSV Scanner: not yet integrated as a complete test/security suite. Existing backend build, npm audit and website-inspector smoke checks remain in place.
+- React-only libraries: not selected because the public frontend remains vanilla JavaScript.
+- Optional integrations such as Slack, email, web push, image processing, desktop screenshots and multiple search providers: not installed without a concrete feature requirement.
+
+### Latest code changes
+
+- Added api-config.js as the single source of truth for the active backend URL; updated app.js and sandbox-runtime.js to use it. The retired joes-ai-server repository was not modified.
+- Added Monaco and xterm mount points to the sandbox UI and integrated lazy-loaded Monaco Editor, xterm.js and the fit addon in sandbox-runtime.js, retaining non-CDN fallbacks.
+- The browser libraries are loaded from version-pinned CDN URLs; they are not represented as npm dependencies in the frontend package manifest.
+- These source changes are committed to the frontend main branch. Runtime availability still depends on the browser reaching the pinned CDNs and the host's cross-origin isolation configuration for WebContainers.
