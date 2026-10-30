@@ -24,6 +24,10 @@
 | Agent UI / tool streaming | Not yet verified end-to-end | Pending |
 | Automated tests and security gates | To be audited and implemented | Pending |
 
+
+
+> **Backlog rule (31 October 2026):** Completed integrations have been removed from the active library checklist below. Partially integrated items remain until their outstanding runtime, security, licensing, or end-to-end acceptance checks pass. The implementation history later in this document is retained as an audit record; it is not an instruction to reinstall completed libraries.
+
 ## Status legend
 
 - [ ] **Planned** — not yet integrated.
@@ -42,28 +46,14 @@
 | `@mastra/mcp` | Existing MCP integration | [~] Present in backend manifest; audit usage |
 | `@langchain/langgraph` | Existing graph-based workflows | [~] Present in backend manifest; audit usage |
 | `@langchain/langgraph-checkpoint-postgres` | Durable workflow checkpoints | [~] Present in backend manifest; verify DB wiring |
-| `ai` | Vercel AI SDK for streaming/tool calling, if selected | [—] Alternative; do not duplicate current agent stack without a reason |
-| `@ai-sdk/openai` | OpenAI provider for Vercel AI SDK | [—] Optional |
-| `@ai-sdk/anthropic` | Anthropic provider | [—] Optional |
-| `@ai-sdk/google` | Google provider | [—] Optional; backend already has Google GenAI |
-| `@modelcontextprotocol/sdk` | MCP protocol SDK | [!] Compare with existing Mastra MCP before adding |
-| `zod` | Input/output validation | [~] Present in backend; frontend/API boundaries need audit |
-| `eventemitter3` | Event dispatch | [—] Optional |
-| `p-limit` | Concurrency limits | [ ] Planned if needed |
-| `p-retry` | Retry policies | [ ] Planned if needed |
-| `nanoid` | IDs for jobs/tool calls | [ ] Planned if needed |
 
 ## 2. Website browsing, navigation and extraction
 
 | Package | Intended role | Status |
 |---|---|---|
 | `playwright` | Server-side browser automation | [ ] Planned; run in controlled worker/container |
-| `playwright-core` | Browser automation with externally managed browser | [—] Alternative to full Playwright |
 | `@browserbasehq/stagehand` | Higher-level AI browser actions | [—] Optional; evaluate after deterministic Playwright |
 | `puppeteer` | Browser automation alternative | [—] Alternative; do not install with Playwright without a need |
-| `@mozilla/readability` | Extract readable article content | [ ] Planned |
-| `cheerio` | Parse HTML server-side | [ ] Planned |
-| `jsdom` | DOM implementation for parsing/testing | [—] Optional |
 | `crawlee` | Crawling queues and orchestration | [—] Optional |
 | `robots-parser` | Respect robots.txt rules | [ ] Planned |
 | `screenshot-desktop` | Desktop screenshots | [!] Not suitable for ordinary cloud browser workers; only if desktop capture is required |
@@ -105,7 +95,6 @@
 
 | Package | Intended role | Status |
 |---|---|---|
-| `monaco-editor` | Browser code editor | [ ] Planned |
 | `@monaco-editor/react` | React wrapper | [—] Optional; frontend currently vanilla JS |
 | `@vscode/ripgrep` | Fast code search | [ ] Planned; verify binary/platform support |
 | `web-tree-sitter` | Browser syntax parsing | [ ] Planned if browser-side parsing is needed |
@@ -116,7 +105,6 @@
 | `prettier` | Formatting | [ ] Planned |
 | `eslint` | JavaScript/TypeScript linting | [~] Present in frontend and backend tooling; verify configurations |
 | `stylelint` | CSS linting | [—] Optional |
-| `postcss` | CSS transformations | [~] Present in backend toolchain; verify usage |
 | `jsonc-parser` | Parse JSON with comments | [ ] Planned if config editing needs it |
 | `yaml` | YAML parsing | [ ] Planned if workflow/config editing needs it |
 
@@ -142,8 +130,6 @@
 
 | Package | Intended role | Status |
 |---|---|---|
-| `express` | Existing API server | [~] Present |
-| `cors` | CORS policy | [~] Present |
 | `helmet` | HTTP security headers | [ ] Planned / verify |
 | `express-rate-limit` | API rate limits | [ ] Planned / verify |
 | `compression` | Response compression | [ ] Planned |
@@ -205,7 +191,6 @@
 |---|---|---|
 | `jose` | JWT/JWK validation | [ ] Planned if not already covered by Firebase |
 | `openid-client` | OAuth/OIDC client | [—] Optional |
-| `dotenv` | Local environment loading | [~] Present in backend |
 | `@aws-sdk/client-secrets-manager` | AWS secret storage | [—] Only if AWS is selected |
 | `@vercel/oidc` | Vercel OIDC identity | [—] Only if deploying workloads on Vercel |
 | GitHub App installation credentials | Scoped GitHub access | [ ] Required integration; credentials must stay server-side |
@@ -227,12 +212,9 @@
 |---|---|---|
 | `react`, `react-dom` | React UI | [!] Backend manifest has React, but frontend is currently vanilla JS; do not assume frontend uses React |
 | `lucide-react` | React icon library | [—] Backend dependency; frontend may use Lucide browser package or inline icons |
-| `zustand` | Client state | [~] Present in frontend |
 | `@tanstack/react-query` | React data fetching | [—] Frontend is vanilla JS; query-core already present |
 | `react-markdown`, `remark-gfm` | React Markdown rendering | [—] Only if React UI is adopted |
 | `react-syntax-highlighter` | React code highlighting | [—] Only if React UI is adopted |
-| `xterm` | Browser terminal UI | [ ] Planned |
-| `@xterm/addon-fit` | Terminal resize | [ ] Planned with xterm |
 | `@xterm/addon-web-links` | Clickable terminal links | [ ] Planned with xterm |
 | `@xterm/addon-webgl` | Terminal rendering acceleration | [—] Optional |
 | `@dnd-kit/core` | Drag-and-drop UI | [—] Optional |
