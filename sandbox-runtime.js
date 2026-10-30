@@ -49,7 +49,7 @@ async function pipeProcessOutput(process) {
 }
 
 function projectFiles(code) {
-  const isHtml = /<!doctype html|<html[\\s>]|<body[\\s>]/i.test(code);
+  const isHtml = /<!doctype html|<html[\\s>]|<body[\\s>]|<div[\\s>]|<main[\\s>]|<section[\\s>]|<h[1-6][\\s>]|<script[\\s>]/i.test(code);
   const html = isHtml
     ? code
     : '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Joes AI Preview</title></head><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>';
