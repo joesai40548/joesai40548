@@ -52,3 +52,5 @@ export function runMutation(options, variables) {
   const observer = new MutationObserver(queryClient, options);
   return observer.mutate(variables);
 }
+
+window.addEventListener("joes-ai-user-changed", () => queryClient.clear());
