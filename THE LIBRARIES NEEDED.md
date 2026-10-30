@@ -273,7 +273,7 @@ The work will proceed in small, testable increments. Update this tracker after e
 |---|---|---|---|
 | 0 | Repository/dependency audit | Confirm manifests, entrypoints, Node version, existing agent/sandbox code and current PRs | [~] Initial manifest audit complete |
 | 1 | Backend agent foundation | Reuse and verify Mastra/LangGraph; typed tool schemas; bounded steps, timeouts and cancellation | [ ] |
-| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [ ] |
+| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [~] Read-only GitHub tools proposed in backend PR #17; live token/build verification pending |
 | 3 | Website browser tools | Navigate, screenshot, inspect DOM/accessibility tree, extract readable content; obey robots/rate limits and block private-network targets | [ ] |
 | 4 | E2B sandbox lifecycle | Per-task isolated sandbox; resource/time limits; no secrets in guest process; cleanup; test commands and logs | [ ] |
 | 5 | WebContainers frontend runtime | Browser Node workspace, install/run/preview; enforce origin isolation and verify licensing/browser support | [ ] |
@@ -306,3 +306,6 @@ The work will proceed in small, testable increments. Update this tracker after e
 - Backend `langgraph-runtime.ts` already has planner → executor → reviewer workflow nodes and optional Postgres checkpoint/store persistence. Without `JOESAI_LANGGRAPH_DATABASE_URL`, it falls back to process-local memory.
 - The current frontend sandbox imports WebContainers `1.6.1` on its default branch; PR #16 updates it to `1.6.4`. The default-branch sandbox therefore must not be described as already upgraded.
 - **Next implementation increment:** add and verify a least-privilege GitHub repository read/inspection toolset in the backend, then proceed to browser inspection, controlled code edits, and PR creation. Do not enable repository writes until branch scoping and explicit approval are implemented.
+
+- First new backend implementation increment is proposed in [backend PR #17](https://github.com/joesai40548/Joes-AI/pull/17): four read-only GitHub tools (repository metadata, file tree, bounded file reads, code search) registered with the existing Mastra agent. Tools are disabled unless both a server-side `GITHUB_TOKEN` and exact `JOESAI_GITHUB_ALLOWED_REPOS` allowlist are configured. The PR is **open and unmerged**; live-token and CI/build verification remain outstanding.
+- Documentation tracker PR [frontend #20](https://github.com/joesai40548/joesai40548/pull/20) is **open and unmerged**.
