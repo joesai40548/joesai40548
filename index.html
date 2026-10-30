@@ -659,6 +659,8 @@
 
     let userId = null;
 
+    window.addEventListener('joes-ai-user-changed', () => window.location.reload());
+
     let sessions = [];
     let currentSessionId = null;
     let activeFilename = null;
@@ -1579,7 +1581,7 @@ ${msg.content}
 
         showWelcome(true);
         if (userId) fetchSessions();
-        else addMessageToUI('assistant', 'Sign-in is not ready yet. Enable **Anonymous** sign-in in Firebase Authentication, then reload Joes AI.');
+        else addMessageToUI('assistant', 'Sign-in is not ready yet. Please sign in with Google or email and reload Joes AI.');
     }
 
     function setupToolHandlers() {
