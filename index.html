@@ -1417,12 +1417,12 @@ ${msg.content}
         let agentInfo = null;
 
         if (currentMode === 'agent' && !hasAttachment) {
-            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\\n\\n');
+            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\n\n');
             const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    task: `Conversation history:\\n${transcript}\\n\\nLatest user message:\\n${message}`,
+                    task: `Conversation history:\n${transcript}\\n\\nLatest user message:\n${message}`,
                     mode: 'agent',
                     threadId: currentSessionId || 'default'
                 })
@@ -1438,12 +1438,12 @@ ${msg.content}
                     chatHistory: chatHistory.slice(0, -1).map(h => ({ role: h.role, content: h.content }))
                 })
             });
-            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\\n\\n');
+            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\n\n');
             const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    task: `Conversation history:\\n${transcript}\\n\\nAttachment analyzed by the platform's file-analysis service (${selectedAttachment.name}, ${currentMimeType}):\\n${analysis.text}\\n\\nRespond to the latest user request using this analysis and your available tools.`,
+                    task: `Conversation history:\n${transcript}\\n\\nAttachment analyzed by the platform's file-analysis service (${selectedAttachment.name}, ${currentMimeType}):\n${analysis.text}\n\nRespond to the latest user request using this analysis and your available tools.`,
                     mode: currentMode,
                     threadId: currentSessionId || 'default'
                 })
