@@ -1152,6 +1152,7 @@ ${msg.content}
             if (response.ok) {
                 const data = await response.json();
                 activeFilename = data.filename;
+                appStore.getState().setActiveSession(currentSessionId, activeFilename);
             }
         } catch (err) {
             console.warn("Koofr autocommit issue:", err.message);
@@ -1284,6 +1285,7 @@ ${msg.content}
           content: message, 
           attachment: cloudAttachmentPayload
       });
+      appStore.getState().setChatHistory(chatHistory);
       
       await saveCurrentChatToCloud(activeTitle);
 
