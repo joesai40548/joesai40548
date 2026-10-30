@@ -52,7 +52,7 @@ function projectFiles(code) {
   const isHtml = /<!doctype html|<html[\\s>]|<body[\\s>]/i.test(code);
   const html = isHtml
     ? code
-    : '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Joes AI Preview</title></head><body><div id="app"></div><script type="module" src="/src/main.js"><\\/script></body></html>';
+    : '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Joes AI Preview</title></head><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>';
   const files = {
     'package.json': { file: { contents: JSON.stringify({ name: 'joes-ai-preview', private: true, version: '1.0.0', scripts: { dev: 'vite --host 0.0.0.0' }, devDependencies: { vite: '6.2.3' } }, null, 2) } },
     'index.html': { file: { contents: html } }
