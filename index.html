@@ -618,6 +618,7 @@
            <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 flex-1 min-h-0">
                <section class="flex flex-col min-h-[260px] border-r border-white/10">
                    <div class="px-3 py-2 text-[11px] uppercase tracking-wider text-slate-400 border-b border-white/10">Code editor</div>
+                   <div id="sandbox-monaco-editor" class="flex-1 min-h-[240px] w-full hidden"></div>
                    <textarea id="sandbox-code-editor" spellcheck="false" class="flex-1 min-h-[240px] w-full resize-none bg-slate-950 text-emerald-200 font-mono text-xs leading-5 p-4 outline-none" placeholder="Write JavaScript, Python, or an HTML app here..."></textarea>
                    <div class="px-3 py-2 text-[10px] text-slate-500 border-t border-white/10">WebContainers runs Node.js projects in supported browsers. E2B runs code in an isolated cloud microVM.</div>
                </section>
@@ -625,6 +626,7 @@
                    <div class="px-3 py-2 text-[11px] uppercase tracking-wider text-slate-400 border-b border-white/10">Live preview</div>
                    <iframe id="sandbox-iframe" title="Code preview" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" class="w-full flex-1 min-h-[180px] bg-white border-none"></iframe>
                    <div class="px-3 py-2 text-[11px] text-slate-400 border-y border-white/10">Terminal output</div>
+                   <div id="sandbox-terminal" class="h-36 overflow-hidden bg-black/40 p-3 text-xs font-mono text-slate-200 hidden" aria-label="Terminal output"></div>
                    <pre id="sandbox-output" class="h-36 overflow-auto whitespace-pre-wrap break-words bg-black/40 p-3 text-xs font-mono text-slate-200">Output will appear here.</pre>
                </section>
            </div>
