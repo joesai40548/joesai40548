@@ -35,7 +35,8 @@
     {
       "imports": {
         "zustand/vanilla": "https://esm.sh/zustand@5.0.16/vanilla",
-        "zustand/middleware": "https://esm.sh/zustand@5.0.16/middleware"
+        "zustand/middleware": "https://esm.sh/zustand@5.0.16/middleware",
+        "@tanstack/query-core": "https://esm.sh/@tanstack/query-core@5.105.0"
       }
     }
   </script>
@@ -625,6 +626,7 @@
 
   <script type="module">
     import { appStore } from "./store.js";
+    import { apiJson, queryClient, queryKeys, runMutation } from "./query-client.js";
     const BACKEND_URL = 'https://joes-ai-jlzt.onrender.com';
     
     // Silence Tailwind production warning programmatically
@@ -992,16 +994,26 @@ ${msg.content}
         if (!sessionList) return;
         sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>`;
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats`, {
-                headers: { 'x-user-id': userId }
+            sessions = await queryClient.fetchQuery({
+                queryKey: queryKeys.sessions(userId),
+                queryFn: ({ signal }) => apiJson(`${BACKEND_URL}/api/chats`, {
+                    headers: { 'x-user-id': userId },
+                    signal
+                })
             });
-            if (!response.ok) throw new Error("Failed to load sessions.");
-            sessions = await response.json();
             appStore.getState().setSessions(sessions);
             renderSessions();
         } catch (err) {
             console.error(err);
-            sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
+            // Preserve cached sessions during a temporary network/backend failure.
+            const cachedSessions = queryClient.getQueryData(queryKeys.sessions(userId));
+            if (Array.isArray(cachedSessions)) {
+                sessions = cachedSessions;
+                appStore.getState().setSessions(sessions);
+                renderSessions();
+            } else {
+                sessionList.innerHTML = `<p class="text-xs text-red-400 italic px-2">Koofr offline</p>`;
+            }
         }
     }
 
@@ -1019,11 +1031,13 @@ ${msg.content}
     window.loadSession = async (filename) => {
         showLoadingIndicator(true);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                headers: { 'x-user-id': userId }
+            const data = await queryClient.fetchQuery({
+                queryKey: queryKeys.session(userId, filename),
+                queryFn: ({ signal }) => apiJson(`${BACKEND_URL}/api/chats/${encodeURIComponent(filename)}`, {
+                    headers: { 'x-user-id': userId },
+                    signal
+                })
             });
-            if (!response.ok) throw new Error("Could not retrieve file.");
-            const data = await response.json();
             
             currentSessionId = data.sessionId;
             activeFilename = filename;
@@ -1052,17 +1066,38 @@ ${msg.content}
     window.deleteSession = async (filename) => {
         if (!confirm('Are you sure you want to permanently delete this chat from your Koofr cloud?')) return;
         
+        const sessionsKey = queryKeys.sessions(userId);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/${filename}`, {
-                method: 'DELETE',
-                headers: { 'x-user-id': userId }
-            });
-            if (!response.ok) throw new Error("Cloud rejected deletion.");
-            
+            await runMutation({
+                mutationFn: (targetFilename) => apiJson(`${BACKEND_URL}/api/chats/${encodeURIComponent(targetFilename)}`, {
+                    method: 'DELETE',
+                    headers: { 'x-user-id': userId }
+                }),
+                onMutate: (targetFilename) => {
+                    const previous = queryClient.getQueryData(sessionsKey);
+                    queryClient.setQueryData(sessionsKey, (current) =>
+                        Array.isArray(current) ? current.filter((item) => item.filename !== targetFilename) : current
+                    );
+                    sessions = queryClient.getQueryData(sessionsKey) || [];
+                    appStore.getState().setSessions(sessions);
+                    renderSessions();
+                    return { previous };
+                },
+                onError: (_error, _targetFilename, context) => {
+                    if (context?.previous) {
+                        queryClient.setQueryData(sessionsKey, context.previous);
+                        sessions = context.previous;
+                        appStore.getState().setSessions(sessions);
+                        renderSessions();
+                    }
+                },
+                onSettled: () => queryClient.invalidateQueries({ queryKey: sessionsKey })
+            }, filename);
+
             if (activeFilename === filename) {
                 startNewChat();
             }
-            fetchSessions();
+            await fetchSessions();
         } catch (err) {
             alert(`Deletion failed: ${err.message}`);
         }
@@ -1072,22 +1107,47 @@ ${msg.content}
         const renamedInput = prompt('Enter new conversation title:', oldTitle);
         if (!renamedInput || renamedInput.trim() === '' || renamedInput === oldTitle) return;
 
+        const sessionsKey = queryKeys.sessions(userId);
         try {
-            const response = await fetch(`${BACKEND_URL}/api/chats/rename`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
+            const data = await runMutation({
+                mutationFn: ({ oldFilename, sessionId, newTitle }) => apiJson(`${BACKEND_URL}/api/chats/rename`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': userId
+                    },
+                    body: JSON.stringify({
+                        oldFilename,
+                        sessionId,
+                        newTitle
+                    })
+                }),
+                onMutate: ({ oldFilename, newTitle }) => {
+                    const previous = queryClient.getQueryData(sessionsKey);
+                    queryClient.setQueryData(sessionsKey, (current) =>
+                        Array.isArray(current) ? current.map((item) =>
+                            item.filename === oldFilename ? { ...item, title: newTitle } : item
+                        ) : current
+                    );
+                    sessions = queryClient.getQueryData(sessionsKey) || [];
+                    appStore.getState().setSessions(sessions);
+                    renderSessions();
+                    return { previous };
                 },
-                body: JSON.stringify({
-                    oldFilename: filename,
-                    sessionId: id,
-                    newTitle: renamedInput.trim()
-                })
+                onError: (_error, _variables, context) => {
+                    if (context?.previous) {
+                        queryClient.setQueryData(sessionsKey, context.previous);
+                        sessions = context.previous;
+                        appStore.getState().setSessions(sessions);
+                        renderSessions();
+                    }
+                },
+                onSettled: () => queryClient.invalidateQueries({ queryKey: sessionsKey })
+            }, {
+                oldFilename: filename,
+                sessionId: id,
+                newTitle: renamedInput.trim()
             });
-
-            if (!response.ok) throw new Error("Koofr failed to rename file.");
-            const data = await response.json();
 
             if (activeFilename === filename) {
                 activeFilename = data.filename;
@@ -1153,6 +1213,10 @@ ${msg.content}
                 const data = await response.json();
                 activeFilename = data.filename;
                 appStore.getState().setActiveSession(currentSessionId, activeFilename);
+                await queryClient.invalidateQueries({ queryKey: queryKeys.sessions(userId) });
+                if (activeFilename) {
+                    await queryClient.invalidateQueries({ queryKey: queryKeys.session(userId, activeFilename) });
+                }
             }
         } catch (err) {
             console.warn("Koofr autocommit issue:", err.message);
