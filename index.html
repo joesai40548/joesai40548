@@ -1673,7 +1673,7 @@ ${msg.content}
                 const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, maxResults: 6 })
+                    body: JSON.stringify({ query, maxResults: 6, explicitSearch: true })
                 });
                 if (!response.ok) throw new Error('Search failed');
                 const data = await response.json();
