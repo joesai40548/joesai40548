@@ -311,3 +311,5 @@ The work will proceed in small, testable increments. Update this tracker after e
 - Documentation tracker PR [frontend #20](https://github.com/joesai40548/joesai40548/pull/20) is **open and unmerged**.
 
 - Backend PR #17 now also wires the existing public-site inspector into the Mastra agent as `website_inspect`, and passes GitHub/browser tool availability and inspected URLs through LangGraph into the agent API response. This uses the already-installed Playwright/Chromium, Cheerio, Readability, JSDOM and IP address validation stack; it does not add duplicate browser packages. The PR remains **open and unmerged**; runtime/browser tests and a TypeScript build are still required.
+
+- Backend PR #17 includes a new `.github/workflows/agent-runtime-checks.yml` workflow to run TypeScript checking, backend build, and the existing website-inspector smoke test on pull requests. No run result is available yet, so validation remains pending.
