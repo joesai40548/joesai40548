@@ -366,3 +366,33 @@ This section supersedes conflicting historical notes above where they describe t
 - These source changes are committed to the frontend main branch. Runtime availability still depends on the browser reaching the pinned CDNs and the host's cross-origin isolation configuration for WebContainers.
 
 - Frontend CI now runs the existing Node test suite, ESLint on the new shared API configuration, npm audit (high severity and above), and the production Tailwind build. The run for commit 4c581853d1ce5a286e89a1b62c1cc7138328cb04 passed. The broader legacy `npm run lint` command currently reports 136 existing errors, so it is not used as a passing gate until that backlog is addressed.
+
+
+## Continued implementation — 30 October 2026
+
+### Additional verified changes
+
+- **Website policy compliance:** the backend website inspector now retrieves robots.txt through the pinned Playwright browser context before loading a requested page. It evaluates matching user-agent groups, allow/disallow path rules, wildcard rules and crawl-delay. A robots.txt 5xx/unreachable response fails closed; 404/410 and ordinary 4xx are treated as unavailable. The smoke test covers disallow, allow exception and crawl-delay parsing.
+- **Website screenshots:** successful inspections now include a viewport JPEG screenshot (quality 55), returned as base64 only when at most 400 KB. This is part of the existing agent website_inspect tool result; no separate browser automation stack was introduced.
+- **Crawl pacing:** same-host crawl requests wait at least one second and honor a parsed robots crawl-delay up to ten seconds.
+- **API security baseline:** backend responses now include nosniff, frame-deny, referrer, permissions and CSP headers; HSTS is enabled in production. Express x-powered-by is disabled.
+- **Structured request telemetry:** backend emits JSON request-completion logs with a generated request ID, method, status and duration. Query strings, request bodies, auth tokens and user IDs are not logged.
+- **JavaScript formatting:** sandbox editor now has a Format JS action using pinned Prettier 3.6.2 standalone + Babel/ESTree plugins. It formats Monaco content when loaded and retains the textarea fallback.
+
+### Latest verification
+
+- Backend build and dependency audit workflow passed on commit `12cefa893fea1b5d7960413ab00c8d1dbd9fb476`; the run includes npm ci, npm audit (0 vulnerabilities), backend esbuild build, Chromium smoke test and robots parser assertions.
+- Frontend workflow for the Prettier UI/runtime commits is running; do not treat that latest change as verified until the matching GitHub Actions run completes.
+- Browser-level production verification of CDN-loaded Monaco, xterm and Prettier remains outstanding. GitHub Pages deployment must complete and the live browser should confirm CDN access and cross-origin isolation.
+
+### Still outstanding (not represented as integrated)
+
+- GitHub App OAuth/installation auth and authorized branch write / commit / PR proposal flow.
+- Fully interactive PTY connected to E2B or WebContainers; xterm currently displays command output only.
+- Semantic code intelligence (Tree-sitter, ripgrep indexing and LSP diagnostics).
+- File upload extraction for PDF/DOCX/XLSX/CSV, MIME sniffing and safe archive handling.
+- Durable LangGraph persistence until `JOESAI_LANGGRAPH_DATABASE_URL` is configured and verified against PostgreSQL.
+- Distributed rate limiting and durable background jobs; current in-memory rate buckets are instance-local.
+- Dedicated error monitoring and metrics/tracing exporters; JSON request logs are now available but are not a substitute for Sentry/Prometheus/OpenTelemetry.
+- Full browser E2E, accessibility and security scanning (Playwright Test, axe-core, Lighthouse, Semgrep and OSV Scanner).
+- External credentials and service configuration must be added through Render's server-side environment settings, not committed to source.
