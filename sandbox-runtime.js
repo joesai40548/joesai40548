@@ -49,7 +49,7 @@ async function pipeProcessOutput(process) {
 }
 
 function projectFiles(code) {
-  const isHtml = /<!doctype html|<html[\\s>]|<body[\\s>]|<div[\\s>]|<main[\\s>]|<section[\\s>]|<h[1-6][\\s>]|<script[\\s>]/i.test(code);
+  const isHtml = /<!doctype html|<html[\s>]|<body[\s>]|<div[\s>]|<main[\s>]|<section[\s>]|<h[1-6][\s>]|<script[\s>]/i.test(code);
   const html = isHtml
     ? code
     : '<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Joes AI Preview</title></head><body><div id="app"></div><script type="module" src="/src/main.js"></script></body></html>';
@@ -82,7 +82,7 @@ async function runWebContainer() {
     if (frame) frame.src = url;
     setStatus('WebContainers ready · port ' + port);
   });
-  webContainer.on('error', (error) => appendOutput('[WebContainer] ' + (error?.message || String(error)) + '\\n'));
+  webContainer.on('error', (error) => appendOutput('[WebContainer] ' + (error?.message || String(error)) + '\n'));
   setStatus('Installing project dependencies…');
   const install = await webContainer.spawn('npm', ['install']);
   await pipeProcessOutput(install);
@@ -90,7 +90,7 @@ async function runWebContainer() {
   if (installExit !== 0) throw new Error('npm install exited with code ' + installExit + '.');
   setStatus('Starting development server…');
   webServerProcess = await webContainer.spawn('npm', ['run', 'dev']);
-  pipeProcessOutput(webServerProcess).catch((error) => appendOutput(String(error) + '\\n'));
+  pipeProcessOutput(webServerProcess).catch((error) => appendOutput(String(error) + '\n'));
 }
 
 async function runE2B() {
@@ -110,8 +110,8 @@ async function runE2B() {
     body: JSON.stringify({ sandboxId: e2bSandboxId, language, code })
   });
   appendOutput(result.stdout || '');
-  if (result.stderr) appendOutput('\\n[stderr]\\n' + result.stderr);
-  appendOutput('\\n[exit code: ' + result.exitCode + ']\\n');
+  if (result.stderr) appendOutput('\n[stderr]\n' + result.stderr);
+  appendOutput('\n[exit code: ' + result.exitCode + ']\n');
   setStatus(result.exitCode === 0 ? 'E2B execution complete' : 'E2B execution finished with errors', result.exitCode !== 0);
 }
 
@@ -127,7 +127,7 @@ async function runE2BCommand() {
     method: 'POST',
     body: JSON.stringify({ sandboxId: e2bSandboxId, command })
   });
-  appendOutput((result.stdout || '') + (result.stderr ? '\\n' + result.stderr : '') + '\\n[exit code: ' + result.exitCode + ']\\n');
+  appendOutput((result.stdout || '') + (result.stderr ? '\n' + result.stderr : '') + '\n[exit code: ' + result.exitCode + ']\n');
   byId('sandbox-command').value = '';
   setStatus('E2B terminal ready');
 }
@@ -153,15 +153,15 @@ window.runCodeSandbox = (encodedCode) => {
 document.addEventListener('DOMContentLoaded', () => {
   byId('sandbox-run-web')?.addEventListener('click', async () => {
     try { await runWebContainer(); }
-    catch (error) { setStatus(error.message || 'WebContainers failed to start.', true); appendOutput('[error] ' + (error.message || error) + '\\n'); }
+    catch (error) { setStatus(error.message || 'WebContainers failed to start.', true); appendOutput('[error] ' + (error.message || error) + '\n'); }
   });
   byId('sandbox-run-e2b')?.addEventListener('click', async () => {
     try { await runE2B(); }
-    catch (error) { setStatus(error.message || 'E2B execution failed.', true); appendOutput('[error] ' + (error.message || error) + '\\n'); }
+    catch (error) { setStatus(error.message || 'E2B execution failed.', true); appendOutput('[error] ' + (error.message || error) + '\n'); }
   });
   byId('sandbox-run-command')?.addEventListener('click', async () => {
     try { await runE2BCommand(); }
-    catch (error) { setStatus(error.message || 'Terminal command failed.', true); appendOutput('[error] ' + (error.message || error) + '\\n'); }
+    catch (error) { setStatus(error.message || 'Terminal command failed.', true); appendOutput('[error] ' + (error.message || error) + '\n'); }
   });
   byId('sandbox-command')?.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') { event.preventDefault(); byId('sandbox-run-command')?.click(); }
