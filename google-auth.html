@@ -12,7 +12,8 @@
     .brand { margin-bottom: 24px; color: #4f46e5; font-weight: 800; letter-spacing: .04em; }
     h1 { margin: 0 0 10px; font-size: 1.55rem; }
     p { color: #64748b; line-height: 1.6; }
-    button, a.action { display: inline-flex; justify-content: center; align-items: center; gap: 11px; width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 12px; background: #fff; color: #3c4043; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px #0002, 0 0 0 1px #dadce0; }\n    .google-mark { width: 20px; height: 20px; flex: 0 0 20px; }
+    button, a.action { display: inline-flex; justify-content: center; align-items: center; gap: 11px; width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 12px; background: #fff; color: #3c4043; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; box-shadow: 0 1px 2px #0002, 0 0 0 1px #dadce0; }
+    .google-mark { width: 20px; height: 20px; flex: 0 0 20px; }
     button:disabled { opacity: .65; cursor: wait; }
     .secondary { background: #eef2ff !important; color: #3730a3 !important; }
     #message { min-height: 24px; color: #b91c1c; font-size: 14px; overflow-wrap: anywhere; }
@@ -51,6 +52,7 @@
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     const button = document.getElementById("google-button");
+    const googleButtonMarkup = button.innerHTML;
     const message = document.getElementById("message");
     const signInPanel = document.getElementById("sign-in-panel");
     const successPanel = document.getElementById("success-panel");
@@ -88,7 +90,7 @@
         message.textContent = messages[error.code] || error.message || "Google sign-in failed. Please try again.";
       } finally {
         button.disabled = false;
-        button.innerHTML = `${googleSvg}<span>Continue with Google</span>`;
+        button.innerHTML = googleButtonMarkup;
       }
     });
 
