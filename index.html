@@ -8,30 +8,28 @@
   <title>Joes AI - Intelligent AI Assistant & Coding Workspace</title>
   <meta name="title" content="Joes AI - Intelligent AI Assistant & Coding Workspace">
   <meta name="description" content="Meet Joes AI, a powerful web companion designed by Akram Joes Technologies. Switch between Chat, Code, Study, and Learning modes with an integrated sandbox canvas code previewer.">
-  <meta name="keywords" content="Joes AI, joes ai, joes-ai-server, Akram Joes Technologies, intelligent assistant, chat mode, sandbox code preview, study companion, free domain one, work.gd">
+  <meta name="keywords" content="Joes AI, joes ai, joes-ai-server, Akram Joes Technologies, intelligent assistant, chat mode, sandbox code preview, study companion">
   <meta name="robots" content="index, follow">
   <meta name="language" content="English">
   <meta name="author" content="Akram Joes Technologies">
 
-  <meta name="theme-color" content="#6366f1">
+  <meta name="theme-color" content="#0a0a0a">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://joesai.work.gd/">
   <meta property="og:title" content="Joes AI - Intelligent AI Assistant & Workspace">
-  <meta property="og:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
+  <meta property="og:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful minimal dashboard layout.">
   <meta property="og:image" content="https://joesai.work.gd/assets/og-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://joesai.work.gd/">
   <meta property="twitter:title" content="Joes AI - Intelligent AI Assistant & Workspace">
-  <meta property="twitter:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful glassmorphism dashboard layout.">
+  <meta property="twitter:description" content="Experience dynamic Chat, Code, and Study features built directly inside a beautiful minimal dashboard layout.">
   <meta property="twitter:image" content="https://joesai.work.gd/assets/og-preview.png">
 
   <link rel="canonical" href="https://joesai.work.gd/">
 
   <link class="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
 
   <script type="module">
@@ -45,30 +43,24 @@
     window.mermaid = mermaid;
   </script>
 </head>
-<body class="gradient-bg min-h-screen text-slate-900 relative">
-  <div id="page-loader" class="fixed inset-0 z-[100] bg-white flex items-center justify-center transition-opacity duration-500">
-    <div class="w-14 h-14 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-  </div>
-
-  <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-br from-indigo-200/20 via-indigo-100/10 to-transparent blur-[120px] animate-[pulse_8s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-gradient-to-tr from-cyan-200/10 via-indigo-100/8 to-transparent blur-[140px] animate-[pulse_12s_ease-in-out_infinite] will-change-transform"></div>
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+<body class="relative">
+  <div id="page-loader" class="fixed inset-0 z-[100] bg-[#0a0a0a] flex items-center justify-center transition-opacity duration-500">
+    <div class="w-12 h-12 border-2 border-[#10a37f] border-t-transparent rounded-full animate-spin"></div>
   </div>
 
   <div id="app" class="app-container flex h-full w-full">
-    <aside id="sidebar" class="sidebar-mobile-hidden flex-shrink-0 flex flex-col w-[260px] bg-white border-r border-slate-200/70 backdrop-blur-xl transition-all duration-300 ease-in-out">
+    <aside id="sidebar" class="sidebar-mobile-hidden flex-shrink-0 flex flex-col w-[260px] bg-[#121212] border-r border-[#272727] backdrop-blur-xl transition-all duration-300 ease-in-out">
       <div class="sidebar-header">
         <div class="sidebar-brand">
           <div class="sidebar-brand-icon">⚡</div>
           <span class="sidebar-brand-label">joes ai</span>
         </div>
         <button id="sidebar-toggle-btn" class="hidden md:flex" title="Toggle sidebar">⟨</button>
-        <button id="sidebar-close-btn" class="md:hidden flex items-center justify-center w-8 h-8 text-slate-500 hover:text-red-500 border border-slate-200 rounded-lg" title="Close sidebar">✕</button>
+        <button id="sidebar-close-btn" class="md:hidden flex items-center justify-center w-8 h-8 text-[#a1a1a1] hover:text-[#10a37f] border border-[#272727] rounded-lg" title="Close sidebar">✕</button>
       </div>
 
       <div class="sidebar-section new-chat">
-        <button id="new-chat-btn" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all text-sm">
+        <button id="new-chat-btn" class="w-full py-3 px-4 bg-[#1f1f1f] border border-[#272727] text-white font-medium rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-[#3a3a3a] transition-all text-sm">
           <span>+</span>
           <span class="sidebar-button-text">New Chat</span>
         </button>
@@ -81,12 +73,12 @@
 
       <div class="sidebar-section settings">
         <p class="sidebar-section-label">Mode</p>
-        <select id="chat-mode-select" class="w-full bg-slate-50/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 text-sm cursor-pointer focus:outline-none focus:border-indigo-500 transition-all">
+        <select id="chat-mode-select" class="w-full bg-[#121212] border border-[#272727] rounded-lg px-3 py-2 text-white text-sm cursor-pointer focus:outline-none focus:border-[#10a37f] transition-all">
           <option value="chat">💬 Chat Mode</option>
           <option value="code">💻 Code Mode</option>
           <option value="study">📚 Study Mode</option>
         </select>
-        <p class="text-[8px] text-slate-500 text-center pt-3 mt-3 border-t border-slate-200">
+        <p class="text-[8px] text-[#8e8e8e] text-center pt-3 mt-3 border-t border-[#272727]">
           Powered by AKRAM JOES TECH
         </p>
       </div>
@@ -94,53 +86,66 @@
       <div class="sidebar-section">
         <p class="sidebar-section-label">Tools</p>
         <div class="flex flex-col gap-2">
-          <button id="drive-files-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">📁 Drive Files</button>
-          <button id="youtube-search-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">▶️ YouTube Search</button>
+          <button id="drive-files-btn" class="text-xs text-left px-2 py-1.5 bg-[#1f1f1f] border border-[#272727] rounded-lg hover:bg-[#3a3a3a] transition-all text-[#a1a1a1]">📁 Drive Files</button>
+          <button id="youtube-search-btn" class="text-xs text-left px-2 py-1.5 bg-[#1f1f1f] border border-[#272727] rounded-lg hover:bg-[#3a3a3a] transition-all text-[#a1a1a1]">▶️ YouTube Search</button>
         </div>
       </div>
     </aside>
 
     <div class="flex-1 flex flex-col h-full overflow-hidden relative">
-      <header class="bg-white backdrop-blur-md shadow-lg md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200/60 z-20 flex-shrink-0">
+      <header class="bg-[#121212] backdrop-blur-md shadow-lg md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-[#272727] z-20 flex-shrink-0">
         <div class="flex items-center space-x-3">
-          <button id="sidebar-open-btn" class="md:hidden flex items-center justify-center text-slate-600 hover:text-indigo-500 hover:bg-slate-100/50 p-1.5 rounded-xl transition-all mr-1" title="Open Menu">
+          <button id="sidebar-open-btn" class="md:hidden flex items-center justify-center text-[#8e8e8e] hover:text-[#10a37f] hover:bg-[#1f1f1f] p-1.5 rounded-xl transition-all mr-1" title="Open Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
           <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-gradient-to-r from-indigo-400 to-cyan-400 rounded-lg flex items-center justify-center shadow-lg text-sm">⚡</div>
-            <span class="text-lg font-semibold text-slate-900 tracking-wide">joes ai</span>
+            <div class="w-8 h-8 bg-gradient-to-r from-[#10a37f] to-[#3b82f6] rounded-lg flex items-center justify-center shadow-lg text-xs">⚡</div>
+            <span class="text-lg font-semibold text-white tracking-wide">joes ai</span>
           </div>
         </div>
 
         <div class="flex items-center space-x-1">
-          <button id="theme-btn" class="text-slate-600 hover:text-indigo-500 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="Toggle Theme">🌙</button>
-          <button id="export-btn" class="text-slate-600 hover:text-emerald-500 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="Export to Markdown">📥</button>
-          <button id="clear-btn" class="text-slate-600 hover:text-rose-500 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="New Conversation Screen">🗑️</button>
+          <button id="theme-btn" class="text-[#8e8e8e] hover:text-[#10a37f] transition-colors p-1.5 hover:bg-[#1f1f1f] rounded-xl" title="Toggle Theme">🌙</button>
+          <button id="export-btn" class="text-[#8e8e8e] hover:text-[#10a37f] transition-colors p-1.5 hover:bg-[#1f1f1f] rounded-xl" title="Export to Markdown">📥</button>
+          <button id="clear-btn" class="text-[#8e8e8e] hover:text-[#ef4444] transition-colors p-1.5 hover:bg-[#1f1f1f] rounded-xl" title="New Conversation Screen">🗑️</button>
         </div>
       </header>
 
       <main class="flex-1 overflow-hidden md:p-4 p-0">
         <div class="max-w-5xl mx-auto h-full flex flex-col">
-          <div class="chat-gradient md:rounded-2xl rounded-none shadow-xl overflow-hidden flex-1 flex flex-col relative border border-white/10 h-full">
-            <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
+          <div class="chat-gradient md:rounded-2xl rounded-none overflow-hidden flex-1 flex flex-col relative h-full">
+            <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col">
+              <!-- Empty state shown when no messages -->
+              <div id="empty-state">
+                <div class="empty-icon">💬</div>
+                <h1>Welcome to Joes AI</h1>
+                <p>Developed & Powered by <strong class="text-[#10a37f]">AKRAM JOES TECHNOLOGIES</strong>. Start a conversation below or pick a recent chat.</p>
+                <div class="quick-prompt-grid">
+                  <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="quick-prompt-btn">🔬 Study Physics</button>
+                  <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="quick-prompt-btn">🧠 Learn Concepts</button>
+                  <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="quick-prompt-btn">⚙️ Code Setup</button>
+                  <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="quick-prompt-btn">✨ Who Created You?</button>
+                </div>
+              </div>
+            </div>
 
-            <div class="flex flex-col w-full bg-slate-50/60 border-t border-slate-200/60 p-3 md:p-4 rounded-b-none md:rounded-b-2xl shrink-0">
+            <div class="flex flex-col w-full bg-[#171717] border-t border-[#272727] p-3 md:p-4 shrink-0">
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
 
               <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-slate-100/90 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-xl flex items-center justify-center text-2xl transition-all border border-slate-200" title="Upload Media">
+                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-[#1f1f1f] hover:bg-[#3a3a3a] active:scale-95 text-[#a1a1a1] rounded-xl flex items-center justify-center text-2xl transition-all border border-[#272727]" title="Upload Media">
                   ＋
                 </button>
 
-                <div class="flex-grow flex items-center relative bg-white border border-slate-200 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-white border-none text-slate-900 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
+                <div class="flex-grow flex items-center relative bg-[#171717] border border-[#272727] rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
+                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-transparent border-none text-white placeholder-[#8e8e8e] focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
 
-                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-500 p-2 rounded-xl transition-all" title="Voice Input" aria-label="Voice input">
+                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-[#8e8e8e] hover:text-[#10a37f] p-2 rounded-xl transition-all" title="Voice Input" aria-label="Voice input">
                     🎤
                   </button>
                 </div>
 
-                <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center shrink-0" title="Send message">
+                <button id="send-btn" class="flex-shrink-0 bg-[#10a37f] hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-lg shadow-[#10a37f]/30 transition-all active:scale-95 flex items-center justify-center shrink-0" title="Send message">
                   <span id="send-icon" class="flex items-center justify-center w-full h-full">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                   </span>
@@ -155,42 +160,42 @@
     </div>
   </div>
 
-  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-white/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-      <div class="flex justify-between items-center p-4 border-b border-slate-200/70 bg-white/95 text-slate-900">
+  <div id="sandbox-modal" class="fixed inset-0 z-50 bg-[#121212]/80 backdrop-blur-md hidden flex flex-col">
+      <div class="flex justify-between items-center p-4 border-b border-[#272727] bg-[#171717]/95 text-white">
           <span class="text-sm font-semibold flex items-center gap-2">💻 Sandbox Live Code Preview</span>
-          <button id="sandbox-close-btn" class="text-slate-700 hover:text-rose-500 font-bold transition-colors" aria-label="Close sandbox">✕ Close</button>
+          <button id="sandbox-close-btn" class="text-[#8e8e8e] hover:text-[#ef4444] font-bold transition-colors" aria-label="Close sandbox">✕ Close</button>
        </div>
-       <div class="flex-1 bg-white">
+       <div class="flex-1 bg-[#121212]">
            <iframe id="sandbox-iframe" sandbox="allow-scripts" class="w-full h-full border-none"></iframe>
        </div>
   </div>
 
-  <div id="drive-modal" class="fixed inset-0 z-50 bg-white/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-      <div class="flex justify-between items-center p-4 border-b border-slate-200/70 bg-white/95 text-slate-900">
+  <div id="drive-modal" class="fixed inset-0 z-50 bg-[#121212]/80 backdrop-blur-md hidden flex flex-col">
+      <div class="flex justify-between items-center p-4 border-b border-[#272727] bg-[#171717]/95 text-white">
           <span class="text-sm font-semibold flex items-center gap-2">📁 Google Drive Files</span>
-          <button id="drive-close-btn" class="text-slate-700 hover:text-rose-500 font-bold transition-colors" aria-label="Close drive">✕ Close</button>
+          <button id="drive-close-btn" class="text-[#8e8e8e] hover:text-[#ef4444] font-bold transition-colors" aria-label="Close drive">✕ Close</button>
       </div>
       <div class="flex-1 overflow-auto p-4">
           <div id="drive-files-list" class="space-y-2">
-              <p class="text-center text-slate-500 py-8">Loading Drive files...</p>
+              <p class="text-center text-[#8e8e8e] py-8">Loading Drive files...</p>
           </div>
       </div>
   </div>
 
-  <div id="youtube-modal" class="fixed inset-0 z-50 bg-white/80 backdrop-blur-md hidden flex flex-col animate__animated animate__fadeIn animate__faster">
-      <div class="flex justify-between items-center p-4 border-b border-slate-200/70 bg-white/95 text-slate-900">
+  <div id="youtube-modal" class="fixed inset-0 z-50 bg-[#121212]/80 backdrop-blur-md hidden flex flex-col">
+      <div class="flex justify-between items-center p-4 border-b border-[#272727] bg-[#171717]/95 text-white">
           <span class="text-sm font-semibold flex items-center gap-2">▶️ YouTube Search</span>
-          <button id="youtube-close-btn" class="text-slate-700 hover:text-rose-500 font-bold transition-colors" aria-label="Close youtube">✕ Close</button>
+          <button id="youtube-close-btn" class="text-[#8e8e8e] hover:text-[#ef4444] font-bold transition-colors" aria-label="Close youtube">✕ Close</button>
       </div>
       <div class="flex-1 flex flex-col p-4">
           <div class="flex items-center space-x-2 mb-4">
-              <input type="text" id="youtube-search-input" class="flex-1 bg-slate-100/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-indigo-500" placeholder="Search YouTube...">
-              <button id="youtube-search-submit" class="bg-gradient-to-r from-indigo-500 to-cyan-500 hover:scale-105 text-white w-12 h-12 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center shrink-0" aria-label="Search YouTube">
+              <input type="text" id="youtube-search-input" class="flex-1 bg-[#1f1f1f] border border-[#272727] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#10a37f]" placeholder="Search YouTube...">
+              <button id="youtube-search-submit" class="bg-[#10a37f] hover:scale-105 text-white w-12 h-12 rounded-2xl shadow-lg shadow-[#10a37f]/30 transition-all active:scale-95 flex items-center justify-center shrink-0" aria-label="Search YouTube">
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
               </button>
           </div>
           <div class="flex-1 overflow-auto" id="youtube-results-list">
-              <p class="text-center text-slate-500 py-8">Search for videos...</p>
+              <p class="text-center text-[#8e8e8e] py-8">Search for videos...</p>
           </div>
       </div>
   </div>

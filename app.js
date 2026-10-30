@@ -174,25 +174,13 @@ function hideSidebarOnMobile() {
   }
 }
 
-// ---------- Welcome state ----------
+// ---------- Welcome / empty state ----------
 function showWelcome(show) {
-  const welcomeMsg = document.getElementById('welcome-msg');
-  if (show && chatMessages) {
-    chatMessages.innerHTML = `
-      <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-slate-700 space-y-4">
-        <div class="w-20 h-20 bg-gradient-to-tr from-indigo-200/30 to-cyan-200/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-wide">Welcome to Joes AI</h1>
-        <p class="max-w-md text-sm text-slate-500">Developed & Powered by <strong class="text-indigo-500">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
-        <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
-          <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-          <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
-          <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
-          <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
-        </div>
-      </div>
-    `;
-  } else if (welcomeMsg) {
-    welcomeMsg.remove();
+  const emptyState = document.getElementById('empty-state');
+  if (show && emptyState) {
+    emptyState.style.display = 'flex';
+  } else if (emptyState) {
+    emptyState.style.display = 'none';
   }
 }
 
@@ -212,14 +200,14 @@ window.speakText = (btn, text) => {
 
   if (btn.dataset.speaking === 'true') {
     btn.textContent = '🔊 Read';
-    btn.classList.remove('text-red-400');
+    btn.classList.remove('text-[#ef4444]');
     btn.dataset.speaking = 'false';
     return;
   }
 
   document.querySelectorAll('.tts-trigger').forEach((b) => {
     b.textContent = '🔊 Read';
-    b.classList.remove('text-red-400');
+    b.classList.remove('text-[#ef4444]');
     b.dataset.speaking = 'false';
   });
 
@@ -250,17 +238,17 @@ window.speakText = (btn, text) => {
 
   utterance.onend = () => {
     btn.textContent = '🔊 Read';
-    btn.classList.remove('text-red-400');
+    btn.classList.remove('text-[#ef4444]');
     btn.dataset.speaking = 'false';
   };
   utterance.onerror = () => {
     btn.textContent = '🔊 Read';
-    btn.classList.remove('text-red-400');
+    btn.classList.remove('text-[#ef4444]');
     btn.dataset.speaking = 'false';
   };
 
   btn.textContent = '🛑 Stop';
-  btn.classList.add('text-red-400');
+  btn.classList.add('text-[#ef4444]');
   btn.dataset.speaking = 'true';
 
   setTimeout(() => {
@@ -452,7 +440,7 @@ function setupSpeechRecognition() {
 // ---------- Sessions ----------
 async function fetchSessions() {
   if (!sessionList) {return;}
-  sessionList.innerHTML = '<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>';
+  sessionList.innerHTML = '<p class="text-xs text-[#8e8e8e] italic px-2">Syncing with Koofr...</p>';
   try {
     const response = await retryFetch(`${BACKEND_URL}/api/chats`, {
       headers: { 'x-user-id': userId },
@@ -461,7 +449,7 @@ async function fetchSessions() {
     renderSessions();
   } catch (err) {
     console.error(err);
-    sessionList.innerHTML = '<p class="text-xs text-red-400 italic px-2">Koofr offline</p>';
+    sessionList.innerHTML = '<p class="text-xs text-[#ef4444] italic px-2">Koofr offline</p>';
     showToast('Unable to load recent chats.', 'error');
   }
 }
@@ -560,19 +548,19 @@ function renderSessions() {
   if (!sessionList) {return;}
   sessionList.innerHTML = '';
   if (sessions.length === 0) {
-    sessionList.innerHTML = '<p class="text-xs text-slate-500 italic px-2">No recent chats</p>';
+    sessionList.innerHTML = '<p class="text-xs text-[#8e8e8e] italic px-2">No recent chats</p>';
     return;
   }
 
   sessions.forEach((sess) => {
     const isActive = sess.filename === activeFilename;
     const item = document.createElement('div');
-    item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-slate-100 text-slate-900 border-l-2 border-indigo-500' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`;
+    item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-[#1f1f1f] text-white border-l-2 border-[#10a37f]' : 'text-[#8e8e8e] hover:bg-[#1f1f1f] hover:text-white'}`;
     item.innerHTML = `
       <span class="truncate flex-1 pr-2">💬 ${escapeHtml(sess.title)}</span>
       <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button class="text-slate-500 hover:text-indigo-500 p-0.5 rename-btn" title="Rename thread">✏️</button>
-        <button class="text-slate-500 hover:text-red-500 p-0.5 delete-btn" title="Delete thread">✕</button>
+        <button class="text-[#8e8e8e] hover:text-[#10a37f] p-0.5 rename-btn" title="Rename thread">✏️</button>
+        <button class="text-[#8e8e8e] hover:text-[#ef4444] p-0.5 delete-btn" title="Delete thread">✕</button>
       </div>
     `;
 
@@ -636,14 +624,14 @@ function showAttachmentChip(file) {
 
   if (file.type.startsWith('image/')) {
     const imgUrl = URL.createObjectURL(file);
-    previewHtml = `<img src="${imgUrl}" class="w-8 h-8 rounded-lg object-cover border border-white/20 shadow-md">`;
+    previewHtml = `<img src="${imgUrl}" class="w-8 h-8 rounded-lg object-cover border border-[#272727]/40 shadow-md">`;
   }
 
   container.innerHTML = `
-    <div class="bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 backdrop-blur-md border border-indigo-500/30 text-slate-900 pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
+    <div class="bg-[#1f1f1f] backdrop-blur-md border border-[#10a37f]/30 text-white pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 ">
       ${previewHtml}
-      <span class="font-medium truncate max-w-[200px] text-slate-900">📎 ${escapeHtml(file.name)}</span>
-      <button onclick="window.removeAttachment()" class="hover:text-indigo-700 transition-colors font-bold ml-2">✕</button>
+      <span class="font-medium truncate max-w-[200px] text-white">📎 ${escapeHtml(file.name)}</span>
+      <button onclick="window.removeAttachment()" class="hover:text-[#10a37f] transition-colors font-bold ml-2">✕</button>
     </div>
   `;
   container.classList.remove('hidden');
@@ -753,8 +741,8 @@ async function handleSend() {
     streamingBubble.innerHTML = `
       <div class="msg-bubble assistant overflow-x-auto relative">
         <div class="flex items-center gap-2" style="min-height:1.2rem;">
-          <span class="text-xs text-indigo-500 italic">Joes AI is responding</span>
-          <span class="animate-pulse text-indigo-500">●</span>
+          <span class="text-xs text-[#10a37f] italic">Joes AI is responding</span>
+          <span class="animate-pulse text-[#10a37f]">●</span>
         </div>
       </div>
     `;
@@ -802,7 +790,7 @@ async function handleSend() {
         if (streamingBubble) {
           const bubble = streamingBubble.querySelector('.msg-bubble.assistant');
           if (bubble) {
-            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-indigo-500 italic">Joes AI is responding</span><span class="animate-pulse text-indigo-500">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
+            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-[#10a37f] italic">Joes AI is responding</span><span class="animate-pulse text-[#10a37f]">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
         }
@@ -857,8 +845,8 @@ function addMessageToUI(role, content, attachmentData = null) {
         <div class="attachment-file">
           <span class="text-xl">📄</span>
           <div class="truncate flex-1">
-            <p class="font-medium text-slate-900 truncate">${escapeHtml(attachmentData.name)}</p>
-            <p class="text-slate-500 text-[10px] uppercase tracking-wide">${(attachmentData.type.split('/')[1] || 'File').toUpperCase()}</p>
+            <p class="font-medium text-white truncate">${escapeHtml(attachmentData.name)}</p>
+            <p class="text-[#8e8e8e] text-[10px] uppercase tracking-wide">${(attachmentData.type.split('/')[1] || 'File').toUpperCase()}</p>
           </div>
         </div>
       `;
@@ -867,7 +855,7 @@ function addMessageToUI(role, content, attachmentData = null) {
 
   const encodedString = encodeURIComponent(content || '');
   const speakerBadge = role === 'assistant'
-    ? `<div class="msg-actions"><button class="text-slate-500 hover:text-indigo-500 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}" aria-label="Read message aloud">🔊 Read</button></div>`
+    ? `<div class="msg-actions"><button class="text-[#8e8e8e] hover:text-[#10a37f] text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}" aria-label="Read message aloud">🔊 Read</button></div>`
     : '';
 
   wrapper.innerHTML = `<div class="${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
@@ -937,7 +925,7 @@ function showLoadingIndicator(show) {
     chatMessages.innerHTML = `
       <div class="loading-state">
         <div class="loader-spinner"></div>
-        <span class="text-xs text-slate-500">Loading conversation from Koofr...</span>
+        <span class="text-xs text-[#8e8e8e]">Loading conversation from Koofr...</span>
       </div>
     `;
   }
@@ -969,9 +957,9 @@ function formatMarkdown(text) {
 
   escaped = escaped.replace(/___IMG_START___(.*?)___ALT___(.*?)___IMG_END___/g, (match, src, alt) => {
     const html = `
-      <div class="image-card my-4 overflow-hidden rounded-xl border shadow-xl max-w-full bg-white/60 border-slate-200/80 shadow-md">
+      <div class="image-card my-4 overflow-hidden rounded-xl border shadow-xl max-w-full bg-[#171717]/80 border-[#272727]/40 shadow-md">
         <img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto object-contain max-h-[380px]" onerror="this.onerror=null; this.closest('.image-card').remove();">
-        <p class="p-2 text-center text-xs border-t bg-slate-50/90 text-slate-500 border-slate-200">${escapeHtml(alt)}</p>
+        <p class="p-2 text-center text-xs border-t bg-[#1f1f1f]\/90 text-[#8e8e8e] border-[#272727]">${escapeHtml(alt)}</p>
       </div>
     `;
     return html.replace(/\n/g, ' ');
@@ -994,9 +982,9 @@ function formatMarkdown(text) {
       if (!insideTable) {
         insideTable = true;
         generatedTableBuffer = `
-          <div class="overflow-x-auto my-4 border rounded-xl max-w-full bg-white/60 border-slate-200/80 shadow-md">
-            <table class="min-w-full divide-y divide-slate-200 text-sm text-left">
-              <thead class="bg-slate-100/90 text-indigo-600 text-xs font-semibold uppercase tracking-wider">
+          <div class="overflow-x-auto my-4 border rounded-xl max-w-full bg-[#171717]/80 border-[#272727]/40 shadow-md">
+            <table class="min-w-full divide-y divide-[#272727] text-sm text-left">
+              <thead class="bg-[#1f1f1f] text-[#10a37f] text-xs font-semibold uppercase tracking-wider">
                 <tr>
         `;
         columnValues.forEach((columnTitle) => {
@@ -1005,12 +993,12 @@ function formatMarkdown(text) {
         generatedTableBuffer += `
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
+              <tbody class="divide-y divide-[#272727]">
         `;
       } else {
-        generatedTableBuffer += '<tr class="hover:bg-slate-100/50 transition-colors">';
+        generatedTableBuffer += '<tr class="hover:bg-[#1f1f1f]/50 transition-colors">';
         columnValues.forEach((cellValue) => {
-          generatedTableBuffer += `<td class="px-4 py-3 text-slate-800">${escapeHtml(cellValue)}</td>`;
+          generatedTableBuffer += `<td class="px-4 py-3 text-white">${escapeHtml(cellValue)}</td>`;
         });
         generatedTableBuffer += '</tr>';
       }
@@ -1034,7 +1022,7 @@ function formatMarkdown(text) {
   // Links
   escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
     return `
-      <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:text-indigo-500 font-semibold underline decoration-indigo-300/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
+      <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-[#10a37f] hover:text-[#10a37f] font-semibold underline decoration-[#10a37f]\/40 hover:decoration-[#10a37f] transition-all inline-flex items-center gap-1">
         ${escapeHtml(linkText)}
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -1047,13 +1035,13 @@ function formatMarkdown(text) {
   escaped = escaped.replace(/^#{1,6}\s+(.*)$/gm, (match, headingText) => {
     const level = (match.match(/^#+/) || [''])[0].length;
     const levelClamped = Math.min(Math.max(level, 1), 6);
-    return `<h${levelClamped} class="text-slate-900 font-bold mb-1 mt-2 text-lg leading-tight">${escapeHtml(headingText.trim())}</h${levelClamped}>`;
+    return `<h${levelClamped} class="text-white font-bold mb-1 mt-2 text-lg leading-tight">${escapeHtml(headingText.trim())}</h${levelClamped}>`;
   });
 
   // Inline code & bold
-  escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-indigo-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-indigo-700">$1</strong>')
-    .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-slate-700">$1</li>');
+  escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-[#1f1f1f]/20 text-[#10a37f] px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-[#10a37f]">$1</strong>')
+    .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-[#a1a1a1]">$1</li>');
 
   escaped = escaped.replace(/\n/g, '<br>');
 
@@ -1065,16 +1053,16 @@ function formatMarkdown(text) {
 
     let finalOutput = '';
     if (block.lang && block.lang.toLowerCase() === 'mermaid') {
-      finalOutput = `<div class="mermaid my-4 p-4 bg-slate-100/80 border border-slate-200 rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
+      finalOutput = `<div class="mermaid my-4 p-4 bg-[#1f1f1f] border border-[#272727] rounded-xl text-center overflow-x-auto">${block.code.trim()}</div>`;
     } else {
       const isRunnable = ['HTML', 'XML', 'JS', 'JAVASCRIPT', 'CSS'].includes(displayLang);
       finalOutput = `
-        <div class="code-block relative group my-3 border border-slate-200 rounded-xl overflow-hidden bg-slate-100/80 text-left">
-          <div class="flex justify-between items-center px-4 py-1.5 bg-slate-100 border-b border-slate-200 text-[10px] text-slate-500 tracking-wider">
+        <div class="code-block relative group my-3 border border-[#272727] rounded-xl overflow-hidden bg-[#1f1f1f] text-left">
+          <div class="flex justify-between items-center px-4 py-1.5 bg-[#1f1f1f] border-b border-[#272727] text-[10px] text-[#8e8e8e] tracking-wider">
             <span>${escapeHtml(displayLang)}</span>
             <div class="flex items-center">
-              <button class="text-slate-600 hover:text-indigo-500 transition-colors copy-trigger" data-code="${encoded}" aria-label="Copy code">Copy</button>
-              ${isRunnable ? `<button class="text-slate-600 hover:text-indigo-500 transition-colors ml-2 run-trigger" data-code="${encoded}" aria-label="Run code in sandbox">Run</button>` : ''}
+              <button class="text-[#8e8e8e] hover:text-[#10a37f] transition-colors copy-trigger" data-code="${encoded}" aria-label="Copy code">Copy</button>
+              ${isRunnable ? `<button class="text-[#8e8e8e] hover:text-[#10a37f] transition-colors ml-2 run-trigger" data-code="${encoded}" aria-label="Run code in sandbox">Run</button>` : ''}
             </div>
           </div>
           <pre class="code-pre p-4 overflow-x-auto text-sm font-mono">${escapeHtml(block.code.trim())}</pre>
@@ -1103,12 +1091,12 @@ function setupToolHandlers() {
   });}
   if (youtubeCloseBtn) {youtubeCloseBtn.addEventListener('click', () => {
     if (youtubeModal) {youtubeModal.classList.add('hidden');}
-    if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Search results will appear here.</p>';}
+    if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-[#8e8e8e] py-8">Search results will appear here.</p>';}
   });}
 
   function renderYouTubeResults(videos) {
     if (!videos.length) {
-      return '<p class="text-center text-slate-500">No videos found.</p>';
+      return '<p class="text-center text-[#8e8e8e]">No videos found.</p>';
     }
     return `
       <div class="youtube-grid">
@@ -1140,10 +1128,10 @@ function setupToolHandlers() {
     youtubeSearchSubmit.addEventListener('click', async () => {
       const query = youtubeSearchInput.value.trim();
       if (!query) {
-        if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-red-500">Please enter a search query.</p>';}
+        if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-[#ef4444]">Please enter a search query.</p>';}
         return;
       }
-      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-indigo-500 animate-pulse">Searching...</p>';}
+      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-[#10a37f] animate-pulse">Searching...</p>';}
       try {
         const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
           method: 'POST',
@@ -1160,7 +1148,7 @@ function setupToolHandlers() {
         }
       } catch (err) {
         console.error(err);
-        if (youtubeResultsList) {youtubeResultsList.innerHTML = `<p class="text-center text-red-500">Search failed: ${escapeHtml(err.message)}</p>`;}
+        if (youtubeResultsList) {youtubeResultsList.innerHTML = `<p class="text-center text-[#ef4444]">Search failed: ${escapeHtml(err.message)}</p>`;}
       }
     });
   }
@@ -1171,14 +1159,14 @@ function setupToolHandlers() {
   if (driveFilesBtn) {
     driveFilesBtn.addEventListener('click', async () => {
       if (driveModal) {driveModal.classList.remove('hidden');}
-      if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-slate-500 py-8">Loading files...</p>';}
+      if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-[#8e8e8e] py-8">Loading files...</p>';}
       try {
         const response = await fetch(`${BACKEND_URL}/api/drive/files`);
         if (!response.ok) {throw new Error('Failed to fetch files');}
         const data = await response.json();
         const files = data.files;
         if (!files.length) {
-          if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-slate-500">No files found.</p>';}
+          if (driveFilesList) {driveFilesList.innerHTML = '<p class="text-center text-[#8e8e8e]">No files found.</p>';}
         } else {
           const html = files.map((f) => `
             <div class="drive-item">
@@ -1193,7 +1181,7 @@ function setupToolHandlers() {
         }
       } catch (err) {
         console.error(err);
-        if (driveFilesList) {driveFilesList.innerHTML = `<p class="text-center text-red-500">Failed to load files: ${escapeHtml(err.message)}</p>`;}
+        if (driveFilesList) {driveFilesList.innerHTML = `<p class="text-center text-[#ef4444]">Failed to load files: ${escapeHtml(err.message)}</p>`;}
       }
     });
   }
@@ -1202,7 +1190,7 @@ function setupToolHandlers() {
     youtubeSearchBtn.addEventListener('click', () => {
       if (youtubeModal) {youtubeModal.classList.remove('hidden');}
       if (youtubeSearchInput) {youtubeSearchInput.value = '';}
-      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-slate-500 py-8">Enter query to search videos.</p>';}
+      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-[#8e8e8e] py-8">Enter query to search videos.</p>';}
     });
   }
 }
