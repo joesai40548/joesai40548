@@ -1422,7 +1422,7 @@ ${msg.content}
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    task: `Conversation history:\n${transcript}\\n\\nLatest user message:\n${message}`,
+                    task: `Conversation history:\n${transcript}\n\nLatest user message:\n${message}`,
                     mode: 'agent',
                     threadId: currentSessionId || 'default'
                 })
@@ -1443,7 +1443,7 @@ ${msg.content}
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    task: `Conversation history:\n${transcript}\\n\\nAttachment analyzed by the platform's file-analysis service (${selectedAttachment.name}, ${currentMimeType}):\n${analysis.text}\n\nRespond to the latest user request using this analysis and your available tools.`,
+                    task: `Conversation history:\n${transcript}\n\nAttachment analyzed by the platform's file-analysis service (${selectedAttachment.name}, ${currentMimeType}):\n${analysis.text}\n\nRespond to the latest user request using this analysis and your available tools.`,
                     mode: currentMode,
                     threadId: currentSessionId || 'default'
                 })
