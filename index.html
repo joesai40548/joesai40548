@@ -1410,23 +1410,27 @@ ${msg.content}
 
       window.removeAttachment();
       showWelcome(false);
-      showProcessingIndicator(currentMode === 'agent');
+      showProcessingIndicator(true);
 
       try {
         let aiText = '';
         let agentInfo = null;
 
         if (currentMode === 'agent') {
-            if (hasAttachment) throw new Error('Agent mode currently supports text tasks. Switch to Chat mode to analyze an attachment.');
+            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\\n\\n');
             const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: message, mode: 'agent', threadId: appStore.getState().currentSessionId || 'default' })
+                body: JSON.stringify({
+                    task: `Conversation history:\\n${transcript}\\n\\nLatest user message:\\n${message}`,
+                    mode: 'agent',
+                    threadId: currentSessionId || 'default'
+                })
             });
             aiText = data.text;
             agentInfo = data.agent || null;
         } else if (hasAttachment) {
-            const data = await apiJson(`${BACKEND_URL}/api/gemini`, {
+            const analysis = await apiJson(`${BACKEND_URL}/api/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1434,17 +1438,30 @@ ${msg.content}
                     chatHistory: chatHistory.slice(0, -1).map(h => ({ role: h.role, content: h.content }))
                 })
             });
+            const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\\n\\n');
+            const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    task: `Conversation history:\\n${transcript}\\n\\nAttachment analyzed by the platform's file-analysis service (${selectedAttachment.name}, ${currentMimeType}):\\n${analysis.text}\\n\\nRespond to the latest user request using this analysis and your available tools.`,
+                    mode: currentMode,
+                    threadId: currentSessionId || 'default'
+                })
+            });
             aiText = data.text;
+            agentInfo = data.agent || null;
         } else {
             const data = await apiJson(`${BACKEND_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    messages: chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content })),
-                    mode: currentMode
+                    messages: chatHistory.slice(-12).map(m => ({ role: m.role, content: m.content })),
+                    mode: currentMode,
+                    sessionId: currentSessionId
                 })
             });
             aiText = data.text;
+            agentInfo = data.agent || null;
         }
 
         removeProcessingIndicator();
@@ -1453,7 +1470,9 @@ ${msg.content}
             const activity = document.createElement('div');
             activity.className = 'text-[11px] text-slate-500 px-3 -mt-4 mb-2';
             const tools = [...(agentInfo.usedMcpTools || []), ...(agentInfo.usedSearch ? ['explicit search'] : [])];
-            activity.textContent = 'Agent run · ' + (tools.length ? 'Tools used: ' + tools.join(', ') : 'No external tools used');
+            const provider = [agentInfo.provider, agentInfo.model].filter(Boolean).join(' / ');
+            const capabilityCount = Array.isArray(agentInfo.capabilities) ? agentInfo.capabilities.filter(item => item.configured).length : 0;
+            activity.textContent = `Joes AI agent · ${provider || 'agent runtime'} · ${agentInfo.steps || 0} steps · ${tools.length ? 'Tools: ' + tools.join(', ') : 'No external tools needed'} · ${capabilityCount} configured platform capabilities checked`;
             chatMessages.appendChild(activity);
         }
         chatHistory.push({ role: 'assistant', content: aiText });
