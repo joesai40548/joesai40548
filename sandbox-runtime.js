@@ -1,6 +1,7 @@
 import { ensureFirebaseSession } from './auth-client.js';
+import { API_BASE_URL } from './api-config.js';
 
-const API_BASE = 'https://joes-ai-jlzt.onrender.com';
+const API_BASE = API_BASE_URL;
 const byId = (id) => document.getElementById(id);
 let webContainer = null;
 let e2bSandboxId = null;
