@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8fafc">
+  <title>Google sign-in · JOES AI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f8fafc; color: #172033; font-family: Inter, system-ui, sans-serif; }
+    main { width: min(100%, 440px); padding: 32px; border: 1px solid #e2e8f0; border-radius: 22px; background: white; box-shadow: 0 20px 60px #0f172a12; text-align: center; }
+    .brand { margin-bottom: 24px; color: #4f46e5; font-weight: 800; letter-spacing: .04em; }
+    h1 { margin: 0 0 10px; font-size: 1.55rem; }
+    p { color: #64748b; line-height: 1.6; }
+    button, a.action { display: inline-flex; justify-content: center; align-items: center; width: 100%; min-height: 48px; margin-top: 12px; border: 0; border-radius: 12px; background: #111827; color: white; font-size: 15px; font-weight: 650; text-decoration: none; cursor: pointer; }
+    button:disabled { opacity: .65; cursor: wait; }
+    .secondary { background: #eef2ff !important; color: #3730a3 !important; }
+    #message { min-height: 24px; color: #b91c1c; font-size: 14px; overflow-wrap: anywhere; }
+    .success { color: #047857 !important; }
+    [hidden] { display: none !important; }
+    .email { color: #0f172a; font-weight: 700; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">✳ JOES AI</div>
+    <section id="sign-in-panel">
+      <h1>Continue with Google</h1>
+      <p>Choose your Google account to securely sign in to your JOES AI workspace.</p>
+      <button id="google-button" type="button">G&nbsp;&nbsp; Continue with Google</button>
+      <a class="action secondary" href="./index.html">Back to JOES AI</a>
+    </section>
+    <section id="success-panel" hidden>
+      <h1>Google account confirmed</h1>
+      <p class="success">You are signed in successfully.</p>
+      <p class="email" id="account-email"></p>
+      <p id="verification-status"></p>
+      <button id="continue-button" type="button">Continue to JOES AI</button>
+    </section>
+    <p id="message" role="alert" aria-live="polite"></p>
+  </main>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, setPersistence,
+      browserLocalPersistence, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const button = document.getElementById("google-button");
+    const message = document.getElementById("message");
+    const signInPanel = document.getElementById("sign-in-panel");
+    const successPanel = document.getElementById("success-panel");
+
+    function showSignedInUser(user) {
+      document.getElementById("account-email").textContent = user.email || user.displayName || "Google account";
+      document.getElementById("verification-status").textContent =
+        user.emailVerified ? "Google has verified this email address." : "Your account is signed in.";
+      signInPanel.hidden = true;
+      successPanel.hidden = false;
+      message.textContent = "";
+      message.classList.remove("success");
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) showSignedInUser(user);
+    });
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      button.textContent = "Opening Google…";
+      message.textContent = "";
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        const credential = await signInWithPopup(auth, provider);
+        showSignedInUser(credential.user);
+      } catch (error) {
+        const messages = {
+          "auth/popup-blocked": "Your browser blocked the Google sign-in window. Allow popups for this site and try again.",
+          "auth/popup-closed-by-user": "The Google sign-in window closed before authentication completed. Please try again.",
+          "auth/unauthorized-domain": "This domain is not authorized in Firebase Authentication. Add joesai.work.gd to Authorized domains.",
+          "auth/operation-not-allowed": "Google sign-in is disabled. Enable the Google provider in Firebase Authentication.",
+          "auth/network-request-failed": "A network request failed. Check your connection and try again."
+        };
+        message.textContent = messages[error.code] || error.message || "Google sign-in failed. Please try again.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "G  Continue with Google";
+      }
+    });
+
+    document.getElementById("continue-button").addEventListener("click", () => {
+      window.location.replace("./index.html?auth=success");
+    });
+  </script>
+</body>
+</html>
