@@ -364,3 +364,5 @@ This section supersedes conflicting historical notes above where they describe t
 - Added Monaco and xterm mount points to the sandbox UI and integrated lazy-loaded Monaco Editor, xterm.js and the fit addon in sandbox-runtime.js, retaining non-CDN fallbacks.
 - The browser libraries are loaded from version-pinned CDN URLs; they are not represented as npm dependencies in the frontend package manifest.
 - These source changes are committed to the frontend main branch. Runtime availability still depends on the browser reaching the pinned CDNs and the host's cross-origin isolation configuration for WebContainers.
+
+- Frontend CI now runs the existing Node test suite, ESLint on the new shared API configuration, npm audit (high severity and above), and the production Tailwind build. The run for commit 4c581853d1ce5a286e89a1b62c1cc7138328cb04 passed. The broader legacy `npm run lint` command currently reports 136 existing errors, so it is not used as a passing gate until that backlog is addressed.
