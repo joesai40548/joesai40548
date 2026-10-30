@@ -2,6 +2,7 @@
 
 import { escapeHtml } from './utils.js';
 import { API_BASE_URL } from './api-config.js';
+import { authenticatedFetch } from './auth-client.js';
 
 const BACKEND_URL = API_BASE_URL;
 
@@ -760,39 +761,33 @@ async function handleSend() {
       if (!response.ok) {throw new Error(data.error || 'Server error');}
       aiText = data.text;
     } else {
-      const response = await retryFetch(`${BACKEND_URL}/api/chat`, {
+      // Normal chat is agent-backed. Authenticate with Firebase and keep one
+      // stable LangGraph thread for the active conversation.
+      if (!currentSessionId) currentSessionId = (globalThis.crypto?.randomUUID?.() || ('chat_' + Date.now() + '_' + Math.random().toString(36).slice(2)));
+      // retryFetch preserves the existing retry policy; authenticatedFetch adds
+      // the Firebase bearer token required by the protected agent chat route.
+      const authenticatedResponse = await authenticatedFetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': userId,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...chatHistory.slice(-6).map((m) => ({ role: m.role, content: m.content })), { role: 'user', content: message }],
           mode: currentMode,
+          sessionId: currentSessionId,
         }),
       });
-
-      // Attempt to stream the response body as it arrives; fall back to full JSON.
-      const streamed = await readStreamText(response, (chunk, accumulated) => {
-        if (streamingBubble) {
-          const bubble = streamingBubble.querySelector('.msg-bubble.assistant');
-          if (bubble) {
-            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-[#10a37f] italic">Joes AI is responding</span><span class="animate-pulse text-[#10a37f]">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-          }
-        }
-      });
-
-      if (!response.ok) {throw new Error('Model Request Failed');}
-      // If the streamed text is empty, try parsing as JSON.
-      aiText = streamed;
-      if (!aiText) {
-        try {
-          const data = JSON.parse(streamed || '{}');
-          aiText = data.text || streamed;
-        } catch {
-          aiText = streamed;
-        }
+      if (!authenticatedResponse.ok) {
+        const errorData = await authenticatedResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || `Agent chat failed (${authenticatedResponse.status}).`);
+      }
+      const data = await authenticatedResponse.json();
+      aiText = typeof data.text === 'string' ? data.text : '';
+      if (!aiText) throw new Error('The agent returned an empty response.');
+      if (data.agent?.automatic) {
+        const used = [
+          ...(data.agent.usedMcpTools || []),
+          ...(data.agent.usedSearch ? ['web_search'] : [])
+        ];
+        if (used.length) console.info('[JOES AI agent]', { executionId: data.agent.executionId, tools: used });
       }
     }
 
