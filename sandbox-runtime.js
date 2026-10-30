@@ -34,7 +34,11 @@ async function api(path, options = {}) {
   if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   const response = await fetch(API_BASE + path, { ...options, headers });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || 'Sandbox request failed (' + response.status + ').');
+  if (!response.ok) {
+    const error = new Error(data.error || 'Sandbox request failed (' + response.status + ').');
+    error.status = response.status;
+    throw error;
+  }
   return data;
 }
 
@@ -64,6 +68,7 @@ function projectFiles(code) {
 async function runWebContainer() {
   const code = byId('sandbox-code-editor')?.value || '';
   if (!code.trim()) throw new Error('Enter some code before running it.');
+  if ((byId('sandbox-language')?.value || 'javascript') === 'python') throw new Error('WebContainers runs JavaScript/Node.js projects. Choose E2B to run Python.');
   if (!window.crossOriginIsolated || typeof SharedArrayBuffer === 'undefined') {
     throw new Error('WebContainers needs cross-origin isolation. The website host must send COOP: same-origin and COEP: require-corp (or credentialless) response headers. Reload the page once if the isolation service worker was just installed; if this persists, the hosting configuration is still missing the required headers.');
   }
@@ -74,7 +79,7 @@ async function runWebContainer() {
     webContainer = null;
     webServerProcess = null;
   }
-  const { WebContainer } = await import('https://esm.sh/@webcontainer/api@1.6.1');
+  const { WebContainer } = await import('https://esm.sh/@webcontainer/api@1.6.4');
   webContainer = await WebContainer.boot({ coep: 'credentialless', forwardPreviewErrors: true });
   await webContainer.mount(projectFiles(code));
   webContainer.on('server-ready', (port, url) => {
@@ -93,6 +98,30 @@ async function runWebContainer() {
   pipeProcessOutput(webServerProcess).catch((error) => appendOutput(String(error) + '\n'));
 }
 
+async function ensureE2BSandbox() {
+  if (e2bSandboxId) return e2bSandboxId;
+  const created = await api('/api/sandboxes/e2b/create', { method: 'POST', body: '{}' });
+  if (!created.sandboxId) throw new Error('The E2B service did not return a sandbox ID.');
+  e2bSandboxId = created.sandboxId;
+  return e2bSandboxId;
+}
+
+async function runE2BRequest(path, payload) {
+  await ensureE2BSandbox();
+  const send = () => api(path, {
+    method: 'POST',
+    body: JSON.stringify({ ...payload, sandboxId: e2bSandboxId })
+  });
+  try {
+    return await send();
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    e2bSandboxId = null;
+    await ensureE2BSandbox();
+    return send();
+  }
+}
+
 async function runE2B() {
   const code = byId('sandbox-code-editor')?.value || '';
   if (!code.trim()) throw new Error('Enter some code before running it.');
@@ -100,15 +129,9 @@ async function runE2B() {
   if (language !== 'javascript' && language !== 'python') throw new Error('Choose JavaScript or Python for E2B execution.');
   setStatus('Connecting to E2B microVM…');
   clearOutput();
-  if (!e2bSandboxId) {
-    const created = await api('/api/sandboxes/e2b/create', { method: 'POST', body: '{}' });
-    e2bSandboxId = created.sandboxId;
-  }
+  await ensureE2BSandbox();
   setStatus('Running in isolated E2B microVM · ' + e2bSandboxId.slice(0, 8));
-  const result = await api('/api/sandboxes/e2b/execute', {
-    method: 'POST',
-    body: JSON.stringify({ sandboxId: e2bSandboxId, language, code })
-  });
+  const result = await runE2BRequest('/api/sandboxes/e2b/execute', { language, code });
   appendOutput(result.stdout || '');
   if (result.stderr) appendOutput('\n[stderr]\n' + result.stderr);
   appendOutput('\n[exit code: ' + result.exitCode + ']\n');
@@ -118,15 +141,9 @@ async function runE2B() {
 async function runE2BCommand() {
   const command = byId('sandbox-command')?.value.trim();
   if (!command) return;
-  if (!e2bSandboxId) {
-    const created = await api('/api/sandboxes/e2b/create', { method: 'POST', body: '{}' });
-    e2bSandboxId = created.sandboxId;
-  }
+  await ensureE2BSandbox();
   setStatus('Running terminal command in E2B…');
-  const result = await api('/api/sandboxes/e2b/command', {
-    method: 'POST',
-    body: JSON.stringify({ sandboxId: e2bSandboxId, command })
-  });
+  const result = await runE2BRequest('/api/sandboxes/e2b/command', { command });
   appendOutput((result.stdout || '') + (result.stderr ? '\n' + result.stderr : '') + '\n[exit code: ' + result.exitCode + ']\n');
   byId('sandbox-command').value = '';
   setStatus('E2B terminal ready');
@@ -136,8 +153,13 @@ async function stopE2B() {
   if (!e2bSandboxId) return setStatus('No active E2B sandbox.');
   const id = e2bSandboxId;
   e2bSandboxId = null;
-  await api('/api/sandboxes/e2b/' + encodeURIComponent(id), { method: 'DELETE' });
-  setStatus('E2B sandbox stopped.');
+  try {
+    await api('/api/sandboxes/e2b/' + encodeURIComponent(id), { method: 'DELETE' });
+    setStatus('E2B sandbox stopped.');
+  } catch (error) {
+    if (error.status !== 404) throw error;
+    setStatus('E2B sandbox had already expired.');
+  }
 }
 
 window.runCodeSandbox = (encodedCode) => {
