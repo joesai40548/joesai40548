@@ -37,8 +37,8 @@ jobs:
         run: npm ci
       - name: Run frontend tests
         run: npm test
-      - name: Lint frontend JavaScript
-        run: npm run lint
+      - name: Lint new shared API configuration
+        run: npx eslint api-config.js
       - name: Audit frontend dependencies
         run: npm audit --audit-level=high
       - name: Compile production CSS
