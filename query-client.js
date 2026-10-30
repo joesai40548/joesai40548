@@ -26,18 +26,22 @@ export const queryKeys = {
 
 export async function apiJson(url, options = {}) {
   const response = await fetch(url, options);
-  if (!response.ok) {
-    let payload = null;
+  const responseText = await response.text();
+  let payload = null;
+  if (responseText) {
     try {
-      payload = await response.json();
+      payload = JSON.parse(responseText);
     } catch {
-      // Keep a useful HTTP error when the server does not return JSON.
+      payload = { message: responseText };
     }
+  }
+
+  if (!response.ok) {
     const error = new Error(payload?.error || payload?.message || `Request failed (${response.status})`);
     error.status = response.status;
     throw error;
   }
-  return response.json();
+  return payload;
 }
 
 export function runMutation(options, variables) {
