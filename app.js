@@ -154,7 +154,8 @@ if (chatMessages) {
     }
     if (runBtn) {
       const code = runBtn.getAttribute('data-code');
-      window.runCodeSandbox(code);
+      if (typeof window.runCodeSandbox === 'function') window.runCodeSandbox(code);
+      else showToast('Sandbox runtime is unavailable. Reload the page and try again.', 'error');
     }
   });
 }
@@ -257,22 +258,7 @@ window.speakText = (btn, text) => {
 };
 
 // ---------- Code sandbox ----------
-window.runCodeSandbox = (encodedCode) => {
-  const decoded = decodeURIComponent(encodedCode);
-  if (sandboxModal && sandboxIframe) {
-    sandboxModal.classList.remove('hidden');
-    const iframeDoc = sandboxIframe.contentDocument || sandboxIframe.contentWindow.document;
-    iframeDoc.open();
-    iframeDoc.write(decoded);
-    iframeDoc.close();
-  }
-};
-
-if (sandboxCloseBtn) {
-  sandboxCloseBtn.addEventListener('click', () => {
-    if (sandboxModal) {sandboxModal.classList.add('hidden');}
-  });
-}
+// The authenticated sandbox runtime is implemented in sandbox-runtime.js.
 
 // ---------- Sidebar handlers ----------
 function setupSidebarHandlers() {
