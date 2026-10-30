@@ -6,6 +6,93 @@ const byId = (id) => document.getElementById(id);
 let webContainer = null;
 let e2bSandboxId = null;
 let webServerProcess = null;
+let monacoEditor = null;
+let xterm = null;
+let terminalFit = null;
+const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
+
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing = [...document.scripts].find((script) => script.src === src);
+    if (existing?.dataset.loaded === 'true') return resolve();
+    if (existing) {
+      existing.addEventListener('load', resolve, { once: true });
+      existing.addEventListener('error', reject, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => { script.dataset.loaded = 'true'; resolve(); };
+    script.onerror = () => reject(new Error('Could not load editor/terminal assets from the CDN.'));
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureMonacoEditor() {
+  const host = byId('sandbox-monaco-editor');
+  const fallback = byId('sandbox-code-editor');
+  if (!host || !fallback || monacoEditor) return;
+  if (!window.monaco?.editor) {
+    await loadScript(MONACO_CDN + '/loader.js');
+    window.MonacoEnvironment = {
+      getWorkerUrl: () => {
+        const base = MONACO_CDN.replace(/\/vs$/, '');
+        const worker = "self.MonacoEnvironment = { baseUrl: '" + base + "/' }; importScripts('" + MONACO_CDN + "/base/worker/workerMain.js');";
+        return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(worker);
+      }
+    };
+    window.require.config({ paths: { vs: MONACO_CDN } });
+    await new Promise((resolve, reject) => window.require(['vs/editor/editor.main'], resolve, reject));
+  }
+  monacoEditor = window.monaco.editor.create(host, {
+    value: fallback.value,
+    language: (byId('sandbox-language')?.value || 'javascript') === 'python' ? 'python' : 'javascript',
+    theme: 'vs-dark', automaticLayout: true, minimap: { enabled: false },
+    fontSize: 13, scrollBeyondLastLine: false, wordWrap: 'on'
+  });
+  fallback.classList.add('hidden');
+  host.classList.remove('hidden');
+}
+
+function getEditorValue() {
+  return monacoEditor ? monacoEditor.getValue() : (byId('sandbox-code-editor')?.value || '');
+}
+
+function setEditorValue(value) {
+  const fallback = byId('sandbox-code-editor');
+  if (fallback) fallback.value = value;
+  if (monacoEditor) monacoEditor.setValue(value);
+}
+
+async function ensureXterm() {
+  const host = byId('sandbox-terminal');
+  const fallback = byId('sandbox-output');
+  if (!host || !fallback || xterm) return;
+  const stylesheet = document.createElement('link');
+  stylesheet.rel = 'stylesheet';
+  stylesheet.href = 'https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css';
+  document.head.appendChild(stylesheet);
+  await loadScript('https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js');
+  await loadScript('https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js');
+  if (!window.Terminal || !window.FitAddon?.FitAddon) throw new Error('The terminal library did not initialize.');
+  xterm = new window.Terminal({
+    convertEol: true, disableStdin: true, cursorBlink: false, scrollback: 3000, fontSize: 12,
+    theme: { background: '#09090b', foreground: '#e2e8f0' }
+  });
+  terminalFit = new window.FitAddon.FitAddon();
+  xterm.loadAddon(terminalFit);
+  xterm.open(host);
+  terminalFit.fit();
+  fallback.classList.add('hidden');
+  host.classList.remove('hidden');
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(() => terminalFit?.fit());
+    observer.observe(host);
+  }
+  xterm.write('JOES AI terminal ready\r\n');
+}
 
 function setStatus(message, isError = false) {
   const el = byId('sandbox-runtime-status');
@@ -17,8 +104,9 @@ function setStatus(message, isError = false) {
 
 function appendOutput(value) {
   const el = byId('sandbox-output');
-  if (!el) return;
   const text = String(value ?? '');
+  if (xterm) { xterm.write(text.replace(/\r?\n/g, '\r\n')); return; }
+  if (!el) return;
   el.textContent = (el.textContent === 'Output will appear here.' ? '' : el.textContent) + text;
   el.scrollTop = el.scrollHeight;
 }
@@ -26,6 +114,7 @@ function appendOutput(value) {
 function clearOutput() {
   const el = byId('sandbox-output');
   if (el) el.textContent = '';
+  if (xterm) xterm.clear();
 }
 
 async function api(path, options = {}) {
@@ -67,7 +156,7 @@ function projectFiles(code) {
 }
 
 async function runWebContainer() {
-  const code = byId('sandbox-code-editor')?.value || '';
+  const code = getEditorValue();
   if (!code.trim()) throw new Error('Enter some code before running it.');
   if ((byId('sandbox-language')?.value || 'javascript') === 'python') throw new Error('WebContainers runs JavaScript/Node.js projects. Choose E2B to run Python.');
   if (!window.crossOriginIsolated || typeof SharedArrayBuffer === 'undefined') {
@@ -124,7 +213,7 @@ async function runE2BRequest(path, payload) {
 }
 
 async function runE2B() {
-  const code = byId('sandbox-code-editor')?.value || '';
+  const code = getEditorValue();
   if (!code.trim()) throw new Error('Enter some code before running it.');
   const language = byId('sandbox-language')?.value || 'javascript';
   if (language !== 'javascript' && language !== 'python') throw new Error('Choose JavaScript or Python for E2B execution.');
@@ -168,12 +257,18 @@ window.runCodeSandbox = (encodedCode) => {
   try { code = decodeURIComponent(code); } catch {}
   const modal = byId('sandbox-modal');
   if (modal) modal.classList.remove('hidden');
-  const editor = byId('sandbox-code-editor');
-  if (editor) editor.value = code;
+  setEditorValue(code);
+  ensureMonacoEditor().catch((error) => setStatus(error.message || 'Monaco editor unavailable; using the basic editor.', true));
+  ensureXterm().catch((error) => appendOutput('[terminal] ' + (error.message || error) + '\n'));
   setStatus('Code loaded · choose WebContainers or E2B');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  byId('sandbox-language')?.addEventListener('change', (event) => {
+    if (monacoEditor && window.monaco?.editor) {
+      window.monaco.editor.setModelLanguage(monacoEditor.getModel(), event.target.value === 'python' ? 'python' : 'javascript');
+    }
+  });
   byId('sandbox-run-web')?.addEventListener('click', async () => {
     try { await runWebContainer(); }
     catch (error) { setStatus(error.message || 'WebContainers failed to start.', true); appendOutput('[error] ' + (error.message || error) + '\n'); }
