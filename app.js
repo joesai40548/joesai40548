@@ -180,14 +180,14 @@ function showWelcome(show) {
   if (show && chatMessages) {
     chatMessages.innerHTML = `
       <div id="welcome-msg" class="flex flex-col items-center justify-center h-full text-center py-10 text-slate-700 space-y-4">
-        <div class="w-20 h-20 bg-gradient-to-tr from-amber-200/30 to-yellow-200/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
+        <div class="w-20 h-20 bg-gradient-to-tr from-indigo-200/30 to-cyan-200/20 rounded-full flex items-center justify-center text-4xl mb-4 animate-pulse">⚡</div>
         <h1 class="text-3xl font-bold text-slate-900 tracking-wide">Welcome to Joes AI</h1>
-        <p class="max-w-md text-sm text-slate-500">Developed & Powered by <strong class="text-amber-500">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
+        <p class="max-w-md text-sm text-slate-500">Developed & Powered by <strong class="text-indigo-500">AKRAM JOES TECHNOLOGIES</strong>. Choose your mode and ask anything, or upload visual assets!</p>
         <div class="flex flex-wrap justify-center gap-2 max-w-lg pt-4">
-          <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-amber-400/15 border border-slate-200 hover:border-amber-300/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
-          <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-amber-400/15 border border-slate-200 hover:border-amber-300/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
-          <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-amber-400/15 border border-slate-200 hover:border-amber-300/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
-          <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-amber-400/15 border border-slate-200 hover:border-amber-300/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
+          <button onclick="window.useQuickPrompt('Explain quantum physics in simple terms', 'study')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🔬 Study Physics</button>
+          <button onclick="window.useQuickPrompt('Could you evaluate this multiple-choice question step-by-step?', 'learn')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">🧠 Learn Concepts</button>
+          <button onclick="window.useQuickPrompt('Draft an optimized clean JS promise chain template', 'code')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">⚙️ Code Setup</button>
+          <button onclick="window.useQuickPrompt('Who developed you and what can you do?', 'chat')" class="px-3.5 py-2 bg-slate-100/90 hover:bg-indigo-500/15 border border-slate-200 hover:border-indigo-500/50 rounded-full text-xs text-slate-700 transition-all flex items-center gap-1.5">✨ Who Created You?</button>
         </div>
       </div>
     `;
@@ -567,11 +567,11 @@ function renderSessions() {
   sessions.forEach((sess) => {
     const isActive = sess.filename === activeFilename;
     const item = document.createElement('div');
-    item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-slate-100 text-slate-900 border-l-2 border-amber-500' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`;
+    item.className = `group flex items-center justify-between p-2.5 rounded-xl text-xs cursor-pointer transition-all ${isActive ? 'bg-slate-100 text-slate-900 border-l-2 border-indigo-500' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`;
     item.innerHTML = `
       <span class="truncate flex-1 pr-2">💬 ${escapeHtml(sess.title)}</span>
       <div class="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button class="text-slate-500 hover:text-amber-400 p-0.5 rename-btn" title="Rename thread">✏️</button>
+        <button class="text-slate-500 hover:text-indigo-500 p-0.5 rename-btn" title="Rename thread">✏️</button>
         <button class="text-slate-500 hover:text-red-500 p-0.5 delete-btn" title="Delete thread">✕</button>
       </div>
     `;
@@ -640,10 +640,10 @@ function showAttachmentChip(file) {
   }
 
   container.innerHTML = `
-    <div class="bg-amber-500/80 backdrop-blur-md border border-amber-300 text-slate-900 pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
+    <div class="bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 backdrop-blur-md border border-indigo-500/30 text-slate-900 pl-2 pr-4 py-1.5 rounded-2xl text-xs flex items-center space-x-2 animate__animated animate__fadeInUp">
       ${previewHtml}
       <span class="font-medium truncate max-w-[200px] text-slate-900">📎 ${escapeHtml(file.name)}</span>
-      <button onclick="window.removeAttachment()" class="hover:text-amber-700 transition-colors font-bold ml-2">✕</button>
+      <button onclick="window.removeAttachment()" class="hover:text-indigo-700 transition-colors font-bold ml-2">✕</button>
     </div>
   `;
   container.classList.remove('hidden');
@@ -753,8 +753,8 @@ async function handleSend() {
     streamingBubble.innerHTML = `
       <div class="msg-bubble assistant overflow-x-auto relative">
         <div class="flex items-center gap-2" style="min-height:1.2rem;">
-          <span class="text-xs text-amber-400 italic">Joes AI is responding</span>
-          <span class="animate-pulse text-amber-400">●</span>
+          <span class="text-xs text-indigo-500 italic">Joes AI is responding</span>
+          <span class="animate-pulse text-indigo-500">●</span>
         </div>
       </div>
     `;
@@ -802,7 +802,7 @@ async function handleSend() {
         if (streamingBubble) {
           const bubble = streamingBubble.querySelector('.msg-bubble.assistant');
           if (bubble) {
-            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-amber-400 italic">Joes AI is responding</span><span class="animate-pulse text-amber-400">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
+            bubble.innerHTML = `<div class="flex items-center gap-2" style="min-height:1.2rem;"><span class="text-xs text-indigo-500 italic">Joes AI is responding</span><span class="animate-pulse text-indigo-500">●</span></div><div class="mt-2">${escapeHtml(accumulated)}</div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
         }
@@ -867,7 +867,7 @@ function addMessageToUI(role, content, attachmentData = null) {
 
   const encodedString = encodeURIComponent(content || '');
   const speakerBadge = role === 'assistant'
-    ? `<div class="msg-actions"><button class="text-slate-500 hover:text-amber-500 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}" aria-label="Read message aloud">🔊 Read</button></div>`
+    ? `<div class="msg-actions"><button class="text-slate-500 hover:text-indigo-500 text-xs p-1 tracking-wide tts-trigger" data-content="${encodedString}" aria-label="Read message aloud">🔊 Read</button></div>`
     : '';
 
   wrapper.innerHTML = `<div class="${innerClass} overflow-x-auto">${attachmentHtml}${formatMarkdown(content)}${speakerBadge}</div>`;
@@ -996,7 +996,7 @@ function formatMarkdown(text) {
         generatedTableBuffer = `
           <div class="overflow-x-auto my-4 border rounded-xl max-w-full bg-white/60 border-slate-200/80 shadow-md">
             <table class="min-w-full divide-y divide-slate-200 text-sm text-left">
-              <thead class="bg-slate-100/90 text-amber-600 text-xs font-semibold uppercase tracking-wider">
+              <thead class="bg-slate-100/90 text-indigo-600 text-xs font-semibold uppercase tracking-wider">
                 <tr>
         `;
         columnValues.forEach((columnTitle) => {
@@ -1034,7 +1034,7 @@ function formatMarkdown(text) {
   // Links
   escaped = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
     return `
-      <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:text-amber-400 font-semibold underline decoration-amber-300/40 hover:decoration-amber-300 transition-all inline-flex items-center gap-1">
+      <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-indigo-500 hover:text-indigo-500 font-semibold underline decoration-indigo-300/40 hover:decoration-indigo-300 transition-all inline-flex items-center gap-1">
         ${escapeHtml(linkText)}
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -1051,8 +1051,8 @@ function formatMarkdown(text) {
   });
 
   // Inline code & bold
-  escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-amber-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-amber-700">$1</strong>')
+  escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-white/10 text-indigo-600 px-1.5 py-0.5 rounded text-xs font-mono">$1</code>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-indigo-700">$1</strong>')
     .replace(/^\s*[-*+]\s+(.*)$/gm, '<li class="list-disc ml-4 my-1 text-slate-700">$1</li>');
 
   escaped = escaped.replace(/\n/g, '<br>');
@@ -1073,8 +1073,8 @@ function formatMarkdown(text) {
           <div class="flex justify-between items-center px-4 py-1.5 bg-slate-100 border-b border-slate-200 text-[10px] text-slate-500 tracking-wider">
             <span>${escapeHtml(displayLang)}</span>
             <div class="flex items-center">
-              <button class="text-slate-600 hover:text-amber-500 transition-colors copy-trigger" data-code="${encoded}" aria-label="Copy code">Copy</button>
-              ${isRunnable ? `<button class="text-slate-600 hover:text-amber-500 transition-colors ml-2 run-trigger" data-code="${encoded}" aria-label="Run code in sandbox">Run</button>` : ''}
+              <button class="text-slate-600 hover:text-indigo-500 transition-colors copy-trigger" data-code="${encoded}" aria-label="Copy code">Copy</button>
+              ${isRunnable ? `<button class="text-slate-600 hover:text-indigo-500 transition-colors ml-2 run-trigger" data-code="${encoded}" aria-label="Run code in sandbox">Run</button>` : ''}
             </div>
           </div>
           <pre class="code-pre p-4 overflow-x-auto text-sm font-mono">${escapeHtml(block.code.trim())}</pre>
@@ -1143,7 +1143,7 @@ function setupToolHandlers() {
         if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-red-500">Please enter a search query.</p>';}
         return;
       }
-      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-amber-500 animate-pulse">Searching...</p>';}
+      if (youtubeResultsList) {youtubeResultsList.innerHTML = '<p class="text-center text-indigo-500 animate-pulse">Searching...</p>';}
       try {
         const response = await fetch(`${BACKEND_URL}/api/youtube/search`, {
           method: 'POST',
