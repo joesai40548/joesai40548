@@ -711,6 +711,8 @@ async function handleSend() {
 
   const cloudAttachmentPayload = hasAttachment ? { name: selectedAttachment.name, type: currentMimeType } : null;
 
+  if (!currentSessionId) currentSessionId = (globalThis.crypto?.randomUUID?.() || ('chat_' + Date.now() + '_' + Math.random().toString(36).slice(2)));
+
   addMessageToUI('user', message, attachmentPayload);
   chatHistory.push({ role: 'user', content: message, attachment: cloudAttachmentPayload });
 
@@ -770,7 +772,7 @@ async function handleSend() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [...chatHistory.slice(-6).map((m) => ({ role: m.role, content: m.content })), { role: 'user', content: message }],
+          messages: chatHistory.slice(-16).map((m) => ({ role: m.role, content: m.content })),
           mode: currentMode,
           sessionId: currentSessionId,
         }),
