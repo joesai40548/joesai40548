@@ -5,6 +5,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
 
+const authStyles = document.createElement("link");
+authStyles.rel = "stylesheet";
+authStyles.href = "./auth.css";
+document.head.append(authStyles);
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
@@ -108,6 +113,16 @@ onAuthStateChanged(auth, (user) => {
   if (appRoot) appRoot.classList.toggle("auth-locked", !user);
   if (user) {
     resolveFirstSignIn(user);
+    const headerActions = document.querySelector(".header-actions");
+    if (headerActions && !document.getElementById("sign-out-btn")) {
+      const button = document.createElement("button");
+      button.id = "sign-out-btn";
+      button.className = "header-action";
+      button.type = "button";
+      button.textContent = "Sign out";
+      button.addEventListener("click", () => signOut(auth));
+      headerActions.append(button);
+    }
     if (lastUid && lastUid !== user.uid) window.dispatchEvent(new CustomEvent("joes-ai-user-changed"));
     lastUid = user.uid;
     const name = document.querySelector(".profile-copy strong");
