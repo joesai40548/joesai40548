@@ -524,6 +524,7 @@
           <option value="chat">✳ &nbsp; Chat mode</option>
           <option value="code">⌘ &nbsp; Code mode</option>
           <option value="study">▤ &nbsp; Study mode</option>
+          <option value="agent">✧ &nbsp; Agent mode</option>
         </select>
         <div class="profile-row">
           <div class="profile-avatar">J</div>
@@ -627,6 +628,7 @@
   <script type="module">
     import { appStore } from "./store.js";
     import { apiJson, queryClient, queryKeys, runMutation } from "./query-client.js";
+    import { ensureFirebaseSession } from "./auth-client.js";
     const BACKEND_URL = 'https://joes-ai-jlzt.onrender.com';
     
     // Silence Tailwind production warning programmatically
@@ -655,8 +657,7 @@
         document.body.style.setProperty('--mouse-y', `${y}%`);
     });
 
-    const userId = localStorage.getItem('joes_ai_user_id') || 'user_' + Math.random().toString(36).substring(2, 11);
-    localStorage.setItem('joes_ai_user_id', userId);
+    let userId = null;
 
     let sessions = [];
     let currentSessionId = null;
@@ -992,6 +993,10 @@ ${msg.content}
 
     async function fetchSessions() {
         if (!sessionList) return;
+        if (!userId) {
+            sessionList.innerHTML = '<p class="text-xs text-amber-500 italic px-2">Sign-in unavailable. Check Firebase Anonymous Authentication.</p>';
+            return;
+        }
         sessionList.innerHTML = `<p class="text-xs text-slate-500 italic px-2">Syncing with Koofr...</p>`;
         try {
             sessions = await queryClient.fetchQuery({
@@ -1355,50 +1360,52 @@ ${msg.content}
 
       window.removeAttachment();
       showWelcome(false);
-      showProcessingIndicator();
+      showProcessingIndicator(currentMode === 'agent');
 
       try {
         let aiText = '';
-        
-        if (hasAttachment) {
-            const response = await fetch(`${BACKEND_URL}/api/gemini`, {
+        let agentInfo = null;
+
+        if (currentMode === 'agent') {
+            if (hasAttachment) throw new Error('Agent mode currently supports text tasks. Switch to Chat mode to analyze an attachment.');
+            const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
-                body: JSON.stringify({ 
-                    message, 
-                    fileData: base64AttachmentData, 
-                    mimeType: currentMimeType, 
-                    mode: currentMode,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task: message, mode: 'agent' })
+            });
+            aiText = data.text;
+            agentInfo = data.agent || null;
+        } else if (hasAttachment) {
+            const data = await apiJson(`${BACKEND_URL}/api/gemini`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message, fileData: base64AttachmentData, mimeType: currentMimeType, mode: currentMode,
                     chatHistory: chatHistory.slice(0, -1).map(h => ({ role: h.role, content: h.content }))
                 })
             });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Server error');
             aiText = data.text;
         } else {
-            const response = await fetch(`${BACKEND_URL}/api/chat`, {
+            const data = await apiJson(`${BACKEND_URL}/api/chat`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-user-id': userId
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    messages: [...chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content })), { role: 'user', content: message }],
+                    messages: chatHistory.slice(-6).map(m => ({ role: m.role, content: m.content })),
                     mode: currentMode
                 })
             });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error('Model Request Failed');
             aiText = data.text;
         }
 
         removeProcessingIndicator();
         addMessageToUI('assistant', aiText);
+        if (agentInfo) {
+            const activity = document.createElement('div');
+            activity.className = 'text-[11px] text-slate-500 px-3 -mt-4 mb-2';
+            const tools = [...(agentInfo.usedMcpTools || []), ...(agentInfo.usedSearch ? ['explicit search'] : [])];
+            activity.textContent = 'Agent run · ' + (tools.length ? 'Tools used: ' + tools.join(', ') : 'No external tools used');
+            chatMessages.appendChild(activity);
+        }
         chatHistory.push({ role: 'assistant', content: aiText });
         appStore.getState().setChatHistory(chatHistory);
 
@@ -1457,14 +1464,14 @@ ${msg.content}
       }
     }
 
-    function showProcessingIndicator() {
+    function showProcessingIndicator(isAgent = false) {
       if (!chatMessages) return;
       const div = document.createElement('div');
       div.id = 'processing-indicator';
       div.className = 'flex justify-start items-center space-x-2 animate__animated animate__fadeInUp animate__faster mb-4';
       div.innerHTML = `
         <div class="chat-gradient text-slate-900 rounded-2xl rounded-tl-none border border-slate-200 px-5 py-3.5 shadow-xl flex items-center space-x-3">
-          <span id="processing-text" class="text-xs text-amber-400 italic">Joes AI is thinking</span>
+          <span id="processing-text" class="text-xs text-amber-400 italic">${isAgent ? "Agent is planning and executing your task" : "Joes AI is thinking"}</span>
           <div class="flex space-x-1.5 items-center h-4">
               <span class="snake-dot"></span>
               <span class="snake-dot"></span>
@@ -1476,7 +1483,7 @@ ${msg.content}
       chatMessages.appendChild(div);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      const thinkingStages = [
+      const thinkingStages = isAgent ? [] : [
           "Joes AI is thinking",
           "Joes AI is processing",
           "Joes AI is finalizing",
@@ -1485,6 +1492,7 @@ ${msg.content}
       let stageCounter = 0;
       const targetTextSpan = div.querySelector('#processing-text');
 
+      if (isAgent) return;
       const textStageInterval = setInterval(() => {
           stageCounter++;
           if (stageCounter < thinkingStages.length) {
@@ -1562,7 +1570,13 @@ ${msg.content}
         return html;
     }
 
-    function initializeApp() {
+    async function initializeApp() {
+        try {
+            const session = await ensureFirebaseSession(BACKEND_URL);
+            userId = session.uid;
+        } catch (error) {
+            console.error('Firebase session initialization failed:', error);
+        }
         setupEventListeners();
         setupSidebarHandlers();
         setupThemeHandler();
@@ -1572,7 +1586,8 @@ ${msg.content}
         setupToolHandlers();
 
         showWelcome(true);
-        fetchSessions();
+        if (userId) fetchSessions();
+        else addMessageToUI('assistant', 'Sign-in is not ready yet. Enable **Anonymous** sign-in in Firebase Authentication, then reload Joes AI.');
     }
 
     function setupToolHandlers() {
