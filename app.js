@@ -1,8 +1,9 @@
 /* ========== Joes AI — Application Logic ========== */
 
 import { escapeHtml } from './utils.js';
+import { API_BASE_URL } from './api-config.js';
 
-const BACKEND_URL = 'https://joes-ai-server.onrender.com';
+const BACKEND_URL = API_BASE_URL;
 
 window.tailwind = window.tailwind || {};
 window.tailwind.config = window.tailwind.config || {};
