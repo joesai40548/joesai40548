@@ -25,7 +25,11 @@ export const queryKeys = {
 };
 
 export async function apiJson(url, options = {}) {
-  const response = await fetch(url, options);
+  const headers = new Headers(options.headers || {});
+  const token = await window.getJoesAiIdToken?.();
+  if (token) headers.set('Authorization', 'Bearer ' + token);
+  headers.delete('x-user-id');
+  const response = await fetch(url, { ...options, headers });
   const responseText = await response.text();
   let payload = null;
   if (responseText) {
