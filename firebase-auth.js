@@ -20,11 +20,12 @@ const firstSignIn = new Promise((resolve) => { resolveFirstSignIn = resolve; });
 let lastUid = null;
 
 function mountAuthGate() {
-  if (document.getElementById("auth-gate")) return;
-  const gate = document.createElement("section");
-  gate.id = "auth-gate";
-  gate.className = "auth-gate";
-  gate.innerHTML = `
+  let gate = document.getElementById("auth-gate");
+  if (!gate) {
+    gate = document.createElement("section");
+    gate.id = "auth-gate";
+    gate.className = "auth-gate";
+    gate.innerHTML = `
     <div class="auth-card">
       <div class="auth-brand">✳ <span>JOES AI</span></div>
       <h1 id="auth-title">Welcome back</h1>
@@ -42,7 +43,8 @@ function mountAuthGate() {
       <p id="auth-error" class="auth-error" role="alert" aria-live="polite"></p>
       <p class="auth-legal">Your account is secured by Firebase Authentication.</p>
     </div>`;
-  document.body.prepend(gate);
+    document.body.prepend(gate);
+  }
 
   const form = gate.querySelector("#email-auth-form");
   const email = gate.querySelector("#auth-email");
