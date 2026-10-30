@@ -460,7 +460,7 @@
     .disappearing-dot:nth-child(3) { animation-delay: 0.4s; }
     .disappearing-dot:nth-child(4) { animation-delay: 0.6s; }
 </style>
-  <link rel="stylesheet" href="./dashboard.css?v=1">
+  <link rel="stylesheet" href="./dashboard.css?v=2">
 </head>
 <body class="gradient-bg min-h-screen text-slate-900 relative">
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
@@ -473,100 +473,88 @@
   </div>
 
   <div id="app" class="app-container flex h-full w-full">
-    <!-- Initialized with sidebar-mobile-hidden so layout flows cleanly on small screens -->
-    <aside id="sidebar" class="sidebar-mobile-hidden flex-shrink-0 flex flex-col w-[260px] bg-white/95 border-r border-slate-200/70 backdrop-blur-xl transition-all duration-300 ease-in-out">
-        <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <div class="sidebar-brand-icon">⚡</div>
-                <span class="sidebar-brand-label">joes ai</span>
-            </div>
-            <!-- Desktop Collapse Toggle -->
-            <button id="sidebar-toggle-btn" class="hidden md:flex" title="Toggle sidebar">⟨</button>
-            <!-- Mobile Draw Close Action -->
-            <button id="sidebar-close-btn" class="md:hidden flex items-center justify-center w-8 h-8 text-slate-500 hover:text-red-500 border border-slate-200 rounded-lg" title="Close sidebar">✕</button>
+    <aside id="sidebar" class="sidebar-mobile-hidden">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-icon">✳</div>
+          <div class="brand-copy">
+            <span class="sidebar-brand-label">joes <span class="brand-accent">ai</span></span>
+            <small>Your intelligent workspace</small>
+          </div>
         </div>
+        <button id="sidebar-toggle-btn" class="desktop-collapse" title="Collapse sidebar" aria-label="Collapse sidebar">‹</button>
+        <button id="sidebar-close-btn" class="mobile-close" title="Close sidebar" aria-label="Close sidebar">×</button>
+      </div>
 
-        <div class="sidebar-section new-chat">
-            <button id="new-chat-btn" class="w-full py-2 px-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-amber-300 text-white font-medium rounded-lg flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all text-sm">
-                <span>+</span>
-                <span class="sidebar-button-text">New Chat</span>
-            </button>
-        </div>
+      <div class="sidebar-primary">
+        <button id="new-chat-btn" type="button"><span class="nav-icon">＋</span><span class="sidebar-button-text">New conversation</span><kbd>⌘ K</kbd></button>
+        <label class="sidebar-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+          <input type="search" placeholder="Search conversations" aria-label="Search conversations">
+          <kbd>⌕</kbd>
+        </label>
+      </div>
 
-        <div class="sidebar-section chats">
-            <p class="sidebar-section-label">Recent Chats</p>
-            <div id="session-list" class="space-y-1"></div>
-        </div>
+      <div class="sidebar-section chats">
+        <p class="sidebar-section-label">Workspace</p>
+        <div class="sidebar-nav-item active"><span>◈</span> Assistant</div>
+        <div class="sidebar-nav-item"><span>⌘</span> Discover</div>
+        <p class="sidebar-section-label recent-label">Recent conversations</p>
+        <div id="session-list" class="space-y-1"></div>
+      </div>
 
-        <div class="sidebar-section settings">
-            <p class="sidebar-section-label">Mode</p>
-            <select id="chat-mode-select" class="w-full bg-slate-100/80 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 text-sm cursor-pointer focus:outline-none focus:border-amber-500 transition-all">
-                <option value="chat">💬 Chat Mode</option>
-                <option value="code">💻 Code Mode</option>
-                <option value="study">📚 Study Mode</option>
-            </select>
-            <p class="text-[8px] text-slate-500 text-center pt-3 mt-3 border-t border-slate-200">
-                Powered by AKRAM JOES TECH
-            </p>
-        </div>
+      <div class="sidebar-tools">
+        <p class="sidebar-section-label">Connected tools</p>
+        <button id="drive-files-btn" class="tool-nav" type="button"><span class="tool-icon">▤</span> Drive files <span class="tool-arrow">↗</span></button>
+        <button id="youtube-search-btn" class="tool-nav" type="button"><span class="tool-icon video-icon">▷</span> YouTube search <span class="tool-arrow">↗</span></button>
+      </div>
 
-        <div class="sidebar-section">
-            <p class="sidebar-section-label">Tools</p>
-            <div class="flex flex-col gap-2">
-                <button id="drive-files-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">📁 Drive Files</button>
-                <button id="youtube-search-btn" class="text-xs text-left px-2 py-1.5 bg-slate-100/80 border border-slate-200 rounded-lg hover:bg-slate-200/50 transition-all">▶️ YouTube Search</button>
-            </div>
+      <div class="sidebar-footer">
+        <label class="mode-label" for="chat-mode-select">Assistant mode</label>
+        <select id="chat-mode-select">
+          <option value="chat">✳ &nbsp; Chat mode</option>
+          <option value="code">⌘ &nbsp; Code mode</option>
+          <option value="study">▤ &nbsp; Study mode</option>
+        </select>
+        <div class="profile-row">
+          <div class="profile-avatar">J</div>
+          <div class="profile-copy"><strong>Joes AI</strong><small>Personal workspace</small></div>
+          <span class="profile-status" title="Ready"></span>
         </div>
+      </div>
     </aside>
 
-    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
-      <header class="bg-white/10 backdrop-blur-md shadow-lg md:p-4 p-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] flex items-center justify-between border-b border-slate-200/60 z-20 flex-shrink-0">
-              <div class="flex items-center space-x-3">
-                  <!-- Hamburger drawer toggle button for mobile views -->
-                  <button id="sidebar-open-btn" class="md:hidden flex items-center justify-center text-slate-600 hover:text-amber-500 hover:bg-slate-100/50 p-1.5 rounded-xl transition-all mr-1" title="Open Menu">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                  </button>
-                  <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-gradient-to-r from-amber-400 to-yellow-300 rounded-lg flex items-center justify-center shadow-lg text-sm">⚡</div>
-                    <span class="text-lg font-semibold text-slate-900 tracking-wide">joes ai</span>
-                  </div>
-              </div>
-              
-              <div class="flex items-center space-x-1">
-                  <button id="theme-btn" class="text-slate-600 hover:text-amber-400 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="Toggle Theme">🌙</button>
-                  <button id="export-btn" class="text-slate-600 hover:text-green-600 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="Export to Markdown">📥</button>
-                  <button id="clear-btn" class="text-slate-600 hover:text-red-500 transition-colors p-1.5 hover:bg-white/20 rounded-xl" title="New Conversation Screen">🗑️</button>
-          </div>
+    <div class="workspace">
+      <header class="workspace-header">
+        <div class="header-left">
+          <button id="sidebar-open-btn" class="mobile-menu" title="Open menu" aria-label="Open menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+          <div class="breadcrumb"><strong>Workspace</strong><span class="crumb-slash">/</span><span>New conversation</span></div>
+          <span class="header-status"><i></i> Systems ready</span>
+        </div>
+        <div class="header-actions">
+          <button id="theme-btn" class="header-icon" title="Toggle theme" aria-label="Toggle theme">☼</button>
+          <button id="export-btn" class="header-action" title="Export to Markdown"><svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"></path></svg><span>Export</span></button>
+          <button id="clear-btn" class="header-icon" title="New conversation screen" aria-label="Clear conversation">↺</button>
+        </div>
       </header>
 
-      <main class="flex-1 overflow-hidden md:p-4 p-0">
-        <div class="max-w-5xl mx-auto h-full flex flex-col">
-          <div class="chat-gradient md:rounded-3xl rounded-none shadow-2xl overflow-hidden flex-1 flex flex-col relative border border-white/5 h-full">
+      <main class="workspace-main">
+        <div class="chat-stage">
+          <div class="chat-gradient">
             <div id="chat-messages" class="flex-grow flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-6 flex flex-col"></div>
-
-            <div class="flex flex-col w-full bg-slate-100/80 border-t border-slate-200/70 p-3 md:p-4 rounded-b-none md:rounded-b-3xl shrink-0">
+            <div class="composer-dock">
               <div id="attachment-chip-container" class="hidden flex-wrap gap-2 mb-3 transition-all duration-300 ease-out"></div>
-              
-              <div class="flex items-center space-x-2 md:space-x-3 w-full">
-                <button id="attachment-btn" class="flex-shrink-0 w-11 h-11 md:w-12 md:h-12 bg-slate-100/90 hover:bg-slate-200 active:scale-95 text-slate-700 rounded-2xl flex items-center justify-center text-2xl transition-all border border-slate-200" title="Upload Media">
-                  ＋
-                </button>
-                
-                <div class="flex-grow flex items-center relative bg-white border border-white/10 rounded-2xl px-3 md:px-4 py-0.5 glowing-input transition-all min-h-[48px] md:min-h-[52px]">
-                  <textarea id="message-input" enterkeyhint="send" placeholder="Type a message or trigger voice..." rows="1" class="w-full bg-white border-none text-slate-900 placeholder-slate-400 focus:outline-none text-sm md:text-base py-2.5 md:py-3 pr-10 resize-none h-[40px] max-h-[150px] leading-relaxed"></textarea>
-                  
-                  <button id="mic-btn" class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-amber-500 p-2 rounded-xl transition-all" title="Voice Input">
-                    🎤
-                  </button>
+              <div class="composer">
+                <button id="attachment-btn" type="button" title="Upload media" aria-label="Upload media"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></button>
+                <div class="composer-field">
+                  <textarea id="message-input" enterkeyhint="send" placeholder="Message Joes AI…" rows="1"></textarea>
+                  <span class="composer-hint">Enter to send <span>·</span> Shift + Enter for a new line</span>
+                  <button id="mic-btn" type="button" title="Voice input" aria-label="Voice input">⌁</button>
                 </div>
-
-                <button id="send-btn" class="flex-shrink-0 bg-gradient-to-r from-amber-500 to-yellow-400 hover:scale-105 text-white w-11 h-11 md:w-12 md:h-12 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center shrink-0">
-                  <span id="send-icon" class="flex items-center justify-center w-full h-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                  </span>
-                </button>
+                <button id="send-btn" type="button" aria-label="Send message"><span id="send-icon"><svg viewBox="0 0 24 24"><path d="M5 12 19 5l-7 14-2-6-5-1Zm5 1 9-8"></path></svg></span></button>
               </div>
-               <input type="file" id="file-input" class="hidden" accept="*/*">
+              <input type="file" id="file-input" class="hidden" accept="*/*">
+              <p class="composer-disclaimer">Joes AI can make mistakes. Check important information.</p>
             </div>
           </div>
         </div>
