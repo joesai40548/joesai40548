@@ -1,0 +1,46 @@
+import { MutationObserver, QueryClient } from '@tanstack/query-core';
+
+// Query Core owns server state; Zustand continues to own local UI state.
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 15_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      retry: (failureCount, error) => {
+        if (Number.isInteger(error?.status) && error.status < 500) return false;
+        return failureCount < 2;
+      },
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
+
+export const queryKeys = {
+  sessions: (userId) => ['chats', 'list', userId],
+  session: (userId, filename) => ['chats', 'detail', userId, filename],
+};
+
+export async function apiJson(url, options = {}) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch {
+      // Keep a useful HTTP error when the server does not return JSON.
+    }
+    const error = new Error(payload?.error || payload?.message || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
+export function runMutation(options, variables) {
+  const observer = new MutationObserver(queryClient, options);
+  return observer.mutate(variables);
+}
