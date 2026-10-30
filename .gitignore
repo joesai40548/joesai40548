@@ -5,5 +5,3 @@ config.js
 .vscode/
 .idea/
 
-# Firebase public web configuration (provide at deploy time)
-firebase-config.js
