@@ -1002,7 +1002,6 @@ ${msg.content}
             sessions = await queryClient.fetchQuery({
                 queryKey: queryKeys.sessions(userId),
                 queryFn: ({ signal }) => apiJson(`${BACKEND_URL}/api/chats`, {
-                    headers: { 'x-user-id': userId },
                     signal
                 })
             });
@@ -1039,7 +1038,6 @@ ${msg.content}
             const data = await queryClient.fetchQuery({
                 queryKey: queryKeys.session(userId, filename),
                 queryFn: ({ signal }) => apiJson(`${BACKEND_URL}/api/chats/${encodeURIComponent(filename)}`, {
-                    headers: { 'x-user-id': userId },
                     signal
                 })
             });
@@ -1076,7 +1074,6 @@ ${msg.content}
             await runMutation({
                 mutationFn: (targetFilename) => apiJson(`${BACKEND_URL}/api/chats/${encodeURIComponent(targetFilename)}`, {
                     method: 'DELETE',
-                    headers: { 'x-user-id': userId }
                 }),
                 onMutate: (targetFilename) => {
                     const previous = queryClient.getQueryData(sessionsKey);
@@ -1118,8 +1115,7 @@ ${msg.content}
                 mutationFn: ({ oldFilename, sessionId, newTitle }) => apiJson(`${BACKEND_URL}/api/chats/rename`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'x-user-id': userId
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         oldFilename,
