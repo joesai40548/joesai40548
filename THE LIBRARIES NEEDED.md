@@ -273,8 +273,8 @@ The work will proceed in small, testable increments. Update this tracker after e
 |---|---|---|---|
 | 0 | Repository/dependency audit | Confirm manifests, entrypoints, Node version, existing agent/sandbox code and current PRs | [~] Initial manifest audit complete |
 | 1 | Backend agent foundation | Reuse and verify Mastra/LangGraph; typed tool schemas; bounded steps, timeouts and cancellation | [ ] |
-| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [~] Read-only GitHub tools proposed in backend PR #17; live token/build verification pending |
-| 3 | Website browser tools | Navigate, screenshot, inspect DOM/accessibility tree, extract readable content; obey robots/rate limits and block private-network targets | [ ] |
+| 2 | GitHub App + repository tools | Read repository metadata/files; create branch; propose diff; commit only to authorized feature branch; PR creation; no merge | [~] Four read-only GitHub tools registered with Mastra in backend PR #17; live token/build verification pending |
+| 3 | Website browser tools | Navigate, screenshot, inspect DOM/accessibility tree, extract readable content; obey robots/rate limits and block private-network targets | [~] Existing Playwright/Chromium + Cheerio/Readability inspector and `/api/website/inspect` route; new Mastra `website_inspect` tool proposed in backend PR #17. Need live browser test and agent end-to-end verification |
 | 4 | E2B sandbox lifecycle | Per-task isolated sandbox; resource/time limits; no secrets in guest process; cleanup; test commands and logs | [ ] |
 | 5 | WebContainers frontend runtime | Browser Node workspace, install/run/preview; enforce origin isolation and verify licensing/browser support | [ ] |
 | 6 | Agent UI and streaming | Show plan, tool activity, files, diffs, terminal output, approvals and cancellation | [ ] |
@@ -309,3 +309,5 @@ The work will proceed in small, testable increments. Update this tracker after e
 
 - First new backend implementation increment is proposed in [backend PR #17](https://github.com/joesai40548/Joes-AI/pull/17): four read-only GitHub tools (repository metadata, file tree, bounded file reads, code search) registered with the existing Mastra agent. Tools are disabled unless both a server-side `GITHUB_TOKEN` and exact `JOESAI_GITHUB_ALLOWED_REPOS` allowlist are configured. The PR is **open and unmerged**; live-token and CI/build verification remain outstanding.
 - Documentation tracker PR [frontend #20](https://github.com/joesai40548/joesai40548/pull/20) is **open and unmerged**.
+
+- Backend PR #17 now also wires the existing public-site inspector into the Mastra agent as `website_inspect`, and passes GitHub/browser tool availability and inspected URLs through LangGraph into the agent API response. This uses the already-installed Playwright/Chromium, Cheerio, Readability, JSDOM and IP address validation stack; it does not add duplicate browser packages. The PR remains **open and unmerged**; runtime/browser tests and a TypeScript build are still required.
