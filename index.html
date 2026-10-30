@@ -472,6 +472,7 @@
   <link rel="stylesheet" href="./dashboard.css?v=2">
 </head>
 <body class="gradient-bg min-h-screen text-slate-900 relative">
+<section id="auth-gate" class="auth-gate" aria-labelledby="auth-title"><div class="auth-card"><div class="auth-brand">✳ <span>JOES AI</span></div><h1 id="auth-title">Welcome back</h1><p class="auth-subtitle">Sign in to securely access your AI workspace and saved conversations.</p><button id="google-sign-in" class="auth-google" type="button"><span>G</span> Continue with Google</button><div class="auth-divider"><span>or use email</span></div><form id="email-auth-form"><label for="auth-email">Email address</label><input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com" required><label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters" required><button id="email-auth-submit" class="auth-submit" type="submit">Sign in</button></form><button id="auth-mode-toggle" class="auth-mode-toggle" type="button">New to JOES AI? Create an account</button><p id="auth-error" class="auth-error" role="alert" aria-live="polite"></p><p class="auth-legal">Your account is secured by Firebase Authentication.</p></div></section>
   <div id="page-loader" class="fixed inset-0 z-[100] bg-[#f8fafc] flex items-center justify-center transition-opacity duration-500">
     <div class="w-14 h-14 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
   </div>
