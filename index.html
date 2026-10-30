@@ -1367,7 +1367,7 @@ ${msg.content}
             const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: message, mode: 'agent' })
+                body: JSON.stringify({ task: message, mode: 'agent', threadId: appStore.getState().currentSessionId || 'default' })
             });
             aiText = data.text;
             agentInfo = data.agent || null;
