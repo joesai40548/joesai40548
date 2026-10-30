@@ -295,3 +295,14 @@ The work will proceed in small, testable increments. Update this tracker after e
 - Require explicit user approval before privileged writes, publishing, merging pull requests, or deploying production.
 - Record tool calls, approvals, repository/branch identifiers, test outcomes and generated diffs in an audit trail.
 - Do not install every candidate package. Prefer existing dependencies and select only one library/service from each alternative group.
+
+
+## Latest implementation notes — 30 October 2026
+
+- Existing open frontend PR [#16](https://github.com/joesai40548/joesai40548/pull/16) already proposes the WebContainers 1.6.4 upgrade, expired-E2B-sandbox recovery, Python/WebContainers guard, and removal of the unsafe same-origin iframe code runner. It remains **open and unmerged**; do not duplicate that work.
+- Existing open backend PR [#9](https://github.com/joesai40548/Joes-AI/pull/9) proposes isolated E2B execution using the `e2b` SDK, with per-run microVM cleanup and output/time bounds. It remains **open and unmerged**.
+- Existing open backend PR [#15](https://github.com/joesai40548/Joes-AI/pull/15) raises the Node engine floor to `>=22.19.0`, matching the E2B SDK requirement. It remains **open and unmerged**.
+- Backend source audit found `agent-runtime.ts` already builds a Mastra agent and supports configured, administrator-allowlisted **read-only MCP tools**. The MCP server configuration is supplied through `JOESAI_MCP_SERVERS_JSON`; no actual GitHub or browser server connection was verified.
+- Backend `langgraph-runtime.ts` already has planner → executor → reviewer workflow nodes and optional Postgres checkpoint/store persistence. Without `JOESAI_LANGGRAPH_DATABASE_URL`, it falls back to process-local memory.
+- The current frontend sandbox imports WebContainers `1.6.1` on its default branch; PR #16 updates it to `1.6.4`. The default-branch sandbox therefore must not be described as already upgraded.
+- **Next implementation increment:** add and verify a least-privilege GitHub repository read/inspection toolset in the backend, then proceed to browser inspection, controlled code edits, and PR creation. Do not enable repository writes until branch scoping and explicit approval are implemented.
