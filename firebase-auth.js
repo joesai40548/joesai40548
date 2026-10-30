@@ -5,8 +5,9 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
   signOut,
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
@@ -79,23 +80,11 @@ function mountAuthGate() {
     }
   });
 
-  // Complete any Google redirect after the browser returns from accounts.google.com.
-  // Redirect auth avoids the window.opener dependency that COOP=same-origin breaks.
-  getRedirectResult(auth).catch((err) => {
-    error.textContent = authErrorMessage(err);
-  });
-
-  google.addEventListener("click", async () => {
-    error.textContent = "";
-    google.disabled = true;
-    google.textContent = "Redirecting to Google…";
-    try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (err) {
-      error.textContent = authErrorMessage(err);
-      google.disabled = false;
-      google.innerHTML = "<span>G</span> Continue with Google";
-    }
+  google.addEventListener("click", () => {
+    // Google OAuth runs on a dedicated non-isolated page. The main app keeps
+    // COOP/COEP for WebContainers; this page uses a popup so Firebase does not
+    // depend on third-party redirect storage on the GitHub Pages custom domain.
+    window.location.assign("./google-auth.html");
   });
 }
 
