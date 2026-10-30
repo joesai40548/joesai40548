@@ -60,6 +60,33 @@ async function ensureMonacoEditor() {
   host.classList.remove('hidden');
 }
 
+
+async function formatJavaScript() {
+  const language = byId('sandbox-language')?.value || 'javascript';
+  if (language !== 'javascript') {
+    setStatus('Prettier formatting is currently available for JavaScript only.', true);
+    return;
+  }
+  try {
+    if (!window.prettier || !window.prettierPlugins?.babel || !window.prettierPlugins?.estree) {
+      await loadScript('https://cdn.jsdelivr.net/npm/prettier@3.6.2/standalone.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/prettier@3.6.2/plugins/babel.js');
+      await loadScript('https://cdn.jsdelivr.net/npm/prettier@3.6.2/plugins/estree.js');
+    }
+    const formatted = await window.prettier.format(getEditorValue(), {
+      parser: 'babel',
+      plugins: [window.prettierPlugins.babel, window.prettierPlugins.estree],
+      semi: true,
+      singleQuote: true,
+      trailingComma: 'all'
+    });
+    setEditorValue(formatted);
+    setStatus('JavaScript formatted successfully.');
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : 'Could not format JavaScript.', true);
+  }
+}
+
 function getEditorValue() {
   return monacoEditor ? monacoEditor.getValue() : (byId('sandbox-code-editor')?.value || '');
 }
@@ -271,6 +298,7 @@ window.runCodeSandbox = (encodedCode) => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  byId('sandbox-format-code')?.addEventListener('click', formatJavaScript);
   byId('sandbox-language')?.addEventListener('change', (event) => {
     if (monacoEditor && window.monaco?.editor) {
       window.monaco.editor.setModelLanguage(monacoEditor.getModel(), event.target.value === 'python' ? 'python' : 'javascript');
