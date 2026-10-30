@@ -1,4 +1,5 @@
 import { MutationObserver, QueryClient } from '@tanstack/query-core';
+import { authenticatedFetch } from './auth-client.js';
 
 // Query Core owns server state; Zustand continues to own local UI state.
 export const queryClient = new QueryClient({
@@ -25,7 +26,7 @@ export const queryKeys = {
 };
 
 export async function apiJson(url, options = {}) {
-  const response = await fetch(url, options);
+  const response = await authenticatedFetch(url, options);
   const responseText = await response.text();
   let payload = null;
   if (responseText) {
