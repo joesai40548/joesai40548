@@ -1,6 +1,7 @@
 /* ========== Joes AI — Application Logic ========== */
 
 import { escapeHtml } from './utils.js';
+import { appStore } from './store.js';
 
 const BACKEND_URL = 'https://joes-ai-server.onrender.com';
 
@@ -34,10 +35,10 @@ window.showToast = function (message, type = 'info', duration = 4000) {
 };
 
 // ---------- Offline / online detection ----------
-let isOnline = navigator.onLine;
 function updateOnlineStatus() {
-  const wasOnline = isOnline;
-  isOnline = navigator.onLine;
+  const wasOnline = appStore.getState().isOnline;
+  const isOnline = navigator.onLine;
+  appStore.getState().setOnline(isOnline);
   if (!wasOnline && isOnline) {
     showToast('You are back online.', 'success');
     fetchSessions();
@@ -137,6 +138,21 @@ const sandboxModal = document.getElementById('sandbox-modal');
 const sandboxIframe = document.getElementById('sandbox-iframe');
 const sandboxCloseBtn = document.getElementById('sandbox-close-btn');
 
+// Zustand is the shared source for persistent UI preferences and cross-feature status.
+function syncSharedUIState(state) {
+  document.body.classList.toggle('light', state.theme === 'light');
+  if (themeBtn) themeBtn.innerHTML = state.theme === 'light' ? '☀️' : '🌙';
+  if (sidebar) {
+    sidebar.classList.toggle('sidebar-collapsed', state.sidebarCollapsed);
+    sidebar.classList.toggle('sidebar-mobile-hidden', !state.sidebarMobileOpen && window.innerWidth <= 768);
+  }
+  if (sidebarToggleBtn) sidebarToggleBtn.textContent = state.sidebarCollapsed ? '⟩' : '⟨';
+}
+
+appStore.subscribe(syncSharedUIState);
+syncSharedUIState(appStore.getState());
+appStore.getState().setOnline(navigator.onLine);
+
 // ---------- Event delegation for message actions ----------
 if (chatMessages) {
   chatMessages.addEventListener('click', (e) => {
@@ -169,9 +185,7 @@ if (messageInput) {
 
 // ---------- Mobile sidebar ----------
 function hideSidebarOnMobile() {
-  if (window.innerWidth <= 768 && sidebar) {
-    sidebar.classList.add('sidebar-mobile-hidden');
-  }
+  if (window.innerWidth <= 768) appStore.getState().setSidebarMobileOpen(false);
 }
 
 // ---------- Welcome / empty state ----------
@@ -278,45 +292,31 @@ if (sandboxCloseBtn) {
 function setupSidebarHandlers() {
   if (sidebarOpenBtn && sidebar) {
     sidebarOpenBtn.addEventListener('click', () => {
-      sidebar.classList.remove('sidebar-mobile-hidden');
+      appStore.getState().setSidebarMobileOpen(true);
     });
   }
   if (sidebarCloseBtn && sidebar) {
     sidebarCloseBtn.addEventListener('click', () => {
-      sidebar.classList.add('sidebar-mobile-hidden');
+      appStore.getState().setSidebarMobileOpen(false);
     });
   }
   if (sidebarToggleBtn && sidebar) {
     sidebarToggleBtn.addEventListener('click', () => {
-      const isCollapsed = sidebar.classList.toggle('sidebar-collapsed');
-      sidebarToggleBtn.textContent = isCollapsed ? '⟩' : '⟨';
-      localStorage.setItem('joes_ai_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+      appStore.getState().toggleSidebarCollapsed();
     });
   }
 
-  if (localStorage.getItem('joes_ai_sidebar_collapsed') === 'true' && sidebar) {
-    sidebar.classList.add('sidebar-collapsed');
-    if (sidebarToggleBtn) {sidebarToggleBtn.textContent = '⟩';}
-  }
 }
+
 
 // ---------- Theme ----------
 function setupThemeHandler() {
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const lightActive = document.body.classList.contains('light');
-      themeBtn.innerHTML = lightActive ? '☀️' : '🌙';
-      localStorage.setItem('joes_ai_theme', lightActive ? 'light' : 'cream');
+      appStore.getState().toggleTheme();
     });
 
-    if (localStorage.getItem('joes_ai_theme') === 'light') {
-      document.body.classList.add('light');
-      themeBtn.innerHTML = '☀️';
-    } else {
-      document.body.classList.remove('light');
-      themeBtn.innerHTML = '🌙';
-    }
+    syncSharedUIState(appStore.getState());
   }
 }
 
@@ -446,6 +446,7 @@ async function fetchSessions() {
       headers: { 'x-user-id': userId },
     });
     sessions = await response.json();
+    appStore.getState().setSessions(sessions);
     renderSessions();
   } catch (err) {
     console.error(err);
@@ -458,6 +459,7 @@ function startNewChat() {
   currentSessionId = null;
   activeFilename = null;
   chatHistory = [];
+  appStore.getState().resetConversation();
   if (chatMessages) {chatMessages.innerHTML = '';}
   renderSessions();
   showWelcome(true);
@@ -476,6 +478,8 @@ window.loadSession = async (filename) => {
     currentSessionId = data.sessionId;
     activeFilename = filename;
     chatHistory = data.history || [];
+    appStore.getState().setActiveSession(currentSessionId, activeFilename);
+    appStore.getState().setChatHistory(chatHistory);
     if (chatMessages) {chatMessages.innerHTML = '';}
 
     if (chatHistory.length === 0) {
@@ -537,6 +541,8 @@ window.renameSession = async (filename, id, oldTitle) => {
 
     if (activeFilename === filename) {
       activeFilename = data.filename;
+      appStore.getState().setActiveSession(currentSessionId, activeFilename);
+      appStore.getState().setActiveSession(currentSessionId, activeFilename);
     }
     await fetchSessions();
   } catch (err) {
@@ -614,6 +620,7 @@ async function handleFileSelect(event) {
   }
 
   selectedAttachment = file;
+  appStore.getState().setAttachmentName(file.name);
   showAttachmentChip(file);
 }
 
@@ -639,6 +646,7 @@ function showAttachmentChip(file) {
 
 window.removeAttachment = () => {
   selectedAttachment = null;
+  appStore.getState().setAttachmentName(null);
   const fileInput = document.getElementById('file-input');
   if (fileInput) {fileInput.value = '';}
   const container = document.getElementById('attachment-chip-container');
@@ -658,6 +666,7 @@ window.useQuickPrompt = (promptText, preferredMode) => {
 
 // ---------- Input state ----------
 function toggleInputState(disabled) {
+  appStore.getState().setSending(disabled);
   if (!messageInput || !sendBtn) {return;}
   messageInput.disabled = disabled;
   sendBtn.disabled = disabled;
@@ -725,6 +734,7 @@ async function handleSend() {
 
   addMessageToUI('user', message, attachmentPayload);
   chatHistory.push({ role: 'user', content: message, attachment: cloudAttachmentPayload });
+  appStore.getState().setChatHistory(chatHistory);
 
   await saveCurrentChatToCloud(activeTitle);
 
@@ -814,6 +824,7 @@ async function handleSend() {
     if (streamingBubble) {streamingBubble.remove();}
     addMessageToUI('assistant', aiText);
     chatHistory.push({ role: 'assistant', content: aiText });
+    appStore.getState().setChatHistory(chatHistory);
 
     await saveCurrentChatToCloud(activeTitle);
     await fetchSessions();
@@ -921,6 +932,7 @@ function removeProcessingIndicator() {
 }
 
 function showLoadingIndicator(show) {
+  appStore.getState().setLoadingSession(show);
   if (show && chatMessages) {
     chatMessages.innerHTML = `
       <div class="loading-state">
