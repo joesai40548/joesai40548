@@ -40,6 +40,9 @@ function mountAuthGate() {
       <p class="auth-legal">Your account is secured by Firebase Authentication.</p>
     </div>`;
   document.body.prepend(gate);
+  // Firebase may restore a persisted user before DOMContentLoaded mounts the gate.
+  gate.classList.toggle("is-hidden", Boolean(auth.currentUser));
+  document.getElementById("app")?.classList.toggle("auth-locked", !auth.currentUser);
 
   const form = gate.querySelector("#email-auth-form");
   const email = gate.querySelector("#auth-email");
