@@ -74,7 +74,7 @@ async function runWebContainer() {
     webContainer = null;
     webServerProcess = null;
   }
-  const { WebContainer } = await import('https://esm.sh/@webcontainer/api@1.5.5');
+  const { WebContainer } = await import('https://esm.sh/@webcontainer/api@1.6.1');
   webContainer = await WebContainer.boot({ coep: 'credentialless', forwardPreviewErrors: true });
   await webContainer.mount(projectFiles(code));
   webContainer.on('server-ready', (port, url) => {
