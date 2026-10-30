@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "eslint": "^10.13.0"
+  },
+  "dependencies": {
+    "zustand": "^5.0.16"
   }
 }
