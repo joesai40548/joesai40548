@@ -35,6 +35,12 @@ jobs:
         run: npm install --package-lock-only --ignore-scripts
       - name: Install dependencies
         run: npm ci
+      - name: Run frontend tests
+        run: npm test
+      - name: Lint frontend JavaScript
+        run: npm run lint
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=high
       - name: Compile production CSS
         run: npm run build:css
       - name: Commit compiled assets
