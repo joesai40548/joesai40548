@@ -27,6 +27,33 @@
   <meta property="twitter:image" content="https://joesai.work.gd/assets/og-preview.png">
 
   <link rel="canonical" href="https://joesai.work.gd/">
+  <script>
+    // GitHub Pages cannot configure response headers. This service-worker shim
+    // adds COOP/COEP to navigation responses so WebContainers can use SAB.
+    (() => {
+      if (window.crossOriginIsolated) {
+        try { sessionStorage.removeItem('joesai_coi_reload'); } catch {}
+        return;
+      }
+      if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
+      const reloadOnceControlled = () => {
+        if (window.crossOriginIsolated) return;
+        try {
+          if (sessionStorage.getItem('joesai_coi_reload') === '1') return;
+          sessionStorage.setItem('joesai_coi_reload', '1');
+        } catch {}
+        location.reload();
+      };
+      navigator.serviceWorker.register('./coi-serviceworker.js', { scope: './' })
+        .then((registration) => {
+          navigator.serviceWorker.addEventListener('controllerchange', reloadOnceControlled, { once: true });
+          if (registration.active && !navigator.serviceWorker.controller) {
+            registration.active.postMessage('claim');
+          }
+        })
+        .catch((error) => console.warn('[Joes AI] Cross-origin isolation setup unavailable:', error));
+    })();
+  </script>
 
   <link class="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
