@@ -411,7 +411,7 @@ body.light .msg-bubble.assistant { background: var(--ja-surface); }
 .processing-dots { display: flex; gap: 0.25rem; align-items: center; height: 1rem; }
 
 /* ===== Input area (fixed bottom bar, ChatGPT-like) ===== */
-.flex-grow.flex.items-center.relative.bg-white {
+.flex-grow.flex.items-center.relative.glowing-input-wrap {
   background: var(--ja-surface-lifted);
   border: 1px solid var(--ja-border);
   border-radius: 0 0 var(--ja-radius-xl) var(--ja-radius-xl);
