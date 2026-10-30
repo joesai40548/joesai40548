@@ -1416,7 +1416,7 @@ ${msg.content}
         let aiText = '';
         let agentInfo = null;
 
-        if (currentMode === 'agent') {
+        if (currentMode === 'agent' && !hasAttachment) {
             const transcript = chatHistory.slice(-12).map(h => `${h.role === 'user' ? 'User' : 'Joes AI'}: ${h.content}`).join('\\n\\n');
             const data = await apiJson(`${BACKEND_URL}/api/agent/run`, {
                 method: 'POST',
