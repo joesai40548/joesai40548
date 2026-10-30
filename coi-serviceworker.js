@@ -12,6 +12,13 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.mode !== 'navigate') return;
+  // Firebase signInWithPopup needs a live window.opener. Do not isolate the
+  // dedicated OAuth page; the main app remains COOP/COEP isolated for WebContainers.
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.endsWith('/google-auth.html')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
   event.respondWith((async () => {
     const response = await fetch(event.request);
     if (!response || response.type === 'opaqueredirect') return response;

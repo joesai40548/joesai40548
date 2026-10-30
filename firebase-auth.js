@@ -2,19 +2,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/fireba
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
   signOut,
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: "select_account" });
 
 function mountAuthGate() {
   if (document.getElementById("auth-gate")) return;
@@ -27,7 +22,7 @@ function mountAuthGate() {
       <div class="auth-brand">✳ <span>JOES AI</span></div>
       <h1 id="auth-title">Welcome back</h1>
       <p class="auth-subtitle">Sign in to securely access your AI workspace and saved conversations.</p>
-      <button id="google-sign-in" class="auth-google" type="button"><span>G</span> Continue with Google</button>
+      <button id="google-sign-in" class="auth-google" type="button"><svg class="google-mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11c-.5 2.5-1.9 4.6-4 6l6.5 5C41.3 35.3 43.6 30.3 43.6 24.5z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.8l-6.5-5c-1.8 1.2-4.1 2-7 2-5.4 0-10-3.6-11.6-8.5l-6.7 5.2C9.1 39.4 16 44 24 44z"/><path fill="#FBBC05" d="M12.4 27.7a12 12 0 0 1 0-7.4l-6.7-5.2a20 20 0 0 0 0 17.8l6.7-5.2z"/><path fill="#EA4335" d="M24 11.8c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 5.8 29.5 4 24 4 16 4 9.1 8.6 5.7 15.1l6.7 5.2C14 15.4 18.6 11.8 24 11.8z"/></svg><span>Continue with Google</span></button>
       <div class="auth-divider">or use email</div>
       <form id="email-auth-form">
         <label for="auth-email">Email address</label>
@@ -79,23 +74,11 @@ function mountAuthGate() {
     }
   });
 
-  // Complete any Google redirect after the browser returns from accounts.google.com.
-  // Redirect auth avoids the window.opener dependency that COOP=same-origin breaks.
-  getRedirectResult(auth).catch((err) => {
-    error.textContent = authErrorMessage(err);
-  });
-
-  google.addEventListener("click", async () => {
-    error.textContent = "";
-    google.disabled = true;
-    google.textContent = "Redirecting to Google…";
-    try {
-      await signInWithRedirect(auth, googleProvider);
-    } catch (err) {
-      error.textContent = authErrorMessage(err);
-      google.disabled = false;
-      google.innerHTML = "<span>G</span> Continue with Google";
-    }
+  google.addEventListener("click", () => {
+    // Google OAuth runs on a dedicated non-isolated page. The main app keeps
+    // COOP/COEP for WebContainers; this page uses a popup so Firebase does not
+    // depend on third-party redirect storage on the GitHub Pages custom domain.
+    window.location.assign("./google-auth.html");
   });
 }
 
