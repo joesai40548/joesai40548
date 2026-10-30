@@ -1,0 +1,1 @@
+.auth-gate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#0b0d12;color:#f0f1f6}.auth-gate.is-hidden{display:none}.auth-card{width:min(100%,420px);padding:32px;border-radius:20px;background:#11151d}
