@@ -1,0 +1,50 @@
+name: Build production Tailwind CSS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '*.js'
+      - 'tailwind.config.js'
+      - 'tailwind.input.css'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-tailwind.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: production-tailwind-css
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Generate lockfile for Tailwind CLI
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Install dependencies
+        run: npm ci
+      - name: Compile production CSS
+        run: npm run build:css
+      - name: Commit compiled assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json tailwind.css
+          if git diff --cached --quiet; then
+            echo "No generated CSS or lockfile changes."
+          else
+            git commit -m "Build production Tailwind CSS"
+            git push
+          fi
