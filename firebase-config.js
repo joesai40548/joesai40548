@@ -1,9 +1,11 @@
-// Public Firebase Web App configuration. Keep private server credentials out of this file.
+// Public Firebase Web App configuration. Restrict this key to your authorized domains
+// and the Firebase APIs used by this application.
 export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_FIREBASE_WEB_API_KEY",
-  authDomain: "gen-lang-client-0298492773.firebaseapp.com",
-  projectId: "gen-lang-client-0298492773",
-  storageBucket: "gen-lang-client-0298492773.firebasestorage.app",
-  messagingSenderId: "477672932700",
-  appId: "1:477672932700:web:422dbe3bea4b2398626d99",
+  apiKey: "AIzaSyC2Lx_EanYroUkK06dPGYOc8lwQpuwkeBs",
+  authDomain: "joes-ai-6eb7c.firebaseapp.com",
+  projectId: "joes-ai-6eb7c",
+  storageBucket: "joes-ai-6eb7c.firebasestorage.app",
+  messagingSenderId: "35852131992",
+  appId: "1:35852131992:web:1bd3a32f3f6525fd77baed",
+  measurementId: "G-25644L10DK",
 };
