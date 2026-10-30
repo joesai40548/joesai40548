@@ -83,10 +83,10 @@ async function ensureXterm() {
   });
   terminalFit = new window.FitAddon.FitAddon();
   xterm.loadAddon(terminalFit);
-  xterm.open(host);
-  terminalFit.fit();
   fallback.classList.add('hidden');
   host.classList.remove('hidden');
+  xterm.open(host);
+  terminalFit.fit();
   if (typeof ResizeObserver !== 'undefined') {
     const observer = new ResizeObserver(() => terminalFit?.fit());
     observer.observe(host);
