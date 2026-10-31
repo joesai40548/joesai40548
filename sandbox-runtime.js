@@ -207,9 +207,31 @@ async function runWebContainer() {
   webContainer = await WebContainer.boot({ coep: 'credentialless', forwardPreviewErrors: true });
   await webContainer.mount(projectFiles(code));
   webContainer.on('server-ready', (port, url) => {
-    const frame = byId('sandbox-iframe');
-    if (frame) frame.src = url;
-    setStatus('WebContainers ready · port ' + port);
+    const container = byId('sandbox-preview-container');
+    try {
+      const previewUrl = new URL(url, window.location.href);
+      if (!['http:', 'https:'].includes(previewUrl.protocol)) {
+        throw new Error('The preview URL must use HTTP or HTTPS.');
+      }
+      if (container) {
+        const frame = document.createElement('iframe');
+        frame.id = 'sandbox-iframe';
+        frame.title = 'Code preview';
+        frame.className = 'w-full flex-1 min-h-[180px] bg-white border-none';
+        frame.setAttribute('referrerpolicy', 'no-referrer');
+        // Only retain the preview's real origin when it is already isolated
+        // from the application. Same-origin previews get an opaque sandbox origin.
+        const sandboxFlags = ['allow-scripts', 'allow-forms', 'allow-popups'];
+        if (previewUrl.origin !== window.location.origin) sandboxFlags.push('allow-same-origin');
+        frame.setAttribute('sandbox', sandboxFlags.join(' '));
+        frame.src = previewUrl.href;
+        container.replaceChildren(frame);
+      }
+      setStatus('WebContainers ready · port ' + port);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Preview could not be loaded.');
+      appendOutput('[Preview] ' + (error instanceof Error ? error.message : String(error)) + '\\n');
+    }
   });
   webContainer.on('error', (error) => appendOutput('[WebContainer] ' + (error?.message || String(error)) + '\n'));
   setStatus('Installing project dependencies…');
