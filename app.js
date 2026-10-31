@@ -89,6 +89,54 @@ async function readStreamText(response, onChunk) {
   return result;
 }
 
+// ---------- Read server-sent agent events and render each generated delta immediately ----------
+async function readAgentEventStream(response, onToken) {
+  if (!response.body) throw new Error('This browser does not support streamed responses.');
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let text = '';
+  let agent = null;
+  let finished = false;
+
+  const processEvent = (rawEvent) => {
+    let eventName = 'message';
+    const dataLines = [];
+    for (const line of rawEvent.split(/\\r?\\n/)) {
+      if (line.startsWith('event:')) eventName = line.slice(6).trim();
+      else if (line.startsWith('data:')) dataLines.push(line.slice(5).trimStart());
+    }
+    if (!dataLines.length) return;
+    let payload;
+    try { payload = JSON.parse(dataLines.join('\\n')); } catch { return; }
+
+    if (eventName === 'token' && typeof payload.text === 'string') {
+      text += payload.text;
+      if (onToken) onToken(payload.text, text);
+    } else if (eventName === 'meta' && payload.agent && typeof payload.agent === 'object') {
+      agent = payload.agent;
+    } else if (eventName === 'done') {
+      if (typeof payload.text === 'string' && payload.text) text = payload.text;
+      finished = true;
+    } else if (eventName === 'error') {
+      throw new Error(payload.error || 'The streamed response failed.');
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split(/\\r?\\n\\r?\\n/);
+    buffer = events.pop() || '';
+    for (const event of events) processEvent(event);
+  }
+  buffer += decoder.decode();
+  if (buffer.trim()) processEvent(buffer);
+  if (!finished) throw new Error('The response stream ended before Joes AI finished.');
+  return { text, agent };
+}
+
 // ---------- Page loader ----------
 function hidePageLoader() {
   const loader = document.getElementById('page-loader');
@@ -784,9 +832,9 @@ async function handleSend() {
       if (!currentSessionId) currentSessionId = (globalThis.crypto?.randomUUID?.() || ('chat_' + Date.now() + '_' + Math.random().toString(36).slice(2)));
       // retryFetch preserves the existing retry policy; authenticatedFetch adds
       // the Firebase bearer token required by the protected agent chat route.
-      const authenticatedResponse = await authenticatedFetch(`${BACKEND_URL}/api/chat`, {
+      const authenticatedResponse = await authenticatedFetch(`${BACKEND_URL}/api/chat/stream`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
         body: JSON.stringify({
           messages: chatHistory.slice(-16).map((m) => ({ role: m.role, content: m.content })),
           mode: currentMode,
@@ -797,10 +845,16 @@ async function handleSend() {
         const errorData = await authenticatedResponse.json().catch(() => ({}));
         throw new Error(errorData.error || `Agent chat failed (${authenticatedResponse.status}).`);
       }
-      const data = await authenticatedResponse.json();
-      aiText = typeof data.text === 'string' ? data.text : '';
+      const streamBubble = streamingBubble?.querySelector('.msg-bubble');
+      const streamed = await readAgentEventStream(authenticatedResponse, (_delta, accumulated) => {
+        if (streamBubble) {
+          streamBubble.textContent = accumulated + '▍';
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+      aiText = typeof streamed.text === 'string' ? streamed.text : '';
       if (!aiText) throw new Error('The agent returned an empty response.');
-      agentMeta = data.agent && typeof data.agent === 'object' ? data.agent : null;
+      agentMeta = streamed.agent;
       if (agentMeta?.automatic) {
         const used = [
           ...(Array.isArray(agentMeta.usedMcpTools) ? agentMeta.usedMcpTools : []),
