@@ -670,6 +670,21 @@ function toggleInputState(disabled) {
   }
 }
 
+// Restore the insertion caret after a response has finished rendering.
+function restoreComposerFocus() {
+  if (!messageInput) {return;}
+  requestAnimationFrame(() => {
+    if (!messageInput.isConnected || messageInput.disabled) {return;}
+    messageInput.focus({ preventScroll: true });
+    const cursorPosition = messageInput.value.length;
+    try {
+      messageInput.setSelectionRange(cursorPosition, cursorPosition);
+    } catch (err) {
+      // Ignore selection errors on browsers that do not support textarea ranges.
+    }
+  });
+}
+
 // ---------- Send message ----------
 async function handleSend() {
   if (!messageInput || !chatModeSelect) {return;}
@@ -809,13 +824,9 @@ async function handleSend() {
     addMessageToUI('assistant', `⚠️ **Error:** ${escapeHtml(err.message)}`);
   } finally {
     toggleInputState(false);
-    // Return the caret to the composer after every completed send so the user
-    // can immediately type the next command without clicking the textarea.
-    if (messageInput && !messageInput.disabled) {
-      messageInput.focus();
-      const end = messageInput.value.length;
-      messageInput.setSelectionRange(end, end);
-    }
+    // Wait until the final message and enabled composer have been painted,
+    // then leave the insertion caret ready for the next prompt.
+    restoreComposerFocus();
   }
 }
 
