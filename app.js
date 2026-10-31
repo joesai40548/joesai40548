@@ -809,6 +809,13 @@ async function handleSend() {
     addMessageToUI('assistant', `⚠️ **Error:** ${escapeHtml(err.message)}`);
   } finally {
     toggleInputState(false);
+    // Return the caret to the composer after every completed send so the user
+    // can immediately type the next command without clicking the textarea.
+    if (messageInput && !messageInput.disabled) {
+      messageInput.focus();
+      const end = messageInput.value.length;
+      messageInput.setSelectionRange(end, end);
+    }
   }
 }
 
