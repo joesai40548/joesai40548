@@ -90,7 +90,7 @@ async function readStreamText(response, onChunk) {
 }
 
 // ---------- Read server-sent agent events and render each generated delta immediately ----------
-async function readAgentEventStream(response, onToken) {
+async function readAgentEventStream(response, onToken, onActivity) {
   if (!response.body) throw new Error('This browser does not support streamed responses.');
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -113,6 +113,8 @@ async function readAgentEventStream(response, onToken) {
     if (eventName === 'token' && typeof payload.text === 'string') {
       text += payload.text;
       if (onToken) onToken(payload.text, text);
+    } else if (eventName === 'activity' && payload.activity && typeof payload.activity === 'object') {
+      if (onActivity) onActivity(payload.activity);
     } else if (eventName === 'meta' && payload.agent && typeof payload.agent === 'object') {
       agent = payload.agent;
     } else if (eventName === 'done') {
@@ -848,7 +850,15 @@ async function handleSend() {
       const streamBubble = streamingBubble?.querySelector('.msg-bubble');
       const streamed = await readAgentEventStream(authenticatedResponse, (_delta, accumulated) => {
         if (streamBubble) {
+          streamBubble.dataset.hasTokens = 'true';
           streamBubble.textContent = accumulated + '▍';
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      }, (activity) => {
+        if (streamBubble && !streamBubble.dataset.hasTokens) {
+          const label = String(activity.type || 'working').replace(/_/g, ' ');
+          const detail = String(activity.detail || '').trim();
+          streamBubble.textContent = detail ? `${label}: ${detail}` : `${label}…`;
           chatMessages.scrollTop = chatMessages.scrollHeight;
         }
       });
