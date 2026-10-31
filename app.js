@@ -102,13 +102,13 @@ async function readAgentEventStream(response, onToken) {
   const processEvent = (rawEvent) => {
     let eventName = 'message';
     const dataLines = [];
-    for (const line of rawEvent.split(/\\r?\\n/)) {
+    for (const line of rawEvent.split(/\r?\n/)) {
       if (line.startsWith('event:')) eventName = line.slice(6).trim();
       else if (line.startsWith('data:')) dataLines.push(line.slice(5).trimStart());
     }
     if (!dataLines.length) return;
     let payload;
-    try { payload = JSON.parse(dataLines.join('\\n')); } catch { return; }
+    try { payload = JSON.parse(dataLines.join('\n')); } catch { return; }
 
     if (eventName === 'token' && typeof payload.text === 'string') {
       text += payload.text;
@@ -127,7 +127,7 @@ async function readAgentEventStream(response, onToken) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const events = buffer.split(/\\r?\\n\\r?\\n/);
+    const events = buffer.split(/\r?\n\r?\n/);
     buffer = events.pop() || '';
     for (const event of events) processEvent(event);
   }
